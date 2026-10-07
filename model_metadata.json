@@ -1,0 +1,14 @@
+{
+  "seed": 20261007,
+  "steps": 1800,
+  "training_characters": 627,
+  "loss": 0.08441632375900854,
+  "training_accuracy": 0.960127591706539,
+  "context": 16,
+  "embedding": 4,
+  "hidden": 48,
+  "vocabulary": "\n abcdefghijklmnopqrstuvwxyz.",
+  "weight_bytes": 4888,
+  "corpus_sha256": "86e5bfe63481da5f3d2a29736017ae142c94c2746919f9bee3a790e7b602cff7",
+  "architecture": "embedding + flattened context + ReLU hidden + linear logits; greedy decoding"
+}
