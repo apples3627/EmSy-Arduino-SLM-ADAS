@@ -20,7 +20,7 @@ inline bool persist(uint32_t v){for(uint8_t i=0;i<4;i++){while(EECR&_BV(EEPE)){}
 inline void setup(){cli();DDRD|=_BV(DDD3);PORTD|=_BV(PORTD3)|_BV(PORTD2);DDRD&=~_BV(DDD2);TCCR0A=_BV(WGM01);TCCR0B=_BV(CS01)|_BV(CS00);OCR0A=249;TIMSK0=_BV(OCIE0A);TCNT0=0;TCCR1A=0;TCCR1B=_BV(WGM12)|_BV(CS11);OCR1A=207;TIMSK1=_BV(OCIE1A);EICRA=_BV(ISC01);EIFR=_BV(INTF0);EIMSK=_BV(INT0);UBRR0=103;UCSR0A=0;UCSR0C=_BV(UCSZ01)|_BV(UCSZ00);UCSR0B=_BV(RXEN0)|_BV(TXEN0)|_BV(RXCIE0);DDRB|=_BV(DDB2)|_BV(DDB3)|_BV(DDB5);DDRB&=~_BV(DDB4);PORTB|=_BV(PORTB2);SPCR=_BV(SPE)|_BV(MSTR)|_BV(SPR1)|_BV(SPR0);SPSR=0;TWBR=72;TWSR=0;TWCR=_BV(TWEN);sei();}
 }
 ISR(TIMER0_COMPA_vect){MainIO::ticks++;}
-ISR(USART_RX_vect){using namespace MainIO;uint8_t b=UDR0,n=(pw+1)&127;if(n==pr)pcOverflow=1;else{pcRx[pw]=b;pw=n;}}
+ISR(USART_RX_vect){using namespace MainIO;uint8_t flags=UCSR0A,b=UDR0,n=(pw+1)&127;if(flags&(_BV(FE0)|_BV(DOR0)|_BV(UPE0))){pcOverflow=1;return;}if(n==pr)pcOverflow=1;else{pcRx[pw]=b;pw=n;}}
 ISR(USART_UDRE_vect){using namespace MainIO;if(tr==tw)UCSR0B&=~_BV(UDRIE0);else{UDR0=pcTx[tr];tr++;}}
 ISR(TIMER1_COMPA_vect){using namespace MainIO;if(txBit==10){if(xr==xw)return;if(!txFrameLeft)txFrameLeft=32;txFrameLeft--;txByte=tx[xr];xr=(xr+1)&63;txBit=0;PORTD&=~_BV(PORTD3);}else if(txBit<8){if(txByte&(1<<txBit))PORTD|=_BV(PORTD3);else PORTD&=~_BV(PORTD3);txBit++;}else{PORTD|=_BV(PORTD3);txBit++;}}
 // Timer1 CTC wraps each bit; COMPB is a fixed half-bit phase after INT0.
