@@ -1,0 +1,29 @@
+{
+  "sha256": "475d517ee2911d9420dcf8a36fb08971479195f64c47a9e508962a947a07cc95",
+  "rows": 3774,
+  "split_counts": {
+    "train": 2220,
+    "val": 666,
+    "test": 888
+  },
+  "family_splits": {
+    "bare": "train",
+    "request-prefix": "train",
+    "request-suffix": "train",
+    "adverb-prefix": "val",
+    "polite-combination": "test"
+  },
+  "labels": [
+    "FORWARD",
+    "REVERSE",
+    "STOP",
+    "LIGHT_ON",
+    "LIGHT_OFF",
+    "WIPER_ON",
+    "WIPER_OFF",
+    "UNKNOWN",
+    "HORN_ON",
+    "HORN_OFF"
+  ],
+  "split_policy": "Whole template families disjoint; action phrases/known vocabulary shared intentionally; normalized duplicate texts removed globally. Test manifest frozen before training."
+}
