@@ -87,7 +87,7 @@ int8 e/w/o와 float32 b/c를 사용한다. 전체 저장 배열+scale은5,924 B 
 새 감사51개에서 TRAIN 중복2개를 제외했다. 어휘 내42개 raw NN의39개가 정확했고 UNKNOWN3개 오분류는 일반 guard로 거절했다.7개는 전처리 거절이어서 전체 pipeline은49개 모두 정확했다. 순수 신경망100%라는 뜻이 아니며 작은 범위의 감사이다. 이전 감사들은 회귀시험이며 모든 영어·새 동의어·차체 성능은 보장하지 않는다.
 
 ## export와 동일 모델 확인
-intent/generated/에 양자화 모델·H32 shard·main bias를 저장한다. V3 model ID30918170·어휘 hash·라벨 버전2·차원·담당 범위는 intent/metadata.json과 함께 고정한다. 원래 scale을 유지해 shard별 재양자화는 하지 않는다. 메인은 hidden0~63이 중복·누락 없이 덮이는지 검사한다.
+intent/uno_probe/src/generated/에 양자화 모델·H32 shard·main bias를 저장한다. V3 model ID30918170·어휘 hash·라벨 버전2·차원·담당 범위는 intent/metadata.json과 함께 고정한다. 원래 scale을 유지해 shard별 재양자화는 하지 않는다. 메인은 hidden0~63이 중복·누락 없이 덮이는지 검사한다.
 
 로컬 근거: intent/metadata.json · metrics.json · training_log.json · intent/INDEPENDENT_VERIFICATION.md (감사·AVR/C++), intent/verification/ (재현 도구)
 
@@ -205,7 +205,7 @@ else:
 |firmware/actuator_uart/actuator_uart.ino|hardware UART·모터/LED/Servo/피에조 FSM·만료|
 |firmware/shared/protocol.h / neural_shard.h|ID·CRC·enum / PROGMEM 부분 계산|
 |intent/train.py / reference.py|10라벨 단어 모델 학습·전처리·호스트 추론|
-|intent/dataset/ / generated/ / tools/|그룹 split 데이터·모델/shard·검증 도구|
+|intent/dataset/ · intent/uno_probe/src/generated/ · intent/tools/|그룹 split 데이터·모델/shard·검증 도구|
 
 ## 단계별 통과 조건
 |단계|작업|저장할 증거|
@@ -310,4 +310,6 @@ Arduino는 미연결·미업로드이며4보드 통신·모터·LED·서보·피
 |V2 IDf044b79e, E16/H64|65문장 정확도80.00%, 정상45개71.11%|OOV 중심, 위험 동작 수용0건. 이후 회귀시험.|
 |V3 ID30918170, E16/H64|새49문장 전체 pipeline49/49 정확|TRAIN 중복2개 제외. 어휘 내raw39/42=92.86%; guard·전처리 포함.|
 
-V1/V2의 합성 raw macro-F1=1.0과 독립 문장 성능은 달랐다. V2 새83개 중 TRAIN 중복18개는 제외했다. V3 새51개는 가중치 확정 전에 봉인하고 TRAIN 중복2개 제외49개를 최초 평가했다. 이전 두 감사는 V3의 회귀시험이며 OOV4개/2개가 여전히 남았다. 어휘 밖 영어를 모두 이해한다는 주장은 하지 않는다.
+V1/V2의 최초 감사와 V3 최초 감사는 서로 다른 문장 집합이다. V3의51개는 모델 공개 전 봉인하고 TRAIN 중복2개를 제외했다. 이전 감사의 V3 재평가는 회귀시험이며 OOV4개/2개가 남았다.
+
+로컬 근거: intent/INDEPENDENT_VERIFICATION.md · intent/verification/final_v3_summary.json.
