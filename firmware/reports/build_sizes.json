@@ -1,0 +1,39 @@
+{
+  "fqbn": "arduino:avr:uno",
+  "model_id": "30918170",
+  "hardware_verified": false,
+  "boards": [
+    {
+      "board": "main",
+      "flash_bytes": 13812,
+      "static_sram_bytes": 1196,
+      "sram_static_spare": 852,
+      "flash_limit": 32256,
+      "sram_limit": 2048
+    },
+    {
+      "board": "compute_i2c",
+      "flash_bytes": 12902,
+      "static_sram_bytes": 341,
+      "sram_static_spare": 1707,
+      "flash_limit": 32256,
+      "sram_limit": 2048
+    },
+    {
+      "board": "compute_spi",
+      "flash_bytes": 13004,
+      "static_sram_bytes": 341,
+      "sram_static_spare": 1707,
+      "flash_limit": 32256,
+      "sram_limit": 2048
+    },
+    {
+      "board": "actuator_uart",
+      "flash_bytes": 4488,
+      "static_sram_bytes": 365,
+      "sram_static_spare": 1683,
+      "flash_limit": 32256,
+      "sram_limit": 2048
+    }
+  ]
+}

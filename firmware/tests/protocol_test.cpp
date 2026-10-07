@@ -1,0 +1,5 @@
+#include <cassert>
+#include <cstring>
+#include <cmath>
+#include "../common/protocol.h"
+int main(){assert(Proto::crc8(reinterpret_cast<const uint8_t*>("123456789"),9)==0xf4);uint8_t p[4];Proto::put32(p,0x12345678);assert(Proto::get32(p)==0x12345678);Proto::putFloat(p,-1.25f);assert(Proto::getFloat(p)==-1.25f);Proto::Frame f;Proto::make(f,Proto::HELLO,55,0);assert(Proto::valid(f));for(unsigned i=0;i<32;i++){auto bad=f;bad.bytes[i]^=1;assert(!Proto::valid(bad));}auto padded=f;padded.bytes[7]=1;padded.bytes[31]=Proto::crc8(padded.bytes,31);assert(!Proto::valid(padded));Proto::StreamParser parser;Proto::Frame out;assert(!parser.push(9,out));assert(!parser.push(10,out));for(unsigned i=0;i<32;i++)assert(parser.push(f.bytes[i],out)==(i==31));assert(!memcmp(f.bytes,out.bytes,32));auto bad=f;bad.bytes[31]^=1;for(unsigned i=0;i<32;i++)assert(!parser.push(bad.bytes[i],out));bool got=false;for(unsigned i=0;i<32;i++)got=parser.push(f.bytes[i],out);assert(got);Proto::computeMeta(f,23,0,32);assert(Proto::compatible(f,0,32));assert(!Proto::compatible(f,32,64));return 0;}

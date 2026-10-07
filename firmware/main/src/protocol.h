@@ -1,6 +1,11 @@
 #pragma once
 #include <stdint.h>
 #include <string.h>
+#ifdef __AVR__
+#if !defined(__AVR_ATmega328P__) || F_CPU != 16000000UL
+#error "Use Arduino Uno R3 / ATmega328P at 16 MHz"
+#endif
+#endif
 namespace Proto {
 static const uint8_t FRAME_SIZE=32, PAYLOAD_SIZE=24, VERSION=1;
 static const uint32_t MODEL_ID=0x30918170UL, VOCAB_TAG=0x766b5682UL;

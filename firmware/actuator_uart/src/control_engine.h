@@ -45,7 +45,7 @@ class Engine {
   uint16_t id=Proto::id(req);
   if(accepted&&id==lastAccepted){if(pending)return error(req,out,Proto::BUSY);status(out,Proto::ACK,id);return true;}
   if(accepted&&!Proto::newer16(id,lastAccepted))return error(req,out,Proto::OLD_COMMAND);
-  uint8_t intent=op==Proto::STOP_ALL?Proto::ALL_STOP:p[4];
+  uint8_t intent=op==Proto::STOP_ALL?uint8_t(Proto::ALL_STOP):p[4];
   if(intent>9){off();return error(req,out,Proto::BAD_OP);}
   // While reversal waits, only a global stop may supersede it. Independent actions retry after ACK.
   if(pending&&intent!=Proto::ALL_STOP&&intent!=Proto::UNKNOWN_INTENT)return error(req,out,Proto::BUSY);

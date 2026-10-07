@@ -2,6 +2,8 @@
 
 학습된 10의도 모델과 Uno 추론 스케치는 [intent 실행 안내](intent/README.md)에 있습니다. 크락션 ON/OFF를 포함하며 STOP은 주행·조명·와이퍼·크락션을 모두 끄는 계약입니다.
 
+[4개 Uno 레지스터 펌웨어·팀 업로드 가이드](firmware/README.md) · [전체 핀 연결표](firmware/PIN_MAP.md)
+
 [독립 검증 결과](intent/INDEPENDENT_VERIFICATION.md) · [최신 계획서](output/pdf/arduino_language_model_project_plan.pdf)
 
 아래는 프로젝트 출발점인 기존 문자 생성 데모의 기록입니다.
