@@ -19,11 +19,12 @@ inline uint32_t readSession(){uint32_t value=0;for(uint8_t i=0;i<4;i++){while(EE
 inline void saveSession(uint32_t session){for(uint8_t i=0;i<4;i++){while(EECR&_BV(EEPE)){} EEAR=1020+i;EECR|=_BV(EERE);uint8_t value=uint8_t(session>>(8*i));if(EEDR==value)continue;EEAR=1020+i;EEDR=value;uint8_t saved=SREG;cli();EECR|=_BV(EEMPE);EECR|=_BV(EEPE);SREG=saved;}while(EECR&_BV(EEPE)){} }
 inline uint8_t txFree(){return uint8_t((txTail-txHead-1)&63);}
 inline void send(const Proto::Frame& frame){for(uint8_t i=0;i<32;i++){tx[txHead]=frame.bytes[i];txHead=(txHead+1)&63;}UCSR0B|=_BV(UDRIE0);}
+inline void bridgeDirection(int8_t direction){uint8_t saved=SREG;cli();uint8_t value=PORTD&uint8_t(~(_BV(PD4)|_BV(PD7)));if(direction>0)value|=_BV(PD4);if(direction<0)value|=_BV(PD7);PORTD=value;SREG=saved;}
 inline void hardwareOutputs(){const Outputs& s=engine.outputs();static Outputs applied={0,0,false,false,false,0};static bool initial=true;if(!initial&&s.drive==applied.drive&&s.duty==applied.duty&&s.lights==applied.lights&&s.wiper==applied.wiper&&s.horn==applied.horn&&s.servoAngle==applied.servoAngle)return;bool motorChanged=initial||s.drive!=applied.drive||s.duty!=applied.duty;initial=false;applied=s;int8_t direction=board_config.invertDirection?-s.drive:s.drive;
  if(motorChanged){
  // Always gate PWM before changing either bridge input.
  TCCR0A&=uint8_t(~(_BV(COM0B1)|_BV(COM0B0)));PORTD&=uint8_t(~_BV(PD5));
- PORTD&=uint8_t(~(_BV(PD4)|_BV(PD7)));if(direction>0)PORTD|=_BV(PD4);if(direction<0)PORTD|=_BV(PD7);
+ bridgeDirection(direction);
 #if MOTOR_HAS_STBY
  if(direction&&s.duty)PORTB|=_BV(PB4);else PORTB&=uint8_t(~_BV(PB4));
 #endif
