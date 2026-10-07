@@ -15,7 +15,7 @@ LM은 프로젝트의 언어 모델 주제를 뜻한다. 실제 초기 알고리
 “Using 4 arduinos, create a cooperating application that utilize all 3 communication methods. (UART, SPI, I2C) At least 1 arduino uno should run all three protocols at the same time. The reports can be the same for the teams. However, individual reports should contribution (yes/no) for each of the members (excluding yourself) on the first page. Prepare for presentation on Oct 20. The presentation must be under 5 minutes.”
 
 ## 성공의 정의
-네 보드가 영어 명령의 해석과 실제 구동을 협력 수행한다. 메인은 I2C·SPI 추론 전송 중 UART로 제어 보드의 실제 상태를 조회하여 세 전송의 공통 중첩 구간을 기록한다. 새 구동 명령은 분류 결과가 확정된 뒤에만 보낸다. 출력은 일치하는 적용 ACK를 받은 뒤 APPLIED로 표시한다.
+네 보드가 영어 명령의 해석과 실제 구동을 협력 수행한다. 메인은 I2C·SPI 추론 전송 중 UART로 제어 보드의 현재 출력상태를 조회하여 세 전송의 공통 중첩 구간을 기록한다. 새 구동 명령은 분류 결과가 확정된 뒤에만 보낸다. 출력은 일치하는 적용 ACK를 받은 뒤 APPLIED로 표시한다.
 
 이 문서는 계획서이며 실제 자동차 제어의 완료 보고서가 아니다. 이름·팀 정보는 포함하지 않는다. 최종 개인 보고서 첫 페이지에는 본인을 제외한 각 팀원의 기여 여부 Yes/No를 작성해야 한다.
 
@@ -34,7 +34,7 @@ LM은 프로젝트의 언어 모델 주제를 뜻한다. 실제 초기 알고리
 ## 역할의 경계
 PC는 학습·export·업로드·검증 및 입력/표시에 사용한다. 실행 중 영어 의도의 추론 산술과 제어는 Uno에서 수행한다. 두 계산 보드가 세 번째 UART 계산 보드를 요구하는 구조가 아니다. UART는 자동차 제어 보드와 연결한다.
 
-메인은 USB 하드웨어 UART D0/D1로 입력을 받고, 별도 software UART D2 RX/D3 TX로 제어 보드와 통신한다. 계산 보드의 I2C와 SPI는 각자의 부분 점수를 반환한다. 모터·조명·와이퍼의 현재 상태는 제어 보드가 ACK/STATUS로 보고한다.
+메인은 USB 하드웨어 UART D0/D1로 입력을 받고, 별도 software UART D2 RX/D3 TX로 제어 보드와 통신한다. 계산 보드의 I2C와 SPI는 각자의 부분 점수를 반환한다. 제어 보드는 GPIO/PWM·서보 setpoint·소프트웨어 상태를 ACK/STATUS로 보고한다. APPLIED는 출력 적용을 뜻하며 센서로 물리 동작을 확인했다는 뜻은 아니다. 실제 이동·회전은 영상·관찰로 따로 검증하고 센서는 향후 선택 사항이다.
 
 # 영어 의도 데이터와 학습형 모델
 ## 같은 의도, 다른 영어 표현
@@ -74,7 +74,7 @@ PC는 학습·export·업로드·검증 및 입력/표시에 사용한다. 실�
 
 ## 모델 데이터 예산 - 아직 컴파일 미측정
 |모드|저장 데이터 산식|계획 값|
-|1 계산 보드 전체|e116 + w9216 + o384 + bias224|9,940 B, scale 12 B 제외|
+|1계산 구성(연산+메인)|계산 e116+w9216+o384+b192 =9908; 메인 c32|합계9,940 B, scale12 B 제외|
 |2 계산 보드 각 shard|e116 + w4608 + o192 + hidden bias96|각 5,012 B, scale 12 B 제외|
 |2보드 합계 + 메인 bias|5012×2 + c32|10,056 B, 복제 scale 제외|
 
@@ -120,9 +120,9 @@ Servo 타이머는 제어 보드에 있고 software UART 타이머는 메인에 
 계산 op는 LOAD_INPUT, START, STATUS, GET_RESULT, RESULT, ACK, ERROR이다. 입력 48 B는 24+24 B, 결과 32 B는 24+8 B로 나눈다. float는 sizeof(float)==4·IEEE754 호환성을 확인하고 memcpy로 little-endian binary 직렬화한다. UART 제어 op는 ACTUATE, ACK, STATUS, HEARTBEAT, STOP이며 같은 envelope를 사용한다.
 
 ## ID와 중복 방지
-계산 job ID와 구동 command ID는 op별 의미를 구분한다. 부팅/reset·16-bit wrap 시 session/epoch handshake로 이전 패킷을 무효화한다. 시작 STATUS에서 모델·어휘·라벨 ID, 차원, shard 범위를 확인한다. 계산 보드별 2-bit chunk mask로 중복 RESULT를 건너뛰고 2청크 완료 후 보드당 한 번만 합산한다.
+계산 job ID와 구동 command ID는 op별 의미를 구분한다. 계산 job ID 재사용 전에는 진행 중 작업을 종료하고 링크를 drain한 뒤 두 계산 보드를 reset/handshake하여 옛 결과가 남지 않게 한다. 시작 STATUS로 모델·어휘·라벨 ID·차원·shard 범위를 확인한다. 보드별2-bit chunk mask로 중복 RESULT를 무시하고 2청크 완료 후 한 번만 합산한다.
 
-제어 payload에는 intent 1 B, value/지속시간 2 B little-endian, 필요한 상태·매개변수 버전을 넣는다. 잘못된 op·intent·길이·CRC는 실행하지 않고 ERROR로 응답한다. 같은 command ID의 재전송은 캐시된 ACK만 돌려주며 동작이나 drive duration을 다시 시작하지 않는다. ACK는 적용된 command ID와 주행·조명·와이퍼 상태를 포함한다.
+UART 제어 payload는 session/epoch uint32 4 B + intent1 B + duration uint16 2 B =7 B를 기본으로 하며 필요한 출력상태·버전도24 B 안에 넣는다. 제어 보드는 모든 ACTUATE/STOP/HEARTBEAT/STATUS에서 현재 session과 command ID를 확인한다. ACK는 session·command ID·적용출력상태를 되돌린다. 새 세션은 정지 상태의 handshake로 시작하고 캐시·pending 명령을 모두 무효화하며 재개하지 않는다. 같은 ID는 캐시 ACK만 반환하여 구동·duration을 재시작하지 않는다. 잘못된 op·intent·길이·CRC는 실행하지 않는다. session prefix는 UART 제어에만 적용하며 계산 입력48 B의24+24 분할은 유지한다.
 
 ## 링크별 송수신
 |링크|처리 방식|
@@ -154,12 +154,12 @@ else:
     else: print ERROR; do not claim actuation succeeded
 ```
 
-같은 job/model ID의 두 계산 결과를 모두 받아야 한다. context[48]은 작업 중 불변이며 totals[8] float와 청크 상태를 고정 버퍼로 둔다. 한 보드의 최상위 결과만 채택하지 않는다. 분류 완료 전에 새 모터 동작을 보내지 않는다.
+같은 job/model ID의 두 계산 결과를 모두 받아야 한다. context[48]은 작업 중 불변이며 totals[8] float와 청크 상태를 고정 버퍼로 둔다. 한 보드의 최상위 결과만 채택하지 않는다. 받은8개 float가 모두 finite인지 검사하고 NaN/Inf면 ERROR+STOP으로 처리한다. 분류 완료 전에 새 모터 동작을 보내지 않는다.
 
 ## 세 실제 전송의 공통 구간 확보
 [[diagram:timeline]]
 
-추론의 입력/결과 거래 중 UART STATUS 또는 HEARTBEAT으로 제어 Uno의 실제 상태를 확인한다. 이 거래에는 같은 분류 job tag를 넣고, I2C/SPI 실제 모델 전송과 세 가지가 겹치는 하나의 공통 시간 구간을 기록한다. STATUS/HEARTBEAT은 모터·조명·와이퍼를 바꾸거나 drive lease를 연장하지 않는다.
+추론의 입력/결과 거래 중 UART STATUS 또는 HEARTBEAT으로 제어 Uno의 현재 출력상태를 확인한다. 이 거래에는 같은 분류 job tag를 넣고, I2C/SPI 실제 모델 전송과 세 가지가 겹치는 하나의 공통 시간 구간을 기록한다. STATUS/HEARTBEAT은 모터·조명·와이퍼를 바꾸거나 drive lease를 연장하지 않는다.
 
 최종 ACTUATE는 계산 완료 뒤의 별도 UART 거래이다. 동시성 증거를 만들기 위해 아직 분류되지 않은 방향을 보내지 않는다. 단순한 별도 ping이나 계산만 겹친 로그는 과제 통과 증거가 아니다.
 
@@ -202,7 +202,7 @@ else:
 |단계|작업|저장할 증거|
 |A 데이터·모델|영어8의도 데이터·holdout → H48 학습|데이터 split·model ID·오분류표|
 |B 호스트 분할|H24+H24 로짓 합·선택 의도 비교|50입력 CSV·오차·라벨 ID|
-|C 세 링크|32 B ACK/CRC 왕복·STATUS 실제 상태|UART/I2C/SPI 로그·중첩 trace|
+|C 세 링크|32 B ACK/CRC 왕복·STATUS 현재 출력상태|UART/I2C/SPI 로그·중첩 trace|
 |D 제어 시험대|모터1개·LED·서보 개별 → ACK 연결|핀·driver 설정·동작 영상|
 |E 통합·오류|영어→의도→UART→실물·누락/CRC/만료|APPLIED 로그·복구·정지 확인|
 |F 비교·발표|1계산/2계산 동일모델 지연·메모리|p50/p95·4빌드·스택·발표 영상|
@@ -227,10 +227,10 @@ else:
 |계산 보드 누락 / 모델 불일치|한 보드 fallback 없음·주행 STOP·다음 입력 복구|
 |분류 지연 / 메인 종료|제어 Uno의 DRIVE 만료·자동 정지, 재개 없음|
 |정지·방향 전환|STOP·로컬 버튼·neutral/deadtime·UART 계속 수신|
-|ACK 누락|APPLIED 표시하지 않음·재시도/실패 확인|
+|ACK / 물리 동작|APPLIED는 출력 적용 ACK, 실제 이동·서보 왕복은 영상·관찰로 별도 검증|
 |3프로토콜 동시성|UART STATUS + 실제 I2C/SPI 추론 전송 공통 구간|
 
-로직 분석기는 UART TX, I2C SDA/SCL, SPI SCK/MOSI/SS 6채널을 기록한다. 필요 시 UART RX·SPI MISO를 추가하여8채널로 확장한다. job tag와 디코딩된 frame을 trace CSV/VCD·스크린샷으로 저장한다. heartbeat와 STATUS는 액추에이터 상태를 확인하는 실제 거래이며 새 actuation을 실행하지 않는다.
+로직 분석기는 UART TX, I2C SDA/SCL, SPI SCK/MOSI/SS 6채널을 기록한다. 필요 시 UART RX·SPI MISO를 추가하여8채널로 확장한다. job tag와 디코딩된 frame을 trace CSV/VCD·스크린샷으로 저장한다. heartbeat와 STATUS는 제어 보드의 출력상태를 확인하는 실제 거래이며 새 actuation을 실행하지 않는다.
 
 ## 아직 측정되지 않은 비교표
 1계산(3보드 개발 구성)과 2계산(4보드 제출 구성) 모두 새 모델의 지연·Flash·SRAM은 미측정이다. 입력→판단, 판단→ACK, 입력→APPLIED의 p50/p95와 각 보드 메모리를 나눠 기록한다. 4대의 빌드와 런타임 스택 high-water를 확인하고 SRAM 여유512 B 이상을 잠정 목표로 둔다.
@@ -252,7 +252,7 @@ else:
 |0:00~0:35|영어 명령으로 자동차 기능 제어|문제·과제4대/3통신 요건|
 |0:35~1:15|8의도 모델·1계산/2계산|데이터·분할·거절 정책|
 |1:15~2:10|4보드·핀·결과 이후의 구동|구조도·ACTUATE/STATUS 구분|
-|2:10~3:20|전진/후진·조명·와이퍼·STOP 시연|영어입력·실제 상태ACK·동시trace|
+|2:10~3:20|전진/후진·조명·와이퍼·STOP 시연|영어입력·적용출력 ACK·동시trace|
 |3:20~4:05|동등성·오류·시간·메모리|실측 비교·만료/CRC·오분류|
 |4:05~4:40|결론·제한·기여|달성 요건·부품/모델 범위·역할|
 
