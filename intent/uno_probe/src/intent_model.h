@@ -39,6 +39,7 @@ inline bool politeLike(const Input& input){
  if(input.count-start>=6&&(tokenEq(input,start,"i")||tokenEq(input,start,"we"))&&tokenEq(input,start+1,"would")&&tokenEq(input,start+2,"like")&&tokenEq(input,start+3,"you")&&tokenEq(input,start+4,"to"))return true;
  return input.count-start>=5&&tokenEq(input,start,"would")&&tokenEq(input,start+1,"you")&&tokenEq(input,start+2,"like")&&tokenEq(input,start+3,"to");
 }
+inline bool guardedOnce(const Input& input){for(int i=0;i<input.count;i++)if(tokenEq(input,i,"once")&&(i==0||!tokenEq(input,i-1,"at")))return true;return false;}
 inline void parse(const char* raw,size_t length,Input& input){
  input.count=0;input.guard=false;input.reason=OK;
  for(int i=0;i<16;i++)input.tokens[i]=IntentConfig::PAD;
@@ -62,7 +63,7 @@ inline void parse(const char* raw,size_t length,Input& input){
 
   for(int i=0;i<IntentConfig::GUARD_COUNT;i++)if(equalsPgm(word,IntentConfig::GUARD_TEXT,rd16(IntentConfig::GUARD_OFFSETS+i)))input.guard=true;
  }
- input.guard=input.guard||(hasLike&&!politeLike(input));
+ input.guard=input.guard||(hasLike&&!politeLike(input))||guardedOnce(input);
  if(!input.count)input.reason=EMPTY;
 }
 inline void decodeTokens(const uint16_t* block,Input& input){
@@ -77,7 +78,7 @@ inline void decodeTokens(const uint16_t* block,Input& input){
   if(strcmp(word,"like")==0)hasLike=true;
   for(int j=0;j<IntentConfig::GUARD_COUNT;j++)if(equalsPgm(word,IntentConfig::GUARD_TEXT,rd16(IntentConfig::GUARD_OFFSETS+j)))input.guard=true;
  }
- input.guard=input.guard||(hasLike&&!politeLike(input));if(!input.count)input.reason=EMPTY;
+ input.guard=input.guard||(hasLike&&!politeLike(input))||guardedOnce(input);if(!input.count)input.reason=EMPTY;
 }
 // Partial score kernel: copied embedding, local hidden neurons, no global bias on workers.
 inline void logits(const Input& input,float* out){

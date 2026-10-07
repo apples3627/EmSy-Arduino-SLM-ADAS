@@ -4,7 +4,7 @@ import numpy as np
 ROOT=pathlib.Path(__file__).resolve().parent
 LABELS=['FORWARD','REVERSE','STOP','LIGHT_ON','LIGHT_OFF','WIPER_ON','WIPER_OFF','UNKNOWN','HORN_ON','HORN_OFF']
 MAX_BYTES=96;MAX_TOKENS=16;EMBED=16;HIDDEN=64
-GUARD={'not','no','never','and','or','then','if','when','unless','whether','what','why','how','where','wonder','said','was','is','are','likes','maybe','yesterday','while','before','after','because','without','only','maybe','might','should'}
+GUARD={'not','no','never','and','or','then','if','when','unless','whether','what','why','how','where','wonder','said','was','is','are','likes','maybe','yesterday','while','before','after','because','without','only','maybe','might','should','neither','nor','until','also','plus','followed','cannot'}
 def normalize(text):
  try:raw=text.encode('ascii')
  except UnicodeEncodeError:return None,'non_ascii'
@@ -23,7 +23,7 @@ def polite_like(words):
  if words and words[0] in {'please','kindly','just'}:words=words[1:]
  return (len(words)>=6 and words[:5] in [['i','would','like','you','to'],['we','would','like','you','to']]) or (len(words)>=5 and words[:4]==['would','you','like','to'])
 def is_guarded(words):
- return bool(GUARD.intersection(words)) or ('like' in words and not polite_like(words))
+ return bool(GUARD.intersection(words)) or ('like' in words and not polite_like(words)) or any(w=='once' and (i==0 or words[i-1]!='at') for i,w in enumerate(words))
 def prepare(text,vocab):
  words,reason=normalize(text)
  if words is None:return None,reason,False
