@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "authorship": "independent second audit before revised model disclosure; first audit aggregate failure categories known to trainer",
+  "known_cases": 63,
+  "unknown_cases": 20,
+  "sha256": "d5ae57f037063ef0ab64a9e72610c0c3f8971f875f22a09fe606f9eb1dfb10e9",
+  "policy": "V1 cases are regression only after repair. V2 cases never disclosed for training; case set not edited after model results."
+}

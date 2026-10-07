@@ -1,0 +1,328 @@
+{
+  "epsilon": 1e-05,
+  "dtype": "float64",
+  "samples": 20,
+  "checks": [
+    {
+      "phase": "initial",
+      "tensor": "e",
+      "index": [
+        126,
+        13
+      ],
+      "analytical": 0.02005823403964296,
+      "numeric": 0.020058234051489876,
+      "absolute_error": 1.1846915809465841e-11
+    },
+    {
+      "phase": "initial",
+      "tensor": "e",
+      "index": [
+        51,
+        13
+      ],
+      "analytical": 0.02038317250243208,
+      "numeric": 0.02038317250541155,
+      "absolute_error": 2.979470836717013e-12
+    },
+    {
+      "phase": "initial",
+      "tensor": "e",
+      "index": [
+        126,
+        11
+      ],
+      "analytical": 0.021277043812157337,
+      "numeric": 0.021277043815715043,
+      "absolute_error": 3.557706212964362e-12
+    },
+    {
+      "phase": "initial",
+      "tensor": "w",
+      "index": [
+        15,
+        48
+      ],
+      "analytical": -0.015301030584734766,
+      "numeric": -0.015301030598102726,
+      "absolute_error": 1.3367959517118777e-11
+    },
+    {
+      "phase": "initial",
+      "tensor": "w",
+      "index": [
+        15,
+        37
+      ],
+      "analytical": -0.01583371807047851,
+      "numeric": -0.015833718070012992,
+      "absolute_error": 4.655165142253281e-13
+    },
+    {
+      "phase": "initial",
+      "tensor": "w",
+      "index": [
+        10,
+        37
+      ],
+      "analytical": -0.017521060788124498,
+      "numeric": -0.017521060802216937,
+      "absolute_error": 1.4092439021284875e-11
+    },
+    {
+      "phase": "initial",
+      "tensor": "b",
+      "index": [
+        36
+      ],
+      "analytical": -0.12513922068646696,
+      "numeric": -0.12513922067469707,
+      "absolute_error": 1.1769890617685519e-11
+    },
+    {
+      "phase": "initial",
+      "tensor": "b",
+      "index": [
+        35
+      ],
+      "analytical": 0.14647878897805347,
+      "numeric": 0.14647878896489885,
+      "absolute_error": 1.3154616285149245e-11
+    },
+    {
+      "phase": "initial",
+      "tensor": "b",
+      "index": [
+        37
+      ],
+      "analytical": 0.1577272917319386,
+      "numeric": 0.15772729173857414,
+      "absolute_error": 6.635525462428404e-12
+    },
+    {
+      "phase": "initial",
+      "tensor": "o",
+      "index": [
+        42,
+        0
+      ],
+      "analytical": -0.03549692778878329,
+      "numeric": -0.03549692777493618,
+      "absolute_error": 1.3847110957865283e-11
+    },
+    {
+      "phase": "initial",
+      "tensor": "o",
+      "index": [
+        61,
+        0
+      ],
+      "analytical": -0.03786490106160324,
+      "numeric": -0.0378649010368548,
+      "absolute_error": 2.4748439408917022e-11
+    },
+    {
+      "phase": "initial",
+      "tensor": "o",
+      "index": [
+        5,
+        0
+      ],
+      "analytical": -0.04155938972800984,
+      "numeric": -0.041559389707401806,
+      "absolute_error": 2.06080361109251e-11
+    },
+    {
+      "phase": "initial",
+      "tensor": "c",
+      "index": [
+        4
+      ],
+      "analytical": 0.05989807917127796,
+      "numeric": 0.05989807918549416,
+      "absolute_error": 1.4216204602401916e-11
+    },
+    {
+      "phase": "initial",
+      "tensor": "c",
+      "index": [
+        2
+      ],
+      "analytical": 0.09463394986984197,
+      "numeric": 0.09463394985420591,
+      "absolute_error": 1.5636061889701125e-11
+    },
+    {
+      "phase": "initial",
+      "tensor": "c",
+      "index": [
+        0
+      ],
+      "analytical": -0.45582750192976373,
+      "numeric": -0.45582750194395055,
+      "absolute_error": 1.4186818386718869e-11
+    },
+    {
+      "phase": "trained",
+      "tensor": "e",
+      "index": [
+        127,
+        3
+      ],
+      "analytical": -1.870210464558243e-05,
+      "numeric": -1.870210547075787e-05,
+      "absolute_error": 8.251754416213879e-13
+    },
+    {
+      "phase": "trained",
+      "tensor": "e",
+      "index": [
+        127,
+        8
+      ],
+      "analytical": -1.9732524264318427e-05,
+      "numeric": -1.9732524585422404e-05,
+      "absolute_error": 3.211039764704042e-13
+    },
+    {
+      "phase": "trained",
+      "tensor": "e",
+      "index": [
+        126,
+        8
+      ],
+      "analytical": -2.0305979582279153e-05,
+      "numeric": -2.0305979827624272e-05,
+      "absolute_error": 2.4534511927501793e-13
+    },
+    {
+      "phase": "trained",
+      "tensor": "w",
+      "index": [
+        6,
+        57
+      ],
+      "analytical": 4.358626197038675e-06,
+      "numeric": 4.3586246855818555e-06,
+      "absolute_error": 1.5114568193493223e-12
+    },
+    {
+      "phase": "trained",
+      "tensor": "w",
+      "index": [
+        6,
+        19
+      ],
+      "analytical": 4.69529609409763e-06,
+      "numeric": 4.695294152927786e-06,
+      "absolute_error": 1.9411698438172743e-12
+    },
+    {
+      "phase": "trained",
+      "tensor": "w",
+      "index": [
+        6,
+        33
+      ],
+      "analytical": -4.721375383968037e-06,
+      "numeric": -4.721375778537909e-06,
+      "absolute_error": 3.945698722788928e-13
+    },
+    {
+      "phase": "trained",
+      "tensor": "b",
+      "index": [
+        33
+      ],
+      "analytical": 1.1168574042556257e-05,
+      "numeric": 1.1168574230170748e-05,
+      "absolute_error": 1.8761449100020144e-13
+    },
+    {
+      "phase": "trained",
+      "tensor": "b",
+      "index": [
+        57
+      ],
+      "analytical": -1.1428735941371718e-05,
+      "numeric": -1.1428735285280861e-05,
+      "absolute_error": 6.560908568276243e-13
+    },
+    {
+      "phase": "trained",
+      "tensor": "b",
+      "index": [
+        19
+      ],
+      "analytical": -1.1789792704985744e-05,
+      "numeric": -1.1789792278842253e-05,
+      "absolute_error": 4.2614349040888486e-13
+    },
+    {
+      "phase": "trained",
+      "tensor": "o",
+      "index": [
+        16,
+        1
+      ],
+      "analytical": 1.1103821962790419e-05,
+      "numeric": 1.110382346461513e-05,
+      "absolute_error": 1.5018247113447866e-12
+    },
+    {
+      "phase": "trained",
+      "tensor": "o",
+      "index": [
+        62,
+        0
+      ],
+      "analytical": -1.1456302934823748e-05,
+      "numeric": -1.145630361579317e-05,
+      "absolute_error": 6.809694223574659e-13
+    },
+    {
+      "phase": "trained",
+      "tensor": "o",
+      "index": [
+        16,
+        0
+      ],
+      "analytical": -1.173839044610809e-05,
+      "numeric": -1.173839111108441e-05,
+      "absolute_error": 6.649763205357484e-13
+    },
+    {
+      "phase": "trained",
+      "tensor": "c",
+      "index": [
+        6
+      ],
+      "analytical": 2.9548788499479076e-07,
+      "numeric": 2.954878799563338e-07,
+      "absolute_error": 5.038456955069149e-15
+    },
+    {
+      "phase": "trained",
+      "tensor": "c",
+      "index": [
+        1
+      ],
+      "analytical": 5.694932451612508e-06,
+      "numeric": 5.694933307898958e-06,
+      "absolute_error": 8.562864501661382e-13
+    },
+    {
+      "phase": "trained",
+      "tensor": "c",
+      "index": [
+        0
+      ],
+      "analytical": -6.0200625205203965e-06,
+      "numeric": -6.02006404431461e-06,
+      "absolute_error": 1.5237942133680508e-12
+    }
+  ],
+  "max_abs_error": 2.4748439408917022e-11,
+  "passed": true,
+  "reporting_bug": "training metrics analytical g is overwritten by last training iteration; numeric is initial finite difference; values are unrelated"
+}

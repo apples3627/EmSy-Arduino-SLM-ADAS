@@ -1,0 +1,83 @@
+{"category": "known_action", "expected": 0, "id": "v2_c0_00", "suite": "semantic", "text": "move the car forward now"}
+{"category": "known_action", "expected": 0, "id": "v2_c0_01", "suite": "semantic", "text": "please start driving forward"}
+{"category": "known_action", "expected": 0, "id": "v2_c0_02", "suite": "semantic", "text": "go ahead with the car"}
+{"category": "known_action", "expected": 0, "id": "v2_c0_03", "suite": "semantic", "text": "could you drive straight forward"}
+{"category": "known_action", "expected": 0, "id": "v2_c0_04", "suite": "semantic", "text": "turn on forward movement"}
+{"category": "known_action", "expected": 0, "id": "v2_c0_05", "suite": "semantic", "text": "start moving the car ahead"}
+{"category": "known_action", "expected": 0, "id": "v2_c0_06", "suite": "semantic", "text": "please move forward slowly"}
+{"category": "known_action", "expected": 1, "id": "v2_c1_00", "suite": "semantic", "text": "move the car backward now"}
+{"category": "known_action", "expected": 1, "id": "v2_c1_01", "suite": "semantic", "text": "please start driving backward"}
+{"category": "known_action", "expected": 1, "id": "v2_c1_02", "suite": "semantic", "text": "go back with the car"}
+{"category": "known_action", "expected": 1, "id": "v2_c1_03", "suite": "semantic", "text": "could you drive backwards please"}
+{"category": "known_action", "expected": 1, "id": "v2_c1_04", "suite": "semantic", "text": "turn on reverse movement"}
+{"category": "known_action", "expected": 1, "id": "v2_c1_05", "suite": "semantic", "text": "start moving the car back"}
+{"category": "known_action", "expected": 1, "id": "v2_c1_06", "suite": "semantic", "text": "please move backward slowly"}
+{"category": "known_action", "expected": 2, "id": "v2_c2_00", "suite": "semantic", "text": "please turn off everything now"}
+{"category": "known_action", "expected": 2, "id": "v2_c2_01", "suite": "semantic", "text": "stop all outputs now please"}
+{"category": "known_action", "expected": 2, "id": "v2_c2_02", "suite": "semantic", "text": "shut down the whole car"}
+{"category": "known_action", "expected": 2, "id": "v2_c2_03", "suite": "semantic", "text": "could you halt everything now"}
+{"category": "known_action", "expected": 2, "id": "v2_c2_04", "suite": "semantic", "text": "stop every function please"}
+{"category": "known_action", "expected": 2, "id": "v2_c2_05", "suite": "semantic", "text": "turn off the whole system"}
+{"category": "known_action", "expected": 2, "id": "v2_c2_06", "suite": "semantic", "text": "please shut all outputs off"}
+{"category": "known_action", "expected": 3, "id": "v2_c3_00", "suite": "semantic", "text": "please switch on the car lights"}
+{"category": "known_action", "expected": 3, "id": "v2_c3_01", "suite": "semantic", "text": "could you turn the headlights on now"}
+{"category": "known_action", "expected": 3, "id": "v2_c3_02", "suite": "semantic", "text": "start the lights please"}
+{"category": "known_action", "expected": 3, "id": "v2_c3_03", "suite": "semantic", "text": "enable headlights now please"}
+{"category": "known_action", "expected": 3, "id": "v2_c3_04", "suite": "semantic", "text": "turn the light on for me"}
+{"category": "known_action", "expected": 3, "id": "v2_c3_05", "suite": "semantic", "text": "please switch the lamps on now"}
+{"category": "known_action", "expected": 3, "id": "v2_c3_06", "suite": "semantic", "text": "put the headlights on please"}
+{"category": "known_action", "expected": 4, "id": "v2_c4_00", "suite": "semantic", "text": "please switch off the car lights"}
+{"category": "known_action", "expected": 4, "id": "v2_c4_01", "suite": "semantic", "text": "could you turn the headlights off now"}
+{"category": "known_action", "expected": 4, "id": "v2_c4_02", "suite": "semantic", "text": "stop the lights please"}
+{"category": "known_action", "expected": 4, "id": "v2_c4_03", "suite": "semantic", "text": "disable headlights now please"}
+{"category": "known_action", "expected": 4, "id": "v2_c4_04", "suite": "semantic", "text": "turn the light off for me"}
+{"category": "known_action", "expected": 4, "id": "v2_c4_05", "suite": "semantic", "text": "please switch the lamps off now"}
+{"category": "known_action", "expected": 4, "id": "v2_c4_06", "suite": "semantic", "text": "put the headlights off please"}
+{"category": "known_action", "expected": 5, "id": "v2_c5_00", "suite": "semantic", "text": "please switch on the car wipers"}
+{"category": "known_action", "expected": 5, "id": "v2_c5_01", "suite": "semantic", "text": "could you turn the windshield wipers on now"}
+{"category": "known_action", "expected": 5, "id": "v2_c5_02", "suite": "semantic", "text": "begin the wipers please"}
+{"category": "known_action", "expected": 5, "id": "v2_c5_03", "suite": "semantic", "text": "enable wiping now please"}
+{"category": "known_action", "expected": 5, "id": "v2_c5_04", "suite": "semantic", "text": "turn the wipers on for me"}
+{"category": "known_action", "expected": 5, "id": "v2_c5_05", "suite": "semantic", "text": "please start the wiper now"}
+{"category": "known_action", "expected": 5, "id": "v2_c5_06", "suite": "semantic", "text": "put the windshield wiper on please"}
+{"category": "known_action", "expected": 6, "id": "v2_c6_00", "suite": "semantic", "text": "please switch off the car wipers"}
+{"category": "known_action", "expected": 6, "id": "v2_c6_01", "suite": "semantic", "text": "could you turn the windshield wipers off now"}
+{"category": "known_action", "expected": 6, "id": "v2_c6_02", "suite": "semantic", "text": "end the wipers please"}
+{"category": "known_action", "expected": 6, "id": "v2_c6_03", "suite": "semantic", "text": "disable wiping now please"}
+{"category": "known_action", "expected": 6, "id": "v2_c6_04", "suite": "semantic", "text": "turn the wipers off for me"}
+{"category": "known_action", "expected": 6, "id": "v2_c6_05", "suite": "semantic", "text": "please stop the wiper now"}
+{"category": "known_action", "expected": 6, "id": "v2_c6_06", "suite": "semantic", "text": "put the windshield wiper off please"}
+{"category": "known_action", "expected": 8, "id": "v2_c8_00", "suite": "semantic", "text": "please switch on the car horn"}
+{"category": "known_action", "expected": 8, "id": "v2_c8_01", "suite": "semantic", "text": "could you turn the buzzer on now"}
+{"category": "known_action", "expected": 8, "id": "v2_c8_02", "suite": "semantic", "text": "begin sounding the horn please"}
+{"category": "known_action", "expected": 8, "id": "v2_c8_03", "suite": "semantic", "text": "enable the buzzer now please"}
+{"category": "known_action", "expected": 8, "id": "v2_c8_04", "suite": "semantic", "text": "turn the horn on for me"}
+{"category": "known_action", "expected": 8, "id": "v2_c8_05", "suite": "semantic", "text": "please start honking now"}
+{"category": "known_action", "expected": 8, "id": "v2_c8_06", "suite": "semantic", "text": "put the buzzer on please"}
+{"category": "known_action", "expected": 9, "id": "v2_c9_00", "suite": "semantic", "text": "please switch off the car horn"}
+{"category": "known_action", "expected": 9, "id": "v2_c9_01", "suite": "semantic", "text": "could you turn the buzzer off now"}
+{"category": "known_action", "expected": 9, "id": "v2_c9_02", "suite": "semantic", "text": "end sounding the horn please"}
+{"category": "known_action", "expected": 9, "id": "v2_c9_03", "suite": "semantic", "text": "disable the buzzer now please"}
+{"category": "known_action", "expected": 9, "id": "v2_c9_04", "suite": "semantic", "text": "turn the horn off for me"}
+{"category": "known_action", "expected": 9, "id": "v2_c9_05", "suite": "semantic", "text": "please stop honking now"}
+{"category": "known_action", "expected": 9, "id": "v2_c9_06", "suite": "semantic", "text": "put the buzzer off please"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_00", "suite": "semantic", "text": "do not start the car forward"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_01", "suite": "semantic", "text": "never switch on the horn"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_02", "suite": "semantic", "text": "please do not enable headlights"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_03", "suite": "semantic", "text": "if the car moves sound the horn"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_04", "suite": "semantic", "text": "when it rains start wiping please"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_05", "suite": "semantic", "text": "move the car ahead then back"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_06", "suite": "semantic", "text": "turn on the horn and lights"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_07", "suite": "semantic", "text": "turn off the wiper and start the horn"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_08", "suite": "semantic", "text": "go forward or backwards"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_09", "suite": "semantic", "text": "the headlights were on"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_10", "suite": "semantic", "text": "I was moving backward"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_11", "suite": "semantic", "text": "the horn is beeping now"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_12", "suite": "semantic", "text": "why do the lights work"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_13", "suite": "semantic", "text": "how do I enable the wipers"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_14", "suite": "semantic", "text": "what does reverse mean"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_15", "suite": "semantic", "text": "I wonder whether the horn works"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_16", "suite": "semantic", "text": "please tell me the weather"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_17", "suite": "semantic", "text": "make the car red"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_18", "suite": "semantic", "text": "turn up the music please"}
+{"category": "ambiguous_or_noncommand", "expected": 7, "id": "v2_c7_19", "suite": "semantic", "text": "hello please"}

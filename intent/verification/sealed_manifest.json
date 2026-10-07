@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "authorship": "independent verifier, before trained-model disclosure",
+  "semantic_cases": 110,
+  "normalization_cases": 5,
+  "malformed_cases": 4,
+  "sha256": "86395756d7e46536bd0315325557f9ea7a8b7f66f2564aa00a0a4d7b6f2536fe",
+  "policy": "No model tuning or case selection after seeing model. Repairs must be labelled post-audit. Limit checks are contract-parametrized separately."
+}

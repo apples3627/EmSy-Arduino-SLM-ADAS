@@ -1,0 +1,14 @@
+{
+  "host_cases": 471,
+  "dataset_sampling": "7 evenly-spaced rows per split and label = 210, plus all three audit sets and boundary cases",
+  "decision_mismatches": [],
+  "max_score_abs_error": 7.624316403109788e-06,
+  "actual_cpp_shard_cases": 431,
+  "actual_cpp_shard_max_abs_error": 1.4775115971588093e-05,
+  "contract_validity_mismatches": [],
+  "newline_rejected": true,
+  "STOP_UNKNOWN_all_outputs_off": true,
+  "horn_on_off_software_state": true,
+  "nonfinite_globalstop": true,
+  "runtime_heap_calls": "none in shared/intent_model.h; host uses std::string only for test I/O"
+}

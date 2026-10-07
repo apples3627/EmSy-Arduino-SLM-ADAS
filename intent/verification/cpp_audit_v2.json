@@ -1,0 +1,13 @@
+{
+  "host_cases": 23468,
+  "decision_mismatches": [],
+  "max_score_abs_error": 1.1472802732725995e-05,
+  "actual_cpp_shard_cases": 4688,
+  "actual_cpp_shard_max_abs_error": 1.1697120665843386e-05,
+  "contract_validity_mismatches": [],
+  "newline_rejected": true,
+  "STOP_UNKNOWN_all_outputs_off": true,
+  "horn_on_off_software_state": true,
+  "nonfinite_globalstop": true,
+  "runtime_heap_calls": "none in shared/intent_model.h; host uses std::string only for test I/O"
+}

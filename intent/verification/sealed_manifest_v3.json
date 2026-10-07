@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "known_cases": 36,
+  "unknown_cases": 15,
+  "sha256": "50df3a33a03a50d73979a724987e9a1e780f11d3bf5bc109111bd48eda285f78",
+  "authorship": "before V3 disclosure, independently authored; prior audit aggregate categories were given to trainer, no literal cases",
+  "policy": "First V3 evaluation sealed; V1/V2 on V3 are regressions."
+}

@@ -1,0 +1,11 @@
+[
+  {"id":"bytes96","text":"move forward                                                                                    ","expected_valid":true,"constraint":"raw ASCII bytes exactly 96"},
+  {"id":"bytes97","text":"move forward                                                                                     ","expected_valid":false,"constraint":"raw ASCII bytes 97"},
+  {"id":"tokens16","text":"please please please please please please please please please please please please please please move forward","expected_valid":false,"constraint":"16 tokens but 110 bytes: byte limit takes precedence"},
+  {"id":"tokens16_short","text":"go go go go go go go go go go go go go go go go","expected_valid":true,"constraint":"16 vocabulary tokens, 47 bytes"},
+  {"id":"tokens17_short","text":"go go go go go go go go go go go go go go go go go","expected_valid":false,"constraint":"17 vocabulary tokens, 50 bytes"},
+  {"id":"internal_punctuation","text":"move, forward","expected_valid":false,"constraint":"unsupported internal punctuation"},
+  {"id":"conditional","text":"if it rains turn on wipers","expected_valid":false,"constraint":"conditional guard"},
+  {"id":"negation","text":"do not move forward","expected_valid":false,"constraint":"negation guard"},
+  {"id":"compound","text":"move forward and reverse","expected_valid":false,"constraint":"compound guard"}
+]
