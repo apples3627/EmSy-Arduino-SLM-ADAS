@@ -3,8 +3,8 @@ import pathlib,json,re
 import numpy as np
 ROOT=pathlib.Path(__file__).resolve().parent
 LABELS=['FORWARD','REVERSE','STOP','LIGHT_ON','LIGHT_OFF','WIPER_ON','WIPER_OFF','UNKNOWN','HORN_ON','HORN_OFF']
-MAX_BYTES=96;MAX_TOKENS=16;EMBED=12;HIDDEN=48
-GUARD={'not','no','never','and','or','then','if','when','unless','whether','what','why','how','where','wonder','said','was','is','are','likes','like','maybe','yesterday'}
+MAX_BYTES=96;MAX_TOKENS=16;EMBED=16;HIDDEN=64
+GUARD={'not','no','never','and','or','then','if','when','unless','whether','what','why','how','where','wonder','said','was','is','are','likes','maybe','yesterday','while','before','after','because','without','only','maybe','might','should'}
 def normalize(text):
  try:raw=text.encode('ascii')
  except UnicodeEncodeError:return None,'non_ascii'
@@ -18,12 +18,18 @@ def normalize(text):
  if not words:return None,'empty'
  if len(words)>MAX_TOKENS:return None,'too_many_tokens'
  return words,'ok'
+def polite_like(words):
+ words=list(words)
+ if words and words[0] in {'please','kindly','just'}:words=words[1:]
+ return (len(words)>=6 and words[:5] in [['i','would','like','you','to'],['we','would','like','you','to']]) or (len(words)>=5 and words[:4]==['would','you','like','to'])
+def is_guarded(words):
+ return bool(GUARD.intersection(words)) or ('like' in words and not polite_like(words))
 def prepare(text,vocab):
  words,reason=normalize(text)
  if words is None:return None,reason,False
  mapping={s:i for i,s in enumerate(vocab)}
- if any(w not in mapping for w in words):return None,'oov',bool(GUARD.intersection(words))
- return np.array([mapping[w] for w in words],dtype=int),'ok',bool(GUARD.intersection(words))
+ if any(w not in mapping for w in words):return None,'oov',is_guarded(words)
+ return np.array([mapping[w] for w in words],dtype=int),'ok',is_guarded(words)
 def quantize(a):
  scale=np.float32(max(float(np.max(np.abs(a)))/127,1e-12));return np.rint(a/scale).clip(-127,127).astype(np.int8),scale
 
@@ -54,6 +60,6 @@ def load_model():
 
 def infer(text):
  a,m=load_model();ids,reason,guard=prepare(text,m['vocabulary'])
- if ids is None:return dict(text=text,raw_label=None,effective_label='UNKNOWN',reason=reason,scores=None)
+ if ids is None:return dict(text=text,raw_label=None,effective_label='UNKNOWN',reason=reason,scores=None,policy_action='GLOBAL_STOP')
  z=quant_logits(ids,a);t,why,c,g=decision(z,guard,m['threshold'],m['margin'])
  return dict(text=text,raw_label=LABELS[int(np.argmax(z))],effective_label=LABELS[t],reason=why,confidence=c,margin=g,scores=z.tolist(),policy_action='GLOBAL_STOP' if t==7 else LABELS[t])

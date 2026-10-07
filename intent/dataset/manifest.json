@@ -1,17 +1,17 @@
 {
-  "sha256": "475d517ee2911d9420dcf8a36fb08971479195f64c47a9e508962a947a07cc95",
-  "rows": 3774,
+  "sha256": "3a5e33fa571b5239619472a60b90c9b26f4f44b8e73327d0eb7cea511c69ca3d",
+  "rows": 23376,
   "split_counts": {
-    "train": 2220,
-    "val": 666,
-    "test": 888
+    "train": 16558,
+    "val": 2922,
+    "test": 3896
   },
   "family_splits": {
     "bare": "train",
     "request-prefix": "train",
     "request-suffix": "train",
-    "adverb-prefix": "val",
-    "polite-combination": "test"
+    "mixed-request": "val",
+    "held-combination": "test"
   },
   "labels": [
     "FORWARD",

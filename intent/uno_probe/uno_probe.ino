@@ -1,4 +1,4 @@
-#include "../shared/intent_model.h"
+#include "src/intent_model.h"
 static char line[97];static uint8_t used=0;static bool over=false;
 static Intent::Input input;static float scores[10];
 void printLabel(uint8_t label){const char* p=IntentConfig::LABEL_TEXT+rd16(IntentConfig::LABEL_OFFSETS+label);char c;while((c=rdc(p++)))Serial.print(c);}
