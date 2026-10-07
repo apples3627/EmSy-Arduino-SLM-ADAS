@@ -101,3 +101,16 @@ int8 가중치는 e/w/o별 원래 tensor scale 하나씩 사용합니다. H32+H3
 모델의 가중치·bias·scale은5924 B입니다. 사전·guard·출력 문자열·코드는 별도입니다. 고정 버퍼와 PROGMEM을 사용하며 동적 할당은 없습니다. 남은SRAM은 링크 시 수치로 실물 최대 스택을 측정한 보장이 아닙니다.
 
 1366개 TRAIN/입력 계약 문맥에서 C++와 Python scalar float32 점수를 비교해 최대오차5.00e-8, 두 실제 export shard 합과 전체 모델의 최대오차1.17e-5를 확인했습니다. selected token/intent도 일치했습니다. 비ASCII·NUL·초과입력·OOV 거절, family 누수·중복, 전체STOP/UNKNOWN의 모든 플래그OFF, horn latch와 NaN 거절을 검사했습니다. 해당 parity 시험은 TEST·독립 감사 입력을 모델 선택에 쓰지 않습니다.
+
+## 연결된 Uno 한 대의 시리얼 수락 시험
+
+전체 모델 `INTENT_PART=0` probe를 Uno에 올린 뒤 시리얼 모니터를 닫고 실행합니다. pyserial과 NumPy가 필요합니다.
+
+```sh
+python3 intent/tools/test_hardware.py --port /dev/cu.usbmodem11301 --repeat 2 --timeout 15 --output intent/reports/single_uno_hardware.json
+python3 intent/tools/test_hardware_unit.py
+```
+
+PC는 원문 UTF-8 bytes와 줄바꿈만 보냅니다. Uno의 `RAW / EFFECTIVE / REASON` 답을 실제로 읽은 뒤, PC reference는 비교용 예상값만 계산합니다. 응답이 없거나 잘못되면 PC 답으로 대체하지 않고 실패 보고서를 남기며 종료 코드1을 반환합니다. 시작 배너를 기다리고 요청마다 `READY`를 확인하므로 한 번에 한 문장만 전송합니다. CRLF의 CR은 probe가 제거하는 전송 framing이며 의미 입력에 포함하지 않습니다.
+
+고정된 V3 감사51문장을 재사용한 회귀시험과 수동 지정한10개 라벨·대소문자·공백·구두점·96/97bytes·16/17단어·비ASCII·NUL·빈 입력·OOV를 반복합니다. 모든 입력 파서 거절 직후에는 정상 명령으로 복구를 확인합니다. JSON에는 실제 보드 원문 로그·전송bytes·모델hash·CPU parity와 별도의 의미 정답·confusion·UART 왕복 p50/p95를 저장합니다. 이미 공개된 알려진 어휘 사례의 수락 시험이며 새로운 실제 문장 정확도의 보장은 아닙니다. probe가 점수를 출력하지 않으므로 AVR float 로짓의 bitwise parity를 주장하지 않습니다. 이 시험은 출력 핀이나 실제 모터·조명·와이퍼·horn을 구동하지 않습니다.
