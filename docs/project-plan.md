@@ -92,7 +92,7 @@ pk = hk · Vk  →  각 워커가 29개 float32 부분 로짓(116 B)을 반환
 |PC 모니터|D0 RX / D1 TX 하드웨어 UART|USB 연결은 메인만 입출력용|9600 baud|
 |워커 1 UART|D2 RX / D3 TX|D1 TX → D2, D0 RX ← D3|9600, 8N1|
 |워커 2 I2C|A4 SDA / A5 SCL|같은 핀, 주소 0x12|100 kHz, pull-up|
-|워커 3 SPI|D10 SS, D11 MOSI, D12 MISO, D13 SCK|같은 핀, SS D10 INPUT|SCK 100 kHz|
+|워커 3 SPI|D10 SS, D11 MOSI, D12 MISO, D13 SCK|같은 핀, SS D10 INPUT|SCK 125 kHz|
 
 메인 D10은 OUTPUT이다. 5 V Uno끼리 공통 GND를 연결한다. 개별 USB로 전원을 공급한다면 독립된 5 V 전원 레일을 서로 묶지 않는다. UART 워커는 업로드 시 D0/D1 외부 연결을 분리하고, 동작 중 USB 시리얼 모니터를 사용하지 않는다. SPI 보드의 D13은 SCK이므로 활동 LED로 쓰지 않고 필요하면 D4를 디버그 핀으로 사용한다.
 
@@ -105,6 +105,122 @@ pk = hk · Vk  →  각 워커가 29개 float32 부분 로짓(116 B)을 반환
 기본 SoftwareSerial TX는 cli()로 인터럽트를 막으므로 그대로 동시 통신을 달성했다고 주장하지 않는다 [4]. 타이머 기반 비차단 software UART와 짧은 ISR, 하드웨어 I2C·SPI를 조합할 계획이다. 타이머 UART 전송 중 I2C·SPI 전송을 진행하며 비트 타이밍·바이트 손실을 확인한다. 달성되지 않으면 통신 설계를 재조정한다.
 
 로직 분석기로 UART TX, I2C SDA/SCL, SPI SCK/MOSI/SS의 6채널을 기록한다. 필요 시 UART RX와 SPI MISO를 더해 8채널을 쓴다. 디코딩된 전송·job ID·타임스탬프를 저장하고, UART 프레임·I2C 트랜잭션·SPI 트랜잭션 세 가지가 모두 겹치는 하나의 공통 시간 구간을 제시한다. 두 링크씩만 겹치거나 계산만 겹치는 기록은 통과로 보지 않는다.
+
+# 구현 1: 학습 결과를 세 워커로 내보내기
+아래 파일·함수·명령 중 “예정” 표시는 앞으로 작성할 설계이다. 이번 계획서 수정에서는 펌웨어나 학습 모델을 변경하지 않는다. 기존 tiny_uno/를 비교 기준으로 보존한다.
+
+## 데이터부터 나누고, 같은 가중치를 유지
+corpus.txt는 29문자 어휘의 제한된 소문자 영어로 작성한다. 새 품질 평가에서는 문장을 먼저 학습/검증 세트로 나누고, 그 다음 각 세트에서 16문자 문맥을 만든다. 같은 문장의 문자 조각이 양쪽에 섞이는 누수를 막는다. 기존 96.0%는 이 검증을 거친 점수가 아니다.
+
+현재 tools/train.py의 고정 seed·1800단계 학습을 재현한 뒤 model.npz를 동결한다. 임베딩과 두 가중치 텐서는 각각 하나의 대칭 int8 scale, bias는 float32를 사용한다. 48뉴런 모델의 배열은 e[29,4], w[64,48], o[48,29], b[48], c[29], scale se/sw/so이다.
+
+|워커|은닉 뉴런 범위|복제·분할 배열|
+|UART|[0,16)|e 전체, w[:,0:16], b[0:16], o[0:16,:]|
+|I2C|[16,32)|e 전체, w[:,16:32], b[16:32], o[16:32,:]|
+|SPI|[32,48)|e 전체, w[:,32:48], b[32:48], o[32:48,:]|
+
+## export_split.py 구현 예정
+새 host/export_split.py는 이미 양자화된 배열을 그대로 자르고 원래 se/sw/so를 유지한다. 각 조각을 별도로 재양자화하면 동일 모델 검증 조건이 바뀌므로 하지 않는다. 출력 bias c[29]는 메인만 저장한다.
+
+```text
+load frozen model.npz + metadata
+for (link, lo, hi) in [(uart,0,16),(i2c,16,32),(spi,32,48)]:
+    emit e, w[:,lo:hi], b[lo:hi], o[lo:hi,:], se, sw, so
+    emit model ID, vocabulary ID, dimensions, shard range
+emit main_bias.h: c[29] + same model/vocabulary IDs
+```
+
+산출물은 model_uart.h, model_i2c.h, model_spi.h, main_bias.h이다. 배열은 PROGMEM에 두고 int8은 pgm_read_byte, float는 pgm_read_float로 읽는다. 상수·버퍼·코드를 포함한 각 보드 링크 결과와 실행 중 스택 여유를 확인한다.
+
+## 확장은 새 학습 이후에만
+총 H=576 또는 720 후보는 전체 큰 네트워크를 먼저 재학습한 뒤 3등분한다. 기존 48개 뉴런의 가중치를 복제하여 큰 모델이 되었다고 주장하지 않는다. 미학습 문장 품질, 모델 ID, Flash/SRAM, 지연을 다시 평가한 뒤 발표 모델을 선택한다.
+
+기존 실행 명령: OPENBLAS_NUM_THREADS=1 python3 tools/train.py → python3 tools/verify.py → ./tools/build.sh. 분할 후 검증 명령 python3 host/export_split.py, python3 host/test_distributed.py는 파일 구현 이후에만 실행한다.
+
+# 구현 2: 메인과 워커의 상태 머신
+## 작성 예정 모듈과 책임
+|예정 경로|핵심 책임|
+|firmware/main/main.ino|start_job, poll_link, aggregate_next, 입력·출력|
+|firmware/worker_uart/worker_uart.ino|하드웨어 UART 프레임 처리·부분 추론|
+|firmware/worker_i2c/worker_i2c.ino|짧은 콜백·캐시된 응답·부분 추론|
+|firmware/worker_spi/worker_spi.ino|SPI byte pipeline·부분 추론|
+|firmware/shared/protocol.h|프레임·CRC·model/job ID·오류 정의|
+|firmware/shared/neural_shard.h|next_partial(ctx, out29), PROGMEM 읽기|
+|host/export_split.py / host/test_distributed.py|PC에서 분할·수치 비교, 실행 중 추론 아님|
+
+## 메인: 한 문자 작업의 의사코드 - 구현 예정
+고정 버퍼는 context[16], totals[29] float, 링크별 청크 상태와 receivedMask를 둔다. 한 작업 동안 context는 바꾸지 않고, 결과 전체를 받은 워커만 합산한다.
+
+```text
+for each next character (maximum 80):
+    totals = global_bias; receivedMask = 0; jobId++
+    dispatch identical context + jobId to all 3 links
+    while receivedMask != 0b111:
+        poll_link(UART); poll_link(I2C); poll_link(SPI)
+        if complete valid result(modelId, jobId, CRC, chunks):
+            if worker not yet in receivedMask:
+                totals += worker.partial29; set worker bit
+        if timeout/error: clear job state; print ERROR; stop
+    token = ascending-index argmax(totals)
+    if token == EOS(0): stop
+    push(context, token); output token
+```
+
+## 워커: 계산은 main loop에서
+IDLE → RECEIVE → COMPUTE → RESULT_READY → IDLE 순서로 상태를 둔다. 전체 문맥과 START를 검증·복사한 뒤 계산하고 29개 부분 로짓을 캐시한다. 재전송된 같은 job은 재계산·중복 합산 없이 ACK 또는 캐시된 결과로 처리한다.
+
+ISR/콜백은 수신 바이트 큐, 상태 플래그, 이미 준비된 TX 버퍼만 처리한다. 신경망 계산이나 긴 float 변환을 넣지 않는다. 출력 bias는 워커에서 더하지 않는다. 메인은 같은 ID의 3개 완전한 결과 후에만 다음 job을 시작한다. 부동 소수점 합산 순서 차이는 abs/rel 1e-4 비교와 선택 토큰 검증으로 확인한다.
+
+# 구현 3: 32바이트 프레임과 복구 규칙
+## 공통 직렬화 규격 - 구현 예정
+|바이트 위치|필드|규칙|
+|0 / 1 / 2|SOF / version / op|0xA5 / 1 / 명령 코드|
+|3~4|jobId|uint16 little-endian|
+|5 / 6|seq / payloadLen|청크 번호 / 유효 payload 바이트 수|
+|7~30|payload[24]|사용하지 않는 뒤쪽은 0으로 채움|
+|31|CRC8|poly 0x07, init/xorout 0x00, non-reflected|
+
+헤더 7 B + payload 24 B + CRC 1 B = 고정 32 B이다. CRC는 0 padding을 포함한 앞 31 B 전체를 검사한다. op는 LOAD_CONTEXT, START, STATUS, GET_RESULT, RESULT, ACK, ERROR로 정의한다. LOAD_CONTEXT의 유효 데이터는 16 B이다. 부분 로짓 116 B는 seq 0~4의 24/24/24/24/20 B 청크로 나눈다.
+
+float는 sizeof(float)==4와 IEEE754 호환성을 확인하고 memcpy로 little-endian binary를 직렬화한다. ASCII 숫자로 바꾸거나 float 포인터를 비정렬 버퍼에 직접 캐스팅하지 않는다. 시작 STATUS에는 모델 hash 기반 ID·어휘 ID·차원·담당 은닉 범위를 넣는다. 메인은 0~47이 중복·누락 없이 한 번씩 포함되는지 검사하여 잘못된 shard 업로드를 거절한다.
+
+## 링크마다 같은 규격, 다른 전송 절차
+|링크|송수신 절차|
+|UART|메인은 timer UART, 워커는 hardware UART. 최소 64 B ring buffer에 쌓고 SOF 재탐색·CRC 확인. ACK/STATUS로 응답 흐름을 제한한다.|
+|I2C|주소 0x12. GET_RESULT 수신 시 seq를 latch. onRequest는 준비된 frame 최대 32 B만 복사하고 메인이 32 B 읽어 검증한다.|
+|SPI|SS 아래 요청 frame 전송 → 응답 준비 상태 확인 → 별도 read transaction에서 dummy 32 B로 응답을 clock. 첫 바이트 전에 SPDR를 preload한다.|
+
+SPI는 받은 현재 바이트의 응답을 같은 clock에서 즉시 돌려줄 수 없다. 첫 dummy/status 바이트의 pipeline 지연과 응답 경계를 규격에 명시하고 테스트한다. slave ISR이 SPDR를 갱신하도록 바이트 사이 간격을 둔다. Wire 32 B 제한과 맞춘 공통 frame은 메인 비차단 TWI 엔진에도 적용한다 [3].
+
+## 실패를 정상 경로로 다루기
+청크별 ACK·CRC·job ID를 검사한다. 워커별 5-bit chunk mask로 중복 RESULT를 건너뛰고 5청크 완료 후 워커당 한 번만 합산한다. START/GET_RESULT 재시도는 같은 job에서 멱등 처리한다. 누락·CRC 실패에는 최대 2회 재시도하고, 이전 job 결과는 버린다. 통신 timeout과 전체 작업 timeout을 분리한다. 전체 작업 10초는 초기 잠정 설정이며 계산 시간을 실측해 조정한다. 계산 완료를 30 ms 같은 미측정 값으로 단정하지 않는다.
+
+메모리 부족·잘못된 model ID·최종 timeout이면 작업 상태를 초기화하고 ERROR를 출력한다. 다음 정상 입력은 다시 시작할 수 있어야 한다. PC의 모델 호출로 결과를 대체하지 않는다.
+
+# 구현 4: 비차단 통신과 단계별 통합
+## 메인 Uno의 하드웨어·타이머 계획
+한 전송의 완료를 기다리지 않고 세 엔진을 번갈아 진행하여 실제 바이트 전송을 겹치게 한다.
+
+|엔진|초기 설정·처리 방식|
+|software UART|Timer1 /8, OCR1A=207: 약 104 µs tick, 약 9615 baud. D3 직접 PORTD TX; D2 INT0 시작 검출 후 compare B로 중앙 RX sampling 검증.|
+|I2C / TWI [6]|16 MHz에서 TWBR=72, TWPS=0: 100 kHz. start/address/data/stop을 짧은 ISR·상태 머신으로 진행하고 loop에 복귀.|
+|SPI [5]|SPCR: SPE·MSTR, SPR1:SPR0=11, SPI2X=0: /128 = 125 kHz. SPIF poll로 한 바이트씩 진행하고 slave 준비 간격 확보.|
+
+하드웨어 SPI는 최저 125 kHz이다 [5]. 메인에서 blocking Wire.endTransmission이나 전체 프레임 blocking SPI transfer에 기대지 않는다. Timer1은 전용으로 예약하여 Servo 등과 충돌을 피한다. RX 위상·지터는 파형 검증 후 확정한다.
+
+## 한 job 안에서 세 전송을 겹치게 시작
+[[diagram:timeline]]
+
+UART 32 B frame은 약 33.3 ms, SPI 32 B는 125 kHz에서 약 2.05 ms, I2C 32 B는 100 kHz에서 ACK 포함 약 3 ms와 주소·start/stop 시간이다. 모두 이상적인 전송 시간만의 추정이며 바이트 간격·ISR·계산·재시도가 추가된다. ISR 지연 10 µs 미만은 측정 목표이며 보장값이 아니다.
+
+## 단계별 구현 순서와 저장할 증거
+|단계|실행·통과 기준|산출물|
+|A → B|48뉴런 기준 동결 → 개별 32 B ACK/CRC → 실제 문맥의 3중 전송|model ID·패킷 로그·trace|
+|C → D|host 50문맥 분할 비교 → 각 16뉴런 업로드 → 실물 부분 로짓 합산|50context.csv·선택 토큰|
+|E → F|CRC/누락/지연/model mismatch/긴 입력 → 1대와 4대 같은48 비교|오류 복구·p50/p95·4빌드·stack watermark|
+|G|동등성·동시성 통과 후에만 H576 재학습·분할 확장|품질·메모리·지연·최종 모델|
+
+ping 대신 실제 LOAD_CONTEXT/결과 청크의 공통 중첩을 확인한다. 디코딩 trace CSV/VCD·스크린샷, 4대 빌드·스택 계측을 보관한다. PC는 학습·검증·업로드·입력/표시만 담당한다.
 
 # 검증 계획과 비교 지표
 ## 수치 동등성과 안전성
@@ -161,5 +277,9 @@ UART만 보아도 입력 16 B + 출력 116 B = 132 B이며, 9600 baud 8N1에서 
 [3] ArduinoCore-avr Wire.h (BUFFER_LENGTH): https://github.com/arduino/ArduinoCore-avr/blob/master/libraries/Wire/src/Wire.h
 
 [4] ArduinoCore-avr SoftwareSerial.cpp (write/cli): https://github.com/arduino/ArduinoCore-avr/blob/master/libraries/SoftwareSerial/src/SoftwareSerial.cpp
+
+[5] ArduinoCore-avr SPI.h (clock divider): https://github.com/arduino/ArduinoCore-avr/blob/master/libraries/SPI/src/SPI.h
+
+[6] ArduinoCore-avr twi.c (TWBR 설정): https://github.com/arduino/ArduinoCore-avr/blob/master/libraries/Wire/src/utility/twi.c
 
 로컬 근거: README.md · VERIFICATION.md · model_metadata.json · corpus.txt · docs/model-selection.md. 현재 증거는 1보드 컴파일·호스트 검증이며, 4보드 구현 및 실물 측정은 앞으로 수행한다.
