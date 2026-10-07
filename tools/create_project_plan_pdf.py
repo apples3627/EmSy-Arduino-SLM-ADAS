@@ -40,9 +40,9 @@ class Diagram(Flowable):
    c.setStrokeColor(TEAL);c.setDash(3,2) if dashed else c.setDash();c.line(x1,y1,x2,y2);c.setDash()
   if self.kind=='car':
    box(0,87,118,58,'메인 Uno','합산·판단·적용 ACK')
-   box(259,142,246,44,'계산 Uno 1 / I2C','H24 → 부분 로짓8개')
-   box(259,87,246,44,'계산 Uno 2 / SPI','H24 → 부분 로짓8개')
-   box(259,16,246,48,'제어 Uno / UART','모터·조명·와이퍼')
+   box(259,142,246,44,'계산 Uno 1 / I2C','H32 → 부분 로짓10개')
+   box(259,87,246,44,'계산 Uno 2 / SPI','H32 → 부분 로짓10개')
+   box(259,16,246,48,'제어 Uno / UART','모터·조명·와이퍼·경적')
    line(118,129,259,164);line(118,113,259,109)
    line(118,97,259,53,True);line(118,87,259,27)
    c.setFont('KR',7.3);c.setFillColor(GRAY)
@@ -63,7 +63,7 @@ def footer(c,doc):
  w,h=A4;c.setStrokeColor(TEAL);c.setLineWidth(2);c.line(42,h-35,w-42,h-35)
  c.setFillColor(GRAY);c.setFont('KR',7.5);c.drawString(42,h-25,'EMBEDDED SYSTEMS · PROJECT PLAN');c.drawRightString(w-42,h-25,'UNO × 4 / UART · I2C · SPI')
  c.setStrokeColor(HexColor('#dce5e9'));c.setLineWidth(.5);c.line(42,35,w-42,35)
- c.setFont('KR',7.5);c.drawString(42,23,'2026.10.07  |  계획 단계 · 실물 및 4보드 검증 예정');c.drawRightString(w-42,23,f'{doc.page} / {TOTAL_PAGES}')
+ c.setFont('KR',7.5);c.drawString(42,23,'2026.10.07  |  호스트 학습 완료 · 실물 및 4보드 검증 예정');c.drawRightString(w-42,23,f'{doc.page} / {TOTAL_PAGES}')
 def main():
  global TOTAL_PAGES
  lines=(ROOT/'docs/project-plan.md').read_text().splitlines();story=[];i=0;page=0
@@ -85,7 +85,7 @@ def main():
    while i<len(lines) and lines[i].strip().startswith('|'):
     rows.append(lines[i].strip().strip('|').split('|'));i+=1
    n=len(rows[0]);widths=([113,194,204] if n==3 else [101,142,142,126])
-   if n==2:widths=[220,291] if rows[0][0]=='예정 경로' else [120,391]
+   if n==2:widths=[220,291] if rows[0][0]=='예정 경로' or rows[0][0].startswith(('호스트 합성','V3 합성','V3 평가')) else [120,391]
    data=[[text(cell,'head' if r==0 else 'cell') for cell in row] for r,row in enumerate(rows)]
    t=Table(data,colWidths=widths,hAlign='LEFT');t.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),BLUE),('ROWBACKGROUNDS',(0,1),(-1,-1),[PALE,white]),('VALIGN',(0,0),(-1,-1),'TOP'),('LEFTPADDING',(0,0),(-1,-1),9),('RIGHTPADDING',(0,0),(-1,-1),9),('TOPPADDING',(0,0),(-1,-1),7),('BOTTOMPADDING',(0,0),(-1,-1),7),('LINEBELOW',(0,0),(-1,0),1,TEAL)]));story.extend([t,Spacer(1,8)]);continue
   style='ref' if s.startswith('[') or s.startswith('로컬 근거:') else 'body'
