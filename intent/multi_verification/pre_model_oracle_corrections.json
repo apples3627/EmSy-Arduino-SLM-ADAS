@@ -1,0 +1,10 @@
+{
+  "source_seal_sha256": "08387e2d36e6e75248ed8ed6d9b3d6b76a51b7ebb0500caa3656712511f410bc",
+  "corrections": {
+    "M134": {
+      "expected_grammar_valid": true,
+      "explanation": "17 tokens invalidates per-clause inference, not whole-text structural grammar; expected whole-plan rejection remains unchanged."
+    }
+  },
+  "timing": "Before new source or model access; independent grammar oracle review"
+}
