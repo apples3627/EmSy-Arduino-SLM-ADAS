@@ -1,0 +1,51 @@
+{
+  "actuator_uart": {
+    "flash_bytes": 4954,
+    "global_ram_bytes": 411,
+    "static_ram_headroom": 1637,
+    "minimum_512_headroom": true,
+    "compile_pass": true
+  },
+  "compute_spi": {
+    "flash_bytes": 12960,
+    "global_ram_bytes": 341,
+    "static_ram_headroom": 1707,
+    "minimum_512_headroom": true,
+    "compile_pass": true
+  },
+  "probe_2": {
+    "flash_bytes": 13878,
+    "global_ram_bytes": 555,
+    "static_ram_headroom": 1493,
+    "minimum_512_headroom": true,
+    "compile_pass": true
+  },
+  "probe_0": {
+    "flash_bytes": 16038,
+    "global_ram_bytes": 543,
+    "static_ram_headroom": 1505,
+    "minimum_512_headroom": true,
+    "compile_pass": true
+  },
+  "probe_1": {
+    "flash_bytes": 13878,
+    "global_ram_bytes": 555,
+    "static_ram_headroom": 1493,
+    "minimum_512_headroom": true,
+    "compile_pass": true
+  },
+  "compute_i2c": {
+    "flash_bytes": 12858,
+    "global_ram_bytes": 341,
+    "static_ram_headroom": 1707,
+    "minimum_512_headroom": true,
+    "compile_pass": true
+  },
+  "main": {
+    "flash_bytes": 15864,
+    "global_ram_bytes": 1360,
+    "static_ram_headroom": 688,
+    "minimum_512_headroom": true,
+    "compile_pass": true
+  }
+}

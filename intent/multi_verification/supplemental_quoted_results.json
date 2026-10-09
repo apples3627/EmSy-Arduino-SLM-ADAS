@@ -1,0 +1,79 @@
+[
+  {
+    "id": "Q01",
+    "text": "lights \"on\" and horn on",
+    "result": {
+      "text": "lights \"on\" and horn on",
+      "actions": [],
+      "action_names": [],
+      "reason": "inference_rejected",
+      "clauses": [
+        "lights \"on\"",
+        "horn on"
+      ],
+      "labels": [
+        7,
+        8
+      ],
+      "clause_results": [
+        {
+          "text": "lights \"on\"",
+          "raw_label": null,
+          "effective_label": "UNKNOWN",
+          "reason": "unsupported",
+          "scores": null,
+          "policy_action": "GLOBAL_STOP"
+        },
+        {
+          "text": "horn on",
+          "raw_label": "HORN_ON",
+          "effective_label": "HORN_ON",
+          "reason": "accepted",
+          "confidence": 0.9999999901405311,
+          "margin": 0.9999999802810622,
+          "scores": [
+            -30.4659423828125,
+            -8.810553550720215,
+            -20.6501407623291,
+            -2.081878662109375,
+            -58.22863006591797,
+            -3.2549891471862793,
+            -44.00788116455078,
+            40.20909118652344,
+            58.643924713134766,
+            6.380297660827637
+          ],
+          "policy_action": "HORN_ON"
+        }
+      ],
+      "policy_action": "GLOBAL_STOP"
+    }
+  },
+  {
+    "id": "Q02",
+    "text": "lights on\\horn off",
+    "result": {
+      "text": "lights on\\horn off",
+      "actions": [],
+      "action_names": [],
+      "reason": "inference_rejected",
+      "clauses": [
+        "lights on\\horn off"
+      ],
+      "labels": [
+        7
+      ],
+      "clause_results": [
+        {
+          "text": "lights on\\horn off",
+          "raw_label": null,
+          "effective_label": "UNKNOWN",
+          "reason": "unsupported",
+          "scores": null,
+          "policy_action": "GLOBAL_STOP"
+        }
+      ],
+      "policy_action": "GLOBAL_STOP"
+    }
+  }
+]

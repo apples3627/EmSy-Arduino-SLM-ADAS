@@ -1,0 +1,215 @@
+[
+  {
+    "id": "B01",
+    "text": "forward                                                                                          ",
+    "expected_grammar_valid": true,
+    "actual_clauses": [
+      "forward"
+    ],
+    "reason": "ok",
+    "infer": {
+      "text": "forward                                                                                          ",
+      "actions": [
+        0
+      ],
+      "action_names": [
+        "FORWARD"
+      ],
+      "reason": "ok",
+      "clauses": [
+        "forward"
+      ],
+      "labels": [
+        0
+      ],
+      "clause_results": [
+        {
+          "text": "forward",
+          "raw_label": "FORWARD",
+          "effective_label": "FORWARD",
+          "reason": "accepted",
+          "confidence": 0.9999234268975924,
+          "margin": 0.9998468537951847,
+          "scores": [
+            45.76808166503906,
+            -28.572832107543945,
+            6.676268100738525,
+            -41.90509796142578,
+            6.449857711791992,
+            -39.05411148071289,
+            -3.196343421936035,
+            36.2908935546875,
+            -40.23590087890625,
+            0.4659841060638428
+          ],
+          "policy_action": "FORWARD"
+        }
+      ],
+      "policy_action": "ACTUATE_BATCH"
+    }
+  },
+  {
+    "id": "B02",
+    "text": "forward forward forward forward forward forward forward forward forward forward forward forward f",
+    "expected_grammar_valid": false,
+    "actual_clauses": [],
+    "reason": "clause_too_long",
+    "infer": {
+      "text": "forward forward forward forward forward forward forward forward forward forward forward forward f",
+      "actions": [],
+      "action_names": [],
+      "reason": "clause_too_long",
+      "clauses": [],
+      "labels": [],
+      "clause_results": [],
+      "policy_action": "GLOBAL_STOP"
+    }
+  },
+  {
+    "id": "B03",
+    "text": "go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go ",
+    "expected_grammar_valid": true,
+    "actual_clauses": [
+      "go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go"
+    ],
+    "reason": "ok",
+    "infer": {
+      "text": "go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go ",
+      "actions": [],
+      "action_names": [],
+      "reason": "inference_rejected",
+      "clauses": [
+        "go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go"
+      ],
+      "labels": [
+        7
+      ],
+      "clause_results": [
+        {
+          "text": "go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go",
+          "raw_label": null,
+          "effective_label": "UNKNOWN",
+          "reason": "too_many_tokens",
+          "scores": null,
+          "policy_action": "GLOBAL_STOP"
+        }
+      ],
+      "policy_action": "GLOBAL_STOP"
+    }
+  },
+  {
+    "id": "B04",
+    "text": "go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go f",
+    "expected_grammar_valid": false,
+    "actual_clauses": [],
+    "reason": "clause_too_long",
+    "infer": {
+      "text": "go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go go f",
+      "actions": [],
+      "action_names": [],
+      "reason": "clause_too_long",
+      "clauses": [],
+      "labels": [],
+      "clause_results": [],
+      "policy_action": "GLOBAL_STOP"
+    }
+  },
+  {
+    "id": "B05",
+    "text": "forward                                                                                                                                                                                          ",
+    "expected_grammar_valid": false,
+    "actual_clauses": [],
+    "reason": "too_long",
+    "infer": {
+      "text": "forward                                                                                                                                                                                          ",
+      "actions": [],
+      "action_names": [],
+      "reason": "too_long",
+      "clauses": [],
+      "labels": [],
+      "clause_results": [],
+      "policy_action": "GLOBAL_STOP"
+    }
+  },
+  {
+    "id": "B06",
+    "text": "go go go go go go go go go go go go go go go forward",
+    "expected_grammar_valid": true,
+    "actual_clauses": [
+      "go go go go go go go go go go go go go go go forward"
+    ],
+    "reason": "ok",
+    "infer": {
+      "text": "go go go go go go go go go go go go go go go forward",
+      "actions": [
+        1
+      ],
+      "action_names": [
+        "REVERSE"
+      ],
+      "reason": "ok",
+      "clauses": [
+        "go go go go go go go go go go go go go go go forward"
+      ],
+      "labels": [
+        1
+      ],
+      "clause_results": [
+        {
+          "text": "go go go go go go go go go go go go go go go forward",
+          "raw_label": "REVERSE",
+          "effective_label": "REVERSE",
+          "reason": "accepted",
+          "confidence": 0.9999967900352394,
+          "margin": 0.9999935800728358,
+          "scores": [
+            24.01304054260254,
+            36.662288665771484,
+            -3.812188148498535,
+            2.3939995765686035,
+            -0.7830460071563721,
+            -24.3475341796875,
+            -41.850242614746094,
+            9.887992858886719,
+            -12.13741683959961,
+            -30.720582962036133
+          ],
+          "policy_action": "REVERSE"
+        }
+      ],
+      "policy_action": "ACTUATE_BATCH"
+    }
+  },
+  {
+    "id": "B07",
+    "text": "go go go go go go go go go go go go go go go go forward",
+    "expected_grammar_valid": true,
+    "actual_clauses": [
+      "go go go go go go go go go go go go go go go go forward"
+    ],
+    "reason": "ok",
+    "infer": {
+      "text": "go go go go go go go go go go go go go go go go forward",
+      "actions": [],
+      "action_names": [],
+      "reason": "inference_rejected",
+      "clauses": [
+        "go go go go go go go go go go go go go go go go forward"
+      ],
+      "labels": [
+        7
+      ],
+      "clause_results": [
+        {
+          "text": "go go go go go go go go go go go go go go go go forward",
+          "raw_label": null,
+          "effective_label": "UNKNOWN",
+          "reason": "too_many_tokens",
+          "scores": null,
+          "policy_action": "GLOBAL_STOP"
+        }
+      ],
+      "policy_action": "GLOBAL_STOP"
+    }
+  }
+]

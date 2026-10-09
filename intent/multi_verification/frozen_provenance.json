@@ -1,0 +1,18 @@
+{
+  "sealed_commit": "a4bdd75",
+  "sealed_sha256": "08387e2d36e6e75248ed8ed6d9b3d6b76a51b7ebb0500caa3656712511f410bc",
+  "model_source_commit": "3db2494",
+  "planner_source_commit": "7dfffe0",
+  "policy_parity_source_commit": "7bf05ac",
+  "firmware_source_commits": [
+    "0c5dbbf",
+    "7261bed"
+  ],
+  "model_file_sha256": "88ca94525dfd32c0a502611da5243d513480b9a52cda5b794bd50a99f9b7b154",
+  "metadata_model_sha256": "88ca94525dfd32c0a502611da5243d513480b9a52cda5b794bd50a99f9b7b154",
+  "model_id": "95616d56",
+  "vocabulary_sha256": "bfd74d7ebefd36b5465c081a34ed83208ec67b2a3671e25356b8fee46bb991c6",
+  "model_assets_copied_for_own_build_only": true,
+  "upload_performed": false,
+  "hardware_bus_capture_performed": false
+}

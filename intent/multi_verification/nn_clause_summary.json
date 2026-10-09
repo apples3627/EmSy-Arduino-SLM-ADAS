@@ -1,0 +1,20 @@
+{
+  "known_explicit_positive_clause_instances": 240,
+  "raw_nn_correct": 240,
+  "raw_nn_accuracy": 1.0,
+  "effective_nn_correct": 240,
+  "per_class": {
+    "FORWARD": 29,
+    "REVERSE": 22,
+    "LIGHT_ON": 34,
+    "LIGHT_OFF": 32,
+    "WIPER_ON": 22,
+    "WIPER_OFF": 26,
+    "HORN_ON": 31,
+    "HORN_OFF": 31,
+    "STOP": 13
+  },
+  "learned_parameters": 5658,
+  "quant_tensor_and_scale_bytes": 5892,
+  "scope": "Only independently unambiguous exact clause annotations; structural grammar, guard rejection and multi planning excluded from raw NN metric. Repeated clause instances included; vocabulary and clauses commonly overlap training."
+}

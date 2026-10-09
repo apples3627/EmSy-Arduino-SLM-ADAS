@@ -1,0 +1,9 @@
+{
+  "cases": 7376,
+  "raw_nn_accuracy": 0.9850867678958786,
+  "raw_nn_wrong": 110,
+  "guarded_accuracy": 0.9841377440347071,
+  "positive_coverage": 0.9825477326968973,
+  "guarded_unsafe_actions": 0,
+  "scope": "Independent vectorized saved-tensor calculation on generated synthetic English test corpus; not public real-user data. Vectorized arithmetic differs from target scalar float32; separately sealed scalar/C++ scores verify kernel parity."
+}

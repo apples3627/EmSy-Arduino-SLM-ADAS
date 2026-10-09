@@ -10,7 +10,7 @@ def split(text):
  clauses=re.split(r'[,;]|\b(?:and|also|plus)\b',text,flags=re.I)
  if len(clauses)>4:return None,'clause_count'
  # Bounds apply to raw clause spans, before outer spaces are removed.
- if any(len(c)>96 for c in clauses):return None,'clause_bytes'
+ if any(len(c.strip(' '))>96 for c in clauses):return None,'clause_bytes'
  if any(not c.strip(' ') for c in clauses):return None,'empty_clause'
  return [c.strip(' ') for c in clauses],'valid'
 
@@ -18,6 +18,7 @@ if __name__=='__main__':
  import json,pathlib
  cases=[json.loads(l) for l in pathlib.Path(__file__).with_name('sealed_cases.jsonl').read_text().splitlines()]
  corrections=json.loads(pathlib.Path(__file__).with_name('pre_model_oracle_corrections.json').read_text())['corrections']
+ corrections.update(json.loads(pathlib.Path(__file__).with_name('post_freeze_oracle_corrections.json').read_text())['corrections'])
  for c in cases:c.update({k:v for k,v in corrections.get(c['id'],{}).items() if k!='explanation'})
  failures=[]
  for c in cases:

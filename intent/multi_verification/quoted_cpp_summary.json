@@ -1,0 +1,10 @@
+{
+  "cases": 2,
+  "parsed_clauses": 3,
+  "scored_nn_clauses": 1,
+  "failures": [],
+  "max_python_cpp_full_logit_error": 3.7670897512498414e-08,
+  "max_cpp_full_shard_logit_error": 7.600000003549212e-06,
+  "all_equal": true,
+  "scope": "Actual generated full/shard NN kernels and actual shared CommandPlan; each clause sequential, logits compared separately from grammar/guard decisions."
+}

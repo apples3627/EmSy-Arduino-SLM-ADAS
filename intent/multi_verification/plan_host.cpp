@@ -1,0 +1,8 @@
+#include <iostream>
+#include <iomanip>
+#include <string>
+#include "../uno_probe/src/intent_model.h"
+#include "../uno_probe/src/command_plan.h"
+extern "C" void left_scores(const uint16_t*,float*);
+extern "C" void right_scores(const uint16_t*,float*);
+int main(){std::string text;while(std::getline(std::cin,text)){CommandPlan::Split s;CommandPlan::Decisions full,shard;full.reset();shard.reset();bool ok=CommandPlan::split(text.data(),text.size(),s);std::cout<<"{\"clause_results\":[";if(ok){for(uint8_t i=0;i<s.count;i++){char c[97];CommandPlan::extract(text.data(),s,i,c);Intent::Input in;Intent::parse(c,strlen(c),in);float z[10]={0},l[10]={0},r[10]={0},combined[10]={0};if(in.reason==Intent::OK){Intent::logits(in,z);left_scores(in.tokens,l);right_scores(in.tokens,r);for(int t=0;t<10;t++)combined[t]=l[t]+r[t]+rdf(IntentMain::C+t);}auto f=Intent::decide(in,z),d=Intent::decide(in,combined);full.append(f.effective);shard.append(d.effective);if(i)std::cout<<',';std::cout<<"{\"input_reason\":"<<(int)in.reason<<",\"full_label\":"<<(int)f.effective<<",\"shard_label\":"<<(int)d.effective<<",\"full_scores\":[";for(int t=0;t<10;t++){if(t)std::cout<<',';std::cout<<std::setprecision(9)<<z[t];}std::cout<<"],\"shard_scores\":[";for(int t=0;t<10;t++){if(t)std::cout<<',';std::cout<<std::setprecision(9)<<combined[t];}std::cout<<"]}";}full.finish();shard.finish();}std::cout<<"],\"reason\":"<<(int)(ok?full.reason:s.reason)<<",\"shard_reason\":"<<(int)(ok?shard.reason:s.reason)<<",\"actions\":[";if(ok)for(uint8_t i=0;i<full.count;i++){if(i)std::cout<<',';std::cout<<(int)full.intents[i];}std::cout<<"],\"shard_actions\":[";if(ok)for(uint8_t i=0;i<shard.count;i++){if(i)std::cout<<',';std::cout<<(int)shard.intents[i];}std::cout<<"]}\n";}}

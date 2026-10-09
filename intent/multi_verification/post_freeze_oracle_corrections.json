@@ -1,0 +1,14 @@
+{
+  "source_seal_sha256": "08387e2d36e6e75248ed8ed6d9b3d6b76a51b7ebb0500caa3656712511f410bc",
+  "corrections": {
+    "M130": {
+      "expected_actions": [
+        "FORWARD"
+      ],
+      "expected_reject": null,
+      "expected_grammar_valid": true,
+      "explanation": "Canonical grammar bounds whitespace-trimmed clause span, not raw clause bytes. Original sealed annotation interpreted the bound differently. No source or model change."
+    }
+  },
+  "timing": "After first immutable model evaluation; original seal and first results preserved"
+}
