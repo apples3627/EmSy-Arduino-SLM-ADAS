@@ -1,5 +1,5 @@
 {
-  "model_version": 3,
+  "model_version": 4,
   "labels": [
     "FORWARD",
     "REVERSE",
@@ -24,7 +24,6 @@
     "ahead",
     "alarm",
     "all",
-    "and",
     "arrive",
     "as",
     "asked",
@@ -222,7 +221,6 @@
     "tell",
     "that",
     "the",
-    "then",
     "to",
     "toward",
     "towards",
@@ -261,7 +259,7 @@
     "yesterday",
     "you"
   ],
-  "vocabulary_sha256": "766b5682715796bec30f9e15645762d5697767cc389a5a2cc34d749a77611c6b",
+  "vocabulary_sha256": "bfd74d7ebefd36b5465c081a34ed83208ec67b2a3671e25356b8fee46bb991c6",
   "architecture": "learned word embedding16 + mean pooling + ReLU64 + 10 intent logits",
   "embedding": 16,
   "hidden": 64,
@@ -271,11 +269,11 @@
   "steps": 1600,
   "selected_step": 1600,
   "selection": "minimum validation cross-entropy; confidence/margin selected only on validation after int8 export",
-  "threshold": 0.9,
-  "margin": 0.2,
-  "dataset_sha256": "d1bf0f838c83bd330c43f2844f608de1cc320ef78e1847ddbd75f014c6c457c7",
-  "model_sha256": "63ab4f8b8697339f1730beee6675568dcde59986c502775253e74c253fc56b12",
-  "model_id": "30918170",
+  "threshold": 0.5,
+  "margin": 0.0,
+  "dataset_sha256": "dce11e6ea37fd4bdcce49a9fd971c859baf8a426ac49be483887f882dd24b733",
+  "model_sha256": "88ca94525dfd32c0a502611da5243d513480b9a52cda5b794bd50a99f9b7b154",
+  "model_id": "95616d56",
   "quantization": "symmetric int8 per original e/w/o tensor; float32 bias/scales; original scales retained in shards",
   "policy": "generic guard/OOV/invalid/low-confidence/UNKNOWN => effective UNKNOWN and GLOBAL_STOP; STOP stops motor/lights/wiper/horn; HORN_ON tone, HORN_OFF noTone",
   "shards": [
@@ -288,11 +286,14 @@
       64
     ]
   ],
-  "weight_bytes": 5924,
+  "weight_bytes": 5892,
   "numpy_version": "2.3.4",
   "python_version": "3.14.0",
-  "training_wall_seconds": 20.90820179200091,
-  "test_usage": "V3 synthetic family test evaluated after VAL-selected checkpoint/threshold freeze; prior V1/V2 tests and disclosed audit summaries are regression, third sealed audit not read",
-  "labels_version": 2,
-  "transport": "16 uint16 LE token IDs, unused slots PAD=0xFFFF; embedding pooling ignores PAD; vocabulary IDs checked against exported count"
+  "training_wall_seconds": 27.541127584001515,
+  "test_usage": "V4 synthetic family test evaluated after VAL-selected checkpoint/threshold freeze; prior V1/V2 tests and disclosed audit summaries are regression, third sealed audit not read",
+  "labels_version": 3,
+  "transport": "16 uint16 LE token IDs, unused slots PAD=0xFFFF; embedding pooling ignores PAD; vocabulary IDs checked against exported count",
+  "max_input_ascii_bytes": 192,
+  "max_clauses": 4,
+  "compound_architecture": "bounded delimiter grammar, per-clause learned NN, STOP/conflict/UNKNOWN plan reduction"
 }

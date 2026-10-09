@@ -1,0 +1,10 @@
+{
+  "sha256": "a6f96198b6e692f61469aae121cce32d59ef591f843840205ccc58a3ecfc72c9",
+  "rows": 1818,
+  "split_counts": {
+    "train": 606,
+    "val": 606,
+    "test": 606
+  },
+  "usage": "All test rows frozen before final training; multi text never NN training. Known train phrases reused to measure composition, not lexical generalization; separator families disjoint; global text dedup."
+}

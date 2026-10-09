@@ -12,9 +12,9 @@ def blobstrings(name,words):
  blob='';off=[]
  for word in words:off.append(len(blob));blob+=word+'\0'
  return f'static const char {name}_TEXT[] INTENT_STORAGE="'+''.join('\\0' if x=='\0' else x for x in blob)+'";\n'+array(name+'_OFFSETS',off,'uint16_t')
-identity=hashlib.sha256((m['model_sha256']+m['vocabulary_sha256']+json.dumps(LABELS)).encode()).hexdigest();m['model_id']=identity[:8];m['labels_version']=2;m['transport']='16 uint16 LE token IDs, unused slots PAD=0xFFFF; embedding pooling ignores PAD; vocabulary IDs checked against exported count'
+identity=hashlib.sha256((m['model_sha256']+m['vocabulary_sha256']+json.dumps(LABELS)).encode()).hexdigest();m['model_id']=identity[:8];m['labels_version']=3;m['transport']='16 uint16 LE token IDs, unused slots PAD=0xFFFF; embedding pooling ignores PAD; vocabulary IDs checked against exported count'
 (ROOT/'metadata.json').write_text(json.dumps(m,indent=2)+'\n')
-config=f'#pragma once\nnamespace IntentConfig {{\nstatic const int VOCAB={len(vocab)}, EMBED={EMBED}, HIDDEN={HIDDEN}, LABELS=10, MAX_BYTES=96, MAX_TOKENS=16;\n'
+config=f'#pragma once\nnamespace IntentConfig {{\nstatic const int VOCAB={len(vocab)}, EMBED={EMBED}, HIDDEN={HIDDEN}, LABELS=10, MAX_BYTES=96, MAX_TOKENS=16, MODEL_VERSION=4, LABELS_VERSION=3;\n'
 config+=f'static const float THRESHOLD={m["threshold"]}f, MARGIN={m["margin"]}f;\n'
 config+=f'static const uint32_t MODEL_ID=0x{m["model_id"]}UL;\nstatic const uint16_t PAD=0xFFFF;\n'
 config+=blobstrings('VOCAB',vocab)+blobstrings('LABEL',LABELS)+blobstrings('GUARD',sorted(GUARD))+f'static const int GUARD_COUNT={len(GUARD)};\n}}\n'

@@ -88,21 +88,30 @@ for phrases in PHRASES.values():
   UNKNOWN += ['do not '+phrase,'if it rains '+phrase,'when i arrive '+phrase,'i wonder whether to '+phrase]
 UNKNOWN += [f'{guard} {phrases[i]}' for phrases in PHRASES.values() for i in [0,3,8] for guard in ['do not','never','while waiting','before dinner','after dinner','without permission','what happens if','why would you','only if asked']]
 UNKNOWN += ['go forward and turn the lights on','move back and honk','start the wiper and drive forward','turn on the horn then move ahead','turn the lights on or off','forward backward','on off','do not move forward','do not turn the lights on']
-UNKNOWN=random.Random(20261007).sample(list(dict.fromkeys(UNKNOWN)),160)
+UNKNOWN=[p for p in UNKNOWN if not any(w in p.split() for w in ['and','also','plus'])]
+UNKNOWN=random.Random(20261007).sample(list(dict.fromkeys(UNKNOWN)),150)
+# Explicit state-free objects and elliptical fragments teach UNKNOWN rather than inventing a state.
+UNKNOWN += ['lights','light','headlights','lamps','horn','buzzer','wiper','wipers','the lights','the horn','the wipers','forward backward','on off','turn','switch','turn on','turn off','on the','off the']
+for label, objs in objects.items():
+ for obj in objs:
+  for verb in ['turn','switch']:
+   PHRASES[label]+=[f'{verb} on {obj}',f'{verb} {obj} on']
+   PHRASES[label+1]+=[f'{verb} off {obj}',f'{verb} {obj} off']
+  PHRASES[label]+=[f'{obj} on']; PHRASES[label+1]+=[f'{obj} off']
 TEMPLATES=[('train','bare',['{}']),('train','request-prefix',['please {}','can you {}','just {}','will you {}','i want you to {}','could you {}','would you {}','i would like you to {}','kindly {}','let us {}','we need you to {}','please help me {}','i request that you {}']),('train','request-suffix',['{} now','{} right now','{} for me','{} for a moment','{} a bit','{} immediately','{} as soon as possible','{} at once']),('val','mixed-request',['please {} now for me','can you {} please for a moment','kindly {} right now']),('test','held-combination',['could you kindly {} right now','i would like you to {} please','please just {} now','{} right now for me'])]
 
 def main():
  rows=[];seen={}
  for split,family,templates in TEMPLATES:
   for label,phrases in sorted({**PHRASES,7:UNKNOWN}.items()):
-   limit=160 if label==7 else len(phrases)
+   limit=len(phrases)
    for phrase in phrases[:limit]:
     for template in templates:
      text=template.format(phrase)
      if len(text)>96 or len(text.split())>16:continue
      if text in seen:
       assert seen[text]==label,('contradictory label',text);continue
-     seen[text]=label;rows.append(dict(text=text,label=label,label_name=LABELS[label],family=family,split=split,provenance='authored synthetic English phrase + grouped template v3'))
+     seen[text]=label;rows.append(dict(text=text,label=label,label_name=LABELS[label],family=family,split=split,provenance='authored synthetic English phrase + grouped template v4'))
  path=ROOT/'dataset/sentences.csv'
  with path.open('w',newline='') as f:
   w=csv.DictWriter(f,fieldnames=list(rows[0]));w.writeheader();w.writerows(rows)

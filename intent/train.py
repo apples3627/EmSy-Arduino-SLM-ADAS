@@ -2,7 +2,7 @@
 """Manual NumPy Adam; train/validation selection only, frozen test evaluated once."""
 import csv,json,pathlib,hashlib,time,platform
 import numpy as np
-from reference import ROOT,LABELS,EMBED,HIDDEN,normalize,quantize,decision,prepare
+from reference import ROOT,LABELS,EMBED,HIDDEN,normalize,quantize,decision,prepare,split_plan,combine_labels
 SEED=20261007;STEPS=1600
 rows=list(csv.DictReader((ROOT/'dataset/sentences.csv').open()))
 manifest=json.loads((ROOT/'dataset/manifest.json').read_text())
@@ -67,11 +67,33 @@ for threshold in [.5,.6,.7,.8,.9]:
   met=metrics(vz,vr,threshold,margin);choices.append((met['positive_coverage']>=.9,met['macro_f1'],threshold,margin,met))
 choice=max(choices,key=lambda z:(z[0],z[1],z[2],z[3]));_,_,threshold,margin,vm=choice
 assert vm['unsafe_action_errors']==0 and vm['positive_coverage']>=.90, 'Validation safety/coverage target failed; do not evaluate frozen test'
+# Pipeline acceptance uses only validation; train corpus compounds never enter gradient training.
+multirows=[json.loads(line) for line in (ROOT/'dataset/multi_commands.jsonl').read_text().splitlines()]
+multi_manifest=json.loads((ROOT/'dataset/multi_manifest.json').read_text())
+assert hashlib.sha256((ROOT/'dataset/multi_commands.jsonl').read_bytes()).hexdigest()==multi_manifest['sha256']
+def plan_metrics(split):
+ cases=[r for r in multirows if r['split']==split];correct=unsafe=0
+ for r in cases:
+  clauses,why=split_plan(r['text']);labels=[]
+  if why=='ok':
+   for clause in clauses:
+    ids,reason,guard=prepare(clause,vocab)
+    if ids is None:labels.append(7);continue
+    freq=np.zeros((1,len(vocab)))
+    for token in ids:freq[0,token]+=1/len(ids)
+    labels.append(decision(qbatch(freq)[0],guard,threshold,margin)[0])
+   actions,why=combine_labels(labels)
+  else:actions=[]
+  correct+=actions==r['expected_actions']
+  unsafe+=bool(actions and actions!=[2] and actions!=r['expected_actions'])
+ return dict(n=len(cases),exact_action_match=correct/len(cases),unsafe_accepted_mismatches=unsafe)
+multival=plan_metrics('val')
+assert multival['exact_action_match']>=.95 and multival['unsafe_accepted_mismatches']==0,'Multi validation failed; frozen test not evaluated'
 weight_hash=hashlib.sha256((ROOT/'model_int8.npz').read_bytes()).hexdigest()
-meta=dict(model_version=3,labels=LABELS,vocabulary=vocab,vocabulary_sha256=hashlib.sha256('\n'.join(vocab).encode()).hexdigest(),architecture='learned word embedding16 + mean pooling + ReLU64 + 10 intent logits',embedding=EMBED,hidden=HIDDEN,max_ascii_bytes=96,max_tokens=16,seed=SEED,steps=STEPS,selected_step=beststep,selection='minimum validation cross-entropy; confidence/margin selected only on validation after int8 export',threshold=threshold,margin=margin,dataset_sha256=manifest['sha256'],model_sha256=weight_hash,model_id=weight_hash[:8],quantization='symmetric int8 per original e/w/o tensor; float32 bias/scales; original scales retained in shards',policy='generic guard/OOV/invalid/low-confidence/UNKNOWN => effective UNKNOWN and GLOBAL_STOP; STOP stops motor/lights/wiper/horn; HORN_ON tone, HORN_OFF noTone',shards=[[0,32],[32,64]],weight_bytes=int(e.size+w.size+o.size+4*(b.size+c.size)+12),numpy_version=np.__version__,python_version=platform.python_version(),training_wall_seconds=time.monotonic()-start,test_usage='V3 synthetic family test evaluated after VAL-selected checkpoint/threshold freeze; prior V1/V2 tests and disclosed audit summaries are regression, third sealed audit not read')
+meta=dict(model_version=4,labels=LABELS,vocabulary=vocab,vocabulary_sha256=hashlib.sha256('\n'.join(vocab).encode()).hexdigest(),architecture='learned word embedding16 + mean pooling + ReLU64 + 10 intent logits',embedding=EMBED,hidden=HIDDEN,max_ascii_bytes=96,max_input_ascii_bytes=192,max_clauses=4,max_tokens=16,compound_architecture='bounded delimiter grammar, per-clause learned NN, STOP/conflict/UNKNOWN plan reduction',seed=SEED,steps=STEPS,selected_step=beststep,selection='minimum validation cross-entropy; confidence/margin selected only on validation after int8 export',threshold=threshold,margin=margin,dataset_sha256=manifest['sha256'],model_sha256=weight_hash,model_id=weight_hash[:8],quantization='symmetric int8 per original e/w/o tensor; float32 bias/scales; original scales retained in shards',policy='generic guard/OOV/invalid/low-confidence/UNKNOWN => effective UNKNOWN and GLOBAL_STOP; STOP stops motor/lights/wiper/horn; HORN_ON tone, HORN_OFF noTone',shards=[[0,32],[32,64]],weight_bytes=int(e.size+w.size+o.size+4*(b.size+c.size)+12),numpy_version=np.__version__,python_version=platform.python_version(),training_wall_seconds=time.monotonic()-start,test_usage='V4 synthetic family test evaluated after VAL-selected checkpoint/threshold freeze; prior V1/V2 tests and disclosed audit summaries are regression, third sealed audit not read')
 (ROOT/'metadata.json').write_text(json.dumps(meta,indent=2)+'\n')
 # Freeze exists before constructing final test features.
-fr,fx,fy=batch('test');report={'validation_quantized_guarded':vm,'train_float_raw':metrics(forward(p,x)[3],tr),'val_float_raw':metrics(forward(p,vx)[3],vr),'test_float_raw':metrics(forward(p,fx)[3],fr),'test_int8_raw':metrics(qbatch(fx),fr),'test_int8_guarded':metrics(qbatch(fx),fr),'gradient_check':dict(analytical=gradient_analytical,numeric=float(numeric))}
+fr,fx,fy=batch('test');report={'multi_validation':multival,'multi_test':plan_metrics('test'),'validation_quantized_guarded':vm,'train_float_raw':metrics(forward(p,x)[3],tr),'val_float_raw':metrics(forward(p,vx)[3],vr),'test_float_raw':metrics(forward(p,fx)[3],fr),'test_int8_raw':metrics(qbatch(fx),fr),'test_int8_guarded':metrics(qbatch(fx),fr),'gradient_check':dict(analytical=gradient_analytical,numeric=float(numeric))}
 report['test_int8_guarded']=metrics(qbatch(fx),fr,threshold,margin)
 (ROOT/'metrics.json').write_text(json.dumps(report,indent=2)+'\n');(ROOT/'training_log.json').write_text(json.dumps(history,indent=2)+'\n')
 print(json.dumps({'selected_step':beststep,'threshold':threshold,'margin':margin,'vocab':len(vocab),'weight_bytes':meta['weight_bytes'],'test_raw_f1':report['test_int8_raw']['macro_f1'],'test_guarded':report['test_int8_guarded']},indent=2))

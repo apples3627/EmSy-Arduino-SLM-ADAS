@@ -1,0 +1,2 @@
+PASS: 1775 train/contract C++/Python contexts, max score error 5.00000006e-08; two-shard max error 1.38692515e-05; 8 invalid inputs rejected
+PASS: global normalized dedup, disjoint template families, fixed label contract
