@@ -1,5 +1,5 @@
 {
-  "cases": 733,
+  "cases": 739,
   "python_cpp_plan_parity": true,
   "expected_examples": {
     "go forward and turn on the lights": [
