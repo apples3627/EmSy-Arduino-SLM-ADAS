@@ -61,3 +61,9 @@ Arduino core의 startup을 사용하는 스케치지만 모든 I/O와 시간 제
 5. 전류 제한 bench PSU와 선택한 driver로 motor를 시험하고 mechanical 범위를 낮게 설정해 servo를 시험합니다.
 
 ACK의 drive/lights/wiper/horn/angle은 controller의 명령 출력 상태입니다. 물리 센서 피드백이나 실제 장치 작동 증거가 아닙니다. host test는 `c++ -std=c++11 firmware/tests/actuator_engine_test.cpp -o /tmp/actuator_test && /tmp/actuator_test`; 실제 AVR build도 별도로 수행합니다. USB 업로드/실제 장치 시험은 팀이 각 보드에서 수행해야 합니다.
+
+## 원자적 배치 프로토콜
+
+프로토콜 버전 2, 라벨 버전 3의 `ACTUATE_BATCH`(op 14) payload는 `session32,count8,intents[count],duration16`이며 길이는 `7+count`, count는 1–4입니다. 전체 목록의 길이/intent/상충 여부를 먼저 검증하고 한 번에 출력을 반영합니다. 전진+후진, 조명/와이퍼/경적 ON+OFF는 전체 OFF와 오류 응답입니다. STOP/UNKNOWN은 전체 OFF를 우선합니다. 반복 intent는 한 번만 적용합니다. 일부만 적용되는 유효 접두사는 없습니다.
+
+반대 방향으로 전환할 때는 모터를 즉시 neutral로 만들고 100 ms 동안 배치의 조명/와이퍼/경적 변경도 보류합니다. 완료 후 배치 전체를 적용하고 ACK를 보냅니다. 그 사이 STOP, 새 session, 로컬 버튼, watchdog는 보류 배치 전체를 취소합니다. 같은 명령 번호와 동일한 32바이트 요청은 재실행/시간 연장 없이 ACK(보류 중 BUSY)하며, 같은 번호의 다른 요청은 오류와 전체 OFF입니다. STATUS는 통신 생존만 확인하며 500 ms 모터 lease를 연장하지 않습니다. 배치와 단일 요청 모두 최대 lease는 1000 ms이고 만료는 모터만 정지합니다.

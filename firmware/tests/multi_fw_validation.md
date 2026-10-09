@@ -1,0 +1,9 @@
+# Firmware validation (2026-10-09)
+
+Scope: sequential MAIN planner and atomic actuator batch. Tested in isolated `multi-command-firmware` checkout against the current copied model. Canonical `CommandPlan` header was copied from trainer for compilation only; model assets and planner copy are not in this firmware commit. Rerun integrated tests after retrained assets are installed.
+
+- `sh firmware/tests/main_integration_test.sh`: PASS. Real MAIN register scheduler links real controller and both neural workers as separate translation units. Preserves baseline readiness/initial STOP ACK, score assembly, TWI timeouts, software UART, stale ACK/results, actor liveness, and ID counter cases. Added two/three/four clauses, bound accessory ON/OFF, duplicate collapse, conflict/UNKNOWN rejection, STOP dominance (including preceding UNKNOWN), second-clause missing worker with no prefix actuation, and diagnostic buffer preservation.
+- C++17 `-Wall -Wextra` host tests: `main_policy_test`, `actuator_engine_test`, `multi_fw_actor_test`: PASS.
+- Batch tests exercise all four outputs, duplicate lease preservation, changed payload at same ID, invalid enum/count/CRC/session/stale ID, inverse pairs, STOP/UNKNOWN precedence, opposite-direction batch neutral delay and accessory staging, pending BUSY, and cancellation by STOP/local button/new session/watchdog.
+- Arduino CLI Uno build with `--warnings all`: MAIN 15,882 bytes flash, 1,360 bytes globals (688 bytes remaining); ACTUATOR 4,922 bytes flash, 411 bytes globals (1,637 bytes remaining). Only Arduino AVR core `new.cpp` unused-parameter warnings; no owned-source warnings. These RAM values are link-time globals/headroom; stack high-water use was not physically measured.
+- No hardware upload, board connection, or electrical timing measurement was performed in this worker.

@@ -4,7 +4,7 @@
 namespace Actuator {
 struct Outputs { int8_t drive; uint8_t duty; bool lights,wiper,horn; uint8_t servoAngle; };
 class Engine {
- Config cfg; Outputs state; uint32_t highest,session,lastContact,driveStart,sweepAt,pendingAt; uint16_t lastAccepted,lastApplied,pendingId,pendingDuration; bool accepted,pending,asyncReady,localLatched,buttonDown,sweepUp,persistNeeded; int8_t pendingDrive; Proto::Frame asyncFrame;
+ Config cfg; Outputs state; uint32_t highest,session,lastContact,driveStart,sweepAt,pendingAt; uint16_t lastAccepted,lastApplied,pendingId,pendingDuration; bool accepted,pending,asyncReady,localLatched,buttonDown,sweepUp,persistNeeded; int8_t pendingDrive; Proto::Frame asyncFrame,lastRequest; Outputs staged;
  static bool elapsed(uint32_t now,uint32_t start,uint16_t interval){return uint32_t(now-start)>=interval;}
  void off(){state.drive=0;state.duty=0;state.lights=state.wiper=state.horn=false;pending=false;asyncReady=false;}
  void status(Proto::Frame& reply,uint8_t op,uint16_t id){uint8_t p[12]={0};Proto::put32(p,session);p[4]=uint8_t(state.drive);p[5]=state.lights;p[6]=state.wiper;p[7]=state.horn;p[8]=state.servoAngle;p[9]=(pending?1:0)|(localLatched?2:0);Proto::put16(p+10,lastApplied);Proto::make(reply,op,id,0,p,12);}
@@ -19,7 +19,7 @@ class Engine {
  void localButton(bool down){buttonDown=down;if(down){localLatched=true;off();session=0;}}
  void tick(uint32_t now){
   if(session&&elapsed(now,lastContact,cfg.watchdogMs)){fault();return;}
-  if(pending&&elapsed(now,pendingAt,cfg.reversalMs)){pending=false;drive(pendingDrive,pendingDuration,pendingId,now);status(asyncFrame,Proto::ACK,pendingId);asyncReady=true;}
+  if(pending&&elapsed(now,pendingAt,cfg.reversalMs)){pending=false;state=staged;drive(pendingDrive,pendingDuration,pendingId,now);status(asyncFrame,Proto::ACK,pendingId);asyncReady=true;}
   if(state.drive&&elapsed(now,driveStart,pendingDuration)){state.drive=0;state.duty=0;}
   if(state.wiper&&elapsed(now,sweepAt,cfg.servoStepMs)){sweepAt=now;int16_t angle=int16_t(state.servoAngle)+(sweepUp?cfg.servoStep:-int16_t(cfg.servoStep));if(angle>=cfg.servoMax){angle=cfg.servoMax;sweepUp=false;}if(angle<=cfg.servoMin){angle=cfg.servoMin;sweepUp=true;}state.servoAngle=uint8_t(angle);}
  }
@@ -36,23 +36,34 @@ class Engine {
    if(incoming!=session){off();highest=session=incoming;persistNeeded=true;accepted=false;lastAccepted=lastApplied=0;localLatched=false;}
    lastContact=now;uint8_t meta[10];Proto::put32(meta,session);Proto::put32(meta+4,Proto::MODEL_ID);meta[8]=Proto::LABELS_VERSION;meta[9]=15;Proto::make(out,Proto::HELLO_ACK,Proto::id(req),0,meta,10);return true;
   }
-  if(op!=Proto::ACTUATE&&op!=Proto::STOP_ALL&&op!=Proto::STATUS&&op!=Proto::HEARTBEAT){off();return error(req,out,Proto::BAD_OP);}
-  if(Proto::len(req)!=(op==Proto::ACTUATE?7:4)){off();return error(req,out,Proto::BAD_LENGTH);}
+  if(op!=Proto::ACTUATE&&op!=Proto::ACTUATE_BATCH&&op!=Proto::STOP_ALL&&op!=Proto::STATUS&&op!=Proto::HEARTBEAT){off();return error(req,out,Proto::BAD_OP);}
+  uint8_t count=1;
+  if(op==Proto::ACTUATE_BATCH){if(Proto::len(req)<8||p[4]<1||p[4]>4||Proto::len(req)!=7+p[4]){off();return error(req,out,Proto::BAD_LENGTH);}count=p[4];}
+  else if(Proto::len(req)!=(op==Proto::ACTUATE?7:4)){off();return error(req,out,Proto::BAD_LENGTH);}
   if(localLatched)return error(req,out,Proto::LOCAL_STOP);
   if(!session||Proto::get32(p)!=session)return error(req,out,Proto::BAD_SESSION);
   lastContact=now;
   if(op==Proto::STATUS||op==Proto::HEARTBEAT){status(out,Proto::STATUS_REPLY,Proto::id(req));return true;}
   uint16_t id=Proto::id(req);
-  if(accepted&&id==lastAccepted){if(pending)return error(req,out,Proto::BUSY);status(out,Proto::ACK,id);return true;}
+  if(accepted&&id==lastAccepted){if(memcmp(req.bytes,lastRequest.bytes,Proto::FRAME_SIZE)){off();return error(req,out,Proto::BAD_OP);}if(pending)return error(req,out,Proto::BUSY);status(out,Proto::ACK,id);return true;}
   if(accepted&&!Proto::newer16(id,lastAccepted))return error(req,out,Proto::OLD_COMMAND);
-  uint8_t intent=op==Proto::STOP_ALL?uint8_t(Proto::ALL_STOP):p[4];
-  if(intent>9){off();return error(req,out,Proto::BAD_OP);}
-  // While reversal waits, only a global stop may supersede it. Independent actions retry after ACK.
-  if(pending&&intent!=Proto::ALL_STOP&&intent!=Proto::UNKNOWN_INTENT)return error(req,out,Proto::BUSY);
-  accepted=true;lastAccepted=id;
-  if(intent==Proto::FORWARD||intent==Proto::REVERSE){uint16_t duration=Proto::get16(p+5);if(!duration)duration=cfg.motionMs;if(duration>cfg.maxMotionMs)duration=cfg.maxMotionMs;int8_t direction=intent==Proto::FORWARD?1:-1;
-   if(state.drive&&state.drive!=direction){state.drive=0;state.duty=0;pending=true;pendingAt=now;pendingId=id;pendingDrive=direction;pendingDuration=duration;return false;}drive(direction,duration,id,now);
-  }else {lastApplied=id;switch(intent){case Proto::ALL_STOP:case Proto::UNKNOWN_INTENT:off();break;case Proto::LIGHT_ON:state.lights=true;break;case Proto::LIGHT_OFF:state.lights=false;break;case Proto::WIPER_ON:state.wiper=true;sweepAt=now;break;case Proto::WIPER_OFF:state.wiper=false;break;case Proto::HORN_ON:state.horn=true;break;case Proto::HORN_OFF:state.horn=false;break;}}
+  uint16_t seen=0;bool globalStop=op==Proto::STOP_ALL,invalid=false,conflict=false;
+  for(uint8_t i=0;i<count;i++){uint8_t intent=op==Proto::STOP_ALL?uint8_t(Proto::ALL_STOP):p[op==Proto::ACTUATE_BATCH?5+i:4];if(intent>9){invalid=true;continue;}seen|=uint16_t(1)<<intent;if(intent==Proto::ALL_STOP||intent==Proto::UNKNOWN_INTENT)globalStop=true;}
+  const uint8_t pairs[8]={0,1,3,4,5,6,8,9};for(uint8_t i=0;i<8;i+=2)if((seen&(uint16_t(1)<<pairs[i]))&&(seen&(uint16_t(1)<<pairs[i+1])))conflict=true;
+  if(invalid||(!globalStop&&conflict)){off();return error(req,out,Proto::BAD_OP);}
+  if(pending&&!globalStop)return error(req,out,Proto::BUSY);
+  accepted=true;lastAccepted=id;lastRequest=req;
+  if(globalStop){off();lastApplied=id;status(out,Proto::ACK,id);return true;}
+  Outputs next=state;int8_t direction=0;
+  if(seen&(1<<Proto::FORWARD))direction=1;if(seen&(1<<Proto::REVERSE))direction=-1;
+  if(seen&(1<<Proto::LIGHT_ON))next.lights=true;if(seen&(1<<Proto::LIGHT_OFF))next.lights=false;
+  if(seen&(1<<Proto::WIPER_ON))next.wiper=true;if(seen&(1<<Proto::WIPER_OFF))next.wiper=false;
+  if(seen&(1<<Proto::HORN_ON))next.horn=true;if(seen&(1<<Proto::HORN_OFF))next.horn=false;
+  uint16_t duration=op==Proto::ACTUATE_BATCH?Proto::get16(p+5+count):Proto::get16(p+5);
+  if(!duration)duration=cfg.motionMs;if(duration>cfg.maxMotionMs)duration=cfg.maxMotionMs;
+  if(direction&&state.drive&&state.drive!=direction){state.drive=0;state.duty=0;staged=next;pending=true;pendingAt=now;pendingId=id;pendingDrive=direction;pendingDuration=duration;return false;}
+  state=next;if(seen&(1<<Proto::WIPER_ON))sweepAt=now;
+  if(direction)drive(direction,duration,id,now);else lastApplied=id;
   status(out,Proto::ACK,id);return true;
  }
 };

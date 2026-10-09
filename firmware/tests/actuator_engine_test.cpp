@@ -1,7 +1,7 @@
 #include <cassert>
 #include "../actuator_uart/src/control_engine.h"
 using namespace Actuator;
-static Proto::Frame req(uint8_t op,uint16_t id,uint32_t session,uint8_t intent=0,uint16_t duration=0){Proto::Frame f;uint8_t p[9]={};Proto::put32(p,session);uint8_t n=4;if(op==Proto::HELLO){Proto::put32(p+4,Proto::MODEL_ID);p[8]=2;n=9;}if(op==Proto::ACTUATE){p[4]=intent;Proto::put16(p+5,duration);n=7;}Proto::make(f,op,id,0,p,n);return f;}
+static Proto::Frame req(uint8_t op,uint16_t id,uint32_t session,uint8_t intent=0,uint16_t duration=0){Proto::Frame f;uint8_t p[9]={};Proto::put32(p,session);uint8_t n=4;if(op==Proto::HELLO){Proto::put32(p+4,Proto::MODEL_ID);p[8]=Proto::LABELS_VERSION;n=9;}if(op==Proto::ACTUATE){p[4]=intent;Proto::put16(p+5,duration);n=7;}Proto::make(f,op,id,0,p,n);return f;}
 int main(){Engine e;Proto::Frame out;auto call=[&](uint8_t op,uint16_t id,uint32_t sess,uint8_t intent,uint32_t t,uint16_t duration=0){return e.onFrame(req(op,id,sess,intent,duration),out,t);};
  assert(!e.outputs().drive&&!e.outputs().wiper);assert(call(Proto::HELLO,0,1,0,0));assert(e.takePersist());
  assert(call(Proto::ACTUATE,1,1,0,1));assert(e.outputs().drive==1&&e.outputs().duty==75);
