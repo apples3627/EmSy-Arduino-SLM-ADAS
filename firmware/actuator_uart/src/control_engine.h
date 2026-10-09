@@ -19,7 +19,7 @@ class Engine {
  void localButton(bool down){buttonDown=down;if(down){localLatched=true;off();session=0;}}
  void tick(uint32_t now){
   if(session&&elapsed(now,lastContact,cfg.watchdogMs)){fault();return;}
-  if(pending&&elapsed(now,pendingAt,cfg.reversalMs)){pending=false;state=staged;drive(pendingDrive,pendingDuration,pendingId,now);status(asyncFrame,Proto::ACK,pendingId);asyncReady=true;}
+  if(pending&&elapsed(now,pendingAt,cfg.reversalMs)){pending=false;staged.servoAngle=state.servoAngle;state=staged;if(state.wiper)sweepAt=now;drive(pendingDrive,pendingDuration,pendingId,now);status(asyncFrame,Proto::ACK,pendingId);asyncReady=true;}
   if(state.drive&&elapsed(now,driveStart,pendingDuration)){state.drive=0;state.duty=0;}
   if(state.wiper&&elapsed(now,sweepAt,cfg.servoStepMs)){sweepAt=now;int16_t angle=int16_t(state.servoAngle)+(sweepUp?cfg.servoStep:-int16_t(cfg.servoStep));if(angle>=cfg.servoMax){angle=cfg.servoMax;sweepUp=false;}if(angle<=cfg.servoMin){angle=cfg.servoMin;sweepUp=true;}state.servoAngle=uint8_t(angle);}
  }
