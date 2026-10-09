@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Create per-team standalone source archives with guides and file hashes."""
 from pathlib import Path
-import subprocess,sys,zipfile,hashlib,json
+import subprocess,sys,zipfile,hashlib,json,re
 ROOT=Path(__file__).resolve().parents[2]
 subprocess.run([sys.executable,str(ROOT/'firmware/tools/prepare.py')],check=True)
 out=ROOT/'firmware/packages';out.mkdir(exist_ok=True);manifest={}
@@ -24,5 +24,7 @@ for role in ('main','compute_i2c','compute_spi','actuator_uart'):
         z.writestr(role+'/START_HERE.md',start)
         files.append({'path':role+'/START_HERE.md','sha256':hashlib.sha256(start.encode()).hexdigest()})
     manifest[role]={'archive':archive.name,'sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),'files':files}
-(out/'manifest.json').write_text(json.dumps({'model_id':'30918170','protocol_version':1,'labels_version':2,'boards':manifest},indent=2)+'\n')
+meta=json.loads((ROOT/'intent/metadata.json').read_text())
+version=int(re.search(r'VERSION=(\d+)',(ROOT/'firmware/common/protocol.h').read_text())[1])
+(out/'manifest.json').write_text(json.dumps({'model_id':meta['model_id'],'protocol_version':version,'labels_version':meta['labels_version'],'boards':manifest},indent=2)+'\n')
 print('Packaged 4 standalone role folders; unzip whole folder before opening .ino')

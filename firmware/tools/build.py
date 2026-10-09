@@ -18,5 +18,5 @@ for name in ('main','compute_i2c','compute_spi','actuator_uart'):
     flash,ram=int(f[1]),int(r[1]);assert flash<=32256 and ram<=1536,(name,flash,ram)
     measure.append(dict(board=name,flash_bytes=flash,static_sram_bytes=ram,sram_static_spare=2048-ram,flash_limit=32256,sram_limit=2048))
 reports=ROOT/'firmware/reports';reports.mkdir(exist_ok=True)
-(reports/'build_sizes.json').write_text(json.dumps({'fqbn':'arduino:avr:uno','model_id':'30918170','hardware_verified':False,'boards':measure},indent=2)+'\n')
+(reports/'build_sizes.json').write_text(json.dumps({'fqbn':'arduino:avr:uno','model_id':json.loads((ROOT/'intent/metadata.json').read_text())['model_id'],'hardware_verified':False,'boards':measure},indent=2)+'\n')
 print('PASS all four; reserve values are static linker spare, not measured runtime stack')

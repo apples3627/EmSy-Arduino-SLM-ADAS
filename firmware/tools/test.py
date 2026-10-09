@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parents[2]
 subprocess.run([sys.executable,str(ROOT/'firmware/tools/prepare.py')],check=True)
 subprocess.run([sys.executable,str(ROOT/'firmware/tests/compute_host_test.py')],cwd=ROOT,check=True)
 with tempfile.TemporaryDirectory() as td:
- for name in ('main_policy','actuator_engine','protocol'):
+ for name in ('main_policy','actuator_engine','multi_fw_actor','protocol'):
   exe=Path(td)/name
   subprocess.run(['c++','-std=c++11','-Wall','-Wextra',str(ROOT/f'firmware/tests/{name}_test.cpp'),'-o',str(exe)],check=True)
   subprocess.run([str(exe)],check=True)

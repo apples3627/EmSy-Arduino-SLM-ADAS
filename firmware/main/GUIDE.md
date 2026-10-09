@@ -23,7 +23,7 @@ MAIN D0/D1은 USB 시리얼 모니터용입니다. 외부 보드 또는 모터�
 
 PC 시리얼 모니터는 **9600 baud, Newline**입니다. 먼저 `!status`를 입력하세요. 계산 보드나 액추에이터가 없으면 `ready=0`이고 차량 동작을 허용하지 않습니다. 나머지 팀원이 자기 펌웨어를 업로드하고 배선한 후 `!retry`로 새 세션을 시작하세요. 모든 메타데이터 핸드셰이크와 초기 STOP의 일치하는 ACK가 완료된 뒤 `READY`가 출력됩니다. `READY` 직후 일반 문장을 입력할 수 있습니다. `APPLIED`는 세션/명령 번호가 일치하는 액추에이터 ACK의 실제 출력 상태이며 센서 측정값이 아닙니다.
 
-시험 문장: `go forward`, `go backward`, `stop`, `turn on the lights`, `turn off the lights`, `turn on the wipers`, `turn off the wipers`, `tell me a joke` (안전 정지), `turn on the horn`, `turn off the horn`. 동작 문장은 이전 `APPLIED` 뒤에 입력하세요. `  STOP!?  `도 즉시 STOP으로 처리합니다. STOP은 분류 대기 상태를 취소하고 이전 결과/ACK가 새 동작을 만들지 못하게 합니다. 분류 중 새 일반 문자의 첫 바이트는 진행 중 계획을 취소하고 안전 정지를 요청합니다. `!status`/`!trace`는 별도 12바이트 버퍼로 처리하여 진행 중 계획을 보존합니다. 바쁜 동안 새 일반 문장, OOV, 비 ASCII, 가드 문장, 192자를 넘는 문장은 안전 정지로 처리합니다. 전체 문장은 최대 ASCII 192자, 각 절은 최대 96자/16토큰이며 최대 네 절입니다.
+시험 문장: `go forward`, `go backward`, `stop`, `turn on the lights`, `turn off the lights`, `turn on the wipers`, `turn off the wipers`, `tell me a joke` (안전 정지), `turn on the horn`, `turn off the horn`. 동작 문장은 이전 `APPLIED` 뒤에 입력하세요. `  STOP!?  `도 즉시 STOP으로 처리합니다. STOP은 분류 대기 상태를 취소하고 이전 결과/ACK가 새 동작을 만들지 못하게 합니다. 분류 중 새 일반 문자의 첫 바이트는 진행 중 계획을 취소하고 안전 정지를 요청합니다. `!status`/`!trace`는 별도 12바이트 버퍼로 처리하여 진행 중 계획을 보존합니다. 바쁜 동안 새 일반 문장, OOV, 비 ASCII, 가드 문장, 192자를 넘는 문장은 안전 정지로 처리합니다. 전체 문장은 최대 ASCII 192자, 각 절은 앞뒤 공백 제거 후 최대96자/16토큰이며 최대 네 절입니다.
 
 전진/후진 기본 시간은 500 ms이며 MAIN은 하트비트로 구동 시간을 연장하지 않습니다. 조명/와이퍼/경적 ON은 액추에이터의 래치 출력입니다. STOP은 모두 OFF로 요청합니다. 링크 오류/타임아웃도 STOP을 요청하며 액추에이터 ACK가 없으면 `ALL_STOP_unconfirmed`라고 표시합니다. 액추에이터 자체의 로컬 안전 정지와 구동 시간 제한도 필요합니다.
 

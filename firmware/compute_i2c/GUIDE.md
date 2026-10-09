@@ -21,7 +21,7 @@ D0/D1 UART 연결은 없습니다. PC 시리얼 모니터로 입력하거나 출
 ## 통신 계약
 
 - 고정 32바이트 프레임: SOF `0xa5`, version 1, opcode, job16 LE, seq, payload 길이, 최대 24바이트 payload, zero padding, CRC8(poly `0x07`, 처음 31바이트).
-- HELLO는 payload 길이 0 또는 4를 허용하며 작업/입력/대기 큐를 초기화합니다. HELLO_ACK는 모델 `0x30918170`, vocab tag `0x766b5682`, labels version 2, 클래스 10, embedding 16, hidden 64, 담당 범위 및 vocab 247을 알립니다.
+- HELLO는 payload 길이 0 또는 4를 허용하며 작업/입력/대기 큐를 초기화합니다. HELLO_ACK는 모델 `0x95616d56`, vocab tag `0x766b5682`, labels version 2, 클래스 10, embedding 16, hidden 64, 담당 범위 및 vocab 245을 알립니다.
 - LOAD_INPUT seq0/길이24는 토큰 0–11, seq1/길이8은 토큰 12–15입니다. 토큰은 uint16 LE, 정상 ID 0–246, PAD `0xffff`입니다. seq0부터 같은 job ID로 전송하고 START합니다. 같은 chunk/내용 재전송은 ACK, 다른 내용은 BAD_JOB입니다. 전부 PAD 입력과 잘못된 토큰은 거절합니다.
 - START ACK를 준비한 다음 foreground에서 계산합니다. ISR에서는 부동소수점 계산을 하지 않습니다. 동일 job START 재전송은 재계산하지 않습니다.
 - STATUS_REPLY payload 6바이트: state, error, 입력 mask, role(1), activeJob16 LE. state 0 IDLE/1 RECEIVING/2 COMPUTING/3 READY/4 FAULT입니다.
