@@ -1,0 +1,20 @@
+{
+  "cases": 733,
+  "python_cpp_plan_parity": true,
+  "expected_examples": {
+    "go forward and turn on the lights": [
+      0,
+      3
+    ],
+    "lights off and horn on": [
+      4,
+      8
+    ],
+    "lights": [],
+    "horn": [],
+    "wipers": [],
+    "honk": [
+      8
+    ]
+  }
+}
