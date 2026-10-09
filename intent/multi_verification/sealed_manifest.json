@@ -1,0 +1,8 @@
+{
+  "format_version": 1,
+  "case_count": 144,
+  "sha256": "08387e2d36e6e75248ed8ed6d9b3d6b76a51b7ebb0500caa3656712511f410bc",
+  "authorship": "Manually specified independent imperative templates and combinations; no training/model files consumed.",
+  "scope": "Known standard English words, explicit clauses. Grammar-only token-limit diagnostic excluded from action accuracy.",
+  "status": "SEALED BEFORE NEW MODEL ACCESS"
+}

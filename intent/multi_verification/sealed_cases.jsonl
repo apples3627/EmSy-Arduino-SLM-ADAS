@@ -1,0 +1,144 @@
+{"id":"M001","text":"move forward","expected_actions":["FORWARD"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M002","text":"please move forward","expected_actions":["FORWARD"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M003","text":"kindly move forward","expected_actions":["FORWARD"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M004","text":"go backward","expected_actions":["REVERSE"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M005","text":"please go backward","expected_actions":["REVERSE"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M006","text":"kindly go backward","expected_actions":["REVERSE"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M007","text":"turn on the lights","expected_actions":["LIGHT_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M008","text":"please turn on the lights","expected_actions":["LIGHT_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M009","text":"kindly turn on the lights","expected_actions":["LIGHT_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M010","text":"switch off the lights","expected_actions":["LIGHT_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M011","text":"please switch off the lights","expected_actions":["LIGHT_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M012","text":"kindly switch off the lights","expected_actions":["LIGHT_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M013","text":"turn on the wiper","expected_actions":["WIPER_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M014","text":"please turn on the wiper","expected_actions":["WIPER_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M015","text":"kindly turn on the wiper","expected_actions":["WIPER_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M016","text":"switch off the wiper","expected_actions":["WIPER_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M017","text":"please switch off the wiper","expected_actions":["WIPER_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M018","text":"kindly switch off the wiper","expected_actions":["WIPER_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M019","text":"turn on the horn","expected_actions":["HORN_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M020","text":"please turn on the horn","expected_actions":["HORN_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M021","text":"kindly turn on the horn","expected_actions":["HORN_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M022","text":"switch off the horn","expected_actions":["HORN_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M023","text":"please switch off the horn","expected_actions":["HORN_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M024","text":"kindly switch off the horn","expected_actions":["HORN_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M025","text":"move forward and turn on the lights","expected_actions":["FORWARD","LIGHT_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M026","text":"move forward also switch off the lights","expected_actions":["FORWARD","LIGHT_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M027","text":"move forward plus turn on the wiper","expected_actions":["FORWARD","WIPER_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M028","text":"move forward, switch off the wiper","expected_actions":["FORWARD","WIPER_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M029","text":"move forward; turn on the horn","expected_actions":["FORWARD","HORN_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M030","text":"move forward AND switch off the horn","expected_actions":["FORWARD","HORN_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M031","text":"go backward and turn on the lights","expected_actions":["REVERSE","LIGHT_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M032","text":"go backward also switch off the lights","expected_actions":["REVERSE","LIGHT_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M033","text":"go backward plus turn on the wiper","expected_actions":["REVERSE","WIPER_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M034","text":"go backward, switch off the wiper","expected_actions":["REVERSE","WIPER_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M035","text":"go backward; turn on the horn","expected_actions":["REVERSE","HORN_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M036","text":"go backward AND switch off the horn","expected_actions":["REVERSE","HORN_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M037","text":"turn on the lights and turn on the wiper","expected_actions":["LIGHT_ON","WIPER_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M038","text":"turn on the lights also switch off the wiper","expected_actions":["LIGHT_ON","WIPER_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M039","text":"turn on the lights plus turn on the horn","expected_actions":["LIGHT_ON","HORN_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M040","text":"turn on the lights, switch off the horn","expected_actions":["LIGHT_ON","HORN_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M041","text":"switch off the lights; turn on the wiper","expected_actions":["LIGHT_OFF","WIPER_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M042","text":"switch off the lights AND switch off the wiper","expected_actions":["LIGHT_OFF","WIPER_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M043","text":"switch off the lights and turn on the horn","expected_actions":["LIGHT_OFF","HORN_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M044","text":"switch off the lights also switch off the horn","expected_actions":["LIGHT_OFF","HORN_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M045","text":"turn on the wiper plus turn on the horn","expected_actions":["WIPER_ON","HORN_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M046","text":"turn on the wiper, switch off the horn","expected_actions":["WIPER_ON","HORN_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M047","text":"switch off the wiper; turn on the horn","expected_actions":["WIPER_OFF","HORN_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M048","text":"switch off the wiper AND switch off the horn","expected_actions":["WIPER_OFF","HORN_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M049","text":"please switch off the lights, and turn on the horn","expected_actions":["LIGHT_OFF","HORN_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M050","text":"please turn on the horn, and switch off the lights","expected_actions":["HORN_ON","LIGHT_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M051","text":"please turn on the lights, and switch off the horn","expected_actions":["LIGHT_ON","HORN_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M052","text":"please switch off the horn, and turn on the lights","expected_actions":["HORN_OFF","LIGHT_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M053","text":"please turn on the wiper, and switch off the lights","expected_actions":["WIPER_ON","LIGHT_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M054","text":"please switch off the lights, and turn on the wiper","expected_actions":["LIGHT_OFF","WIPER_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M055","text":"please go backward, and switch off the horn","expected_actions":["REVERSE","HORN_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M056","text":"please switch off the horn, and go backward","expected_actions":["HORN_OFF","REVERSE"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M057","text":"move forward and turn on the lights and turn on the horn","expected_actions":["FORWARD","LIGHT_ON","HORN_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M058","text":"move forward also switch off the lights also switch off the horn","expected_actions":["FORWARD","LIGHT_OFF","HORN_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M059","text":"go backward plus turn on the wiper plus turn on the horn","expected_actions":["REVERSE","WIPER_ON","HORN_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M060","text":"go backward, switch off the wiper, switch off the horn","expected_actions":["REVERSE","WIPER_OFF","HORN_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M061","text":"turn on the lights; turn on the wiper; turn on the horn","expected_actions":["LIGHT_ON","WIPER_ON","HORN_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M062","text":"switch off the lights AND switch off the wiper AND switch off the horn","expected_actions":["LIGHT_OFF","WIPER_OFF","HORN_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M063","text":"turn on the horn and switch off the lights and turn on the wiper","expected_actions":["HORN_ON","LIGHT_OFF","WIPER_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M064","text":"switch off the horn also turn on the lights also switch off the wiper","expected_actions":["HORN_OFF","LIGHT_ON","WIPER_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M065","text":"turn on the lights plus turn on the horn plus move forward","expected_actions":["LIGHT_ON","HORN_ON","FORWARD"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M066","text":"switch off the wiper, go backward, switch off the lights","expected_actions":["WIPER_OFF","REVERSE","LIGHT_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M067","text":"turn on the wiper; switch off the horn; move forward","expected_actions":["WIPER_ON","HORN_OFF","FORWARD"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M068","text":"switch off the horn AND switch off the wiper AND switch off the lights","expected_actions":["HORN_OFF","WIPER_OFF","LIGHT_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M069","text":"move forward and turn on the lights and turn on the wiper and turn on the horn","expected_actions":["FORWARD","LIGHT_ON","WIPER_ON","HORN_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M070","text":"move forward also switch off the lights also switch off the wiper also switch off the horn","expected_actions":["FORWARD","LIGHT_OFF","WIPER_OFF","HORN_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M071","text":"go backward plus turn on the lights plus switch off the wiper plus turn on the horn","expected_actions":["REVERSE","LIGHT_ON","WIPER_OFF","HORN_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M072","text":"go backward, switch off the lights, turn on the wiper, switch off the horn","expected_actions":["REVERSE","LIGHT_OFF","WIPER_ON","HORN_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M073","text":"turn on the horn; turn on the wiper; turn on the lights; move forward","expected_actions":["HORN_ON","WIPER_ON","LIGHT_ON","FORWARD"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M074","text":"switch off the horn AND switch off the wiper AND switch off the lights AND go backward","expected_actions":["HORN_OFF","WIPER_OFF","LIGHT_OFF","REVERSE"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M075","text":"switch off the lights and turn on the horn and go backward and switch off the wiper","expected_actions":["LIGHT_OFF","HORN_ON","REVERSE","WIPER_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M076","text":"turn on the wiper also move forward also switch off the horn also turn on the lights","expected_actions":["WIPER_ON","FORWARD","HORN_OFF","LIGHT_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M077","text":"lights on","expected_actions":["LIGHT_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M078","text":"lights off","expected_actions":["LIGHT_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M079","text":"horn on","expected_actions":["HORN_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M080","text":"horn off","expected_actions":["HORN_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M081","text":"wiper on","expected_actions":["WIPER_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M082","text":"wiper off","expected_actions":["WIPER_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M083","text":"lights off and horn on","expected_actions":["LIGHT_OFF","HORN_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M084","text":"horn off and lights on","expected_actions":["HORN_OFF","LIGHT_ON"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M085","text":"horn on and lights off","expected_actions":["HORN_ON","LIGHT_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M086","text":"lights on and horn off","expected_actions":["LIGHT_ON","HORN_OFF"],"expected_reject":null,"category":"positive","expected_grammar_valid":null}
+{"id":"M087","text":"move forward and move forward","expected_actions":["FORWARD"],"expected_reject":null,"category":"duplicate","expected_grammar_valid":null}
+{"id":"M088","text":"lights on, lights on; horn off","expected_actions":["LIGHT_ON","HORN_OFF"],"expected_reject":null,"category":"duplicate","expected_grammar_valid":null}
+{"id":"M089","text":"horn on and lights off and horn on","expected_actions":["HORN_ON","LIGHT_OFF"],"expected_reject":null,"category":"duplicate","expected_grammar_valid":null}
+{"id":"M090","text":"wiper off plus wiper off plus wiper off plus wiper off","expected_actions":["WIPER_OFF"],"expected_reject":null,"category":"duplicate","expected_grammar_valid":null}
+{"id":"M091","text":"stop","expected_actions":["STOP"],"expected_reject":null,"category":"stop","expected_grammar_valid":null}
+{"id":"M092","text":"stop and turn on the lights","expected_actions":["STOP"],"expected_reject":null,"category":"stop","expected_grammar_valid":null}
+{"id":"M093","text":"move forward and stop","expected_actions":["STOP"],"expected_reject":null,"category":"stop","expected_grammar_valid":null}
+{"id":"M094","text":"lights on and stop and horn on","expected_actions":["STOP"],"expected_reject":null,"category":"stop","expected_grammar_valid":null}
+{"id":"M095","text":"stop; lights off; horn off; wiper on","expected_actions":["STOP"],"expected_reject":null,"category":"stop","expected_grammar_valid":null}
+{"id":"M096","text":"horn on, lights off, wiper off, stop","expected_actions":["STOP"],"expected_reject":null,"category":"stop","expected_grammar_valid":null}
+{"id":"M097","text":"move forward and stop and go backward","expected_actions":["STOP"],"expected_reject":null,"category":"stop","expected_grammar_valid":null}
+{"id":"M098","text":"move forward and go backward","expected_actions":[],"expected_reject":true,"category":"conflict","expected_grammar_valid":null}
+{"id":"M099","text":"go backward and move forward","expected_actions":[],"expected_reject":true,"category":"conflict","expected_grammar_valid":null}
+{"id":"M100","text":"lights on and lights off","expected_actions":[],"expected_reject":true,"category":"conflict","expected_grammar_valid":null}
+{"id":"M101","text":"horn off and horn on","expected_actions":[],"expected_reject":true,"category":"conflict","expected_grammar_valid":null}
+{"id":"M102","text":"wiper on and wiper off","expected_actions":[],"expected_reject":true,"category":"conflict","expected_grammar_valid":null}
+{"id":"M103","text":"lights on; horn off; lights off","expected_actions":[],"expected_reject":true,"category":"conflict","expected_grammar_valid":null}
+{"id":"M104","text":"move forward; lights on; horn on; go backward","expected_actions":[],"expected_reject":true,"category":"conflict","expected_grammar_valid":null}
+{"id":"M105","text":"turn on lights and horn","expected_actions":[],"expected_reject":true,"category":"unknown","expected_grammar_valid":null}
+{"id":"M106","text":"lights and horn on","expected_actions":[],"expected_reject":true,"category":"unknown","expected_grammar_valid":null}
+{"id":"M107","text":"move forward and sing a song","expected_actions":[],"expected_reject":true,"category":"unknown","expected_grammar_valid":null}
+{"id":"M108","text":"lights off and open the door","expected_actions":[],"expected_reject":true,"category":"unknown","expected_grammar_valid":null}
+{"id":"M109","text":"horn on; wiper off; bake bread","expected_actions":[],"expected_reject":true,"category":"unknown","expected_grammar_valid":null}
+{"id":"M110","text":"lights on, horn off, move forward, fly away","expected_actions":[],"expected_reject":true,"category":"unknown","expected_grammar_valid":null}
+{"id":"M111","text":"do not move forward","expected_actions":[],"expected_reject":true,"category":"guard","expected_grammar_valid":null}
+{"id":"M112","text":"never turn on the horn","expected_actions":[],"expected_reject":true,"category":"guard","expected_grammar_valid":null}
+{"id":"M113","text":"lights on and do not move forward","expected_actions":[],"expected_reject":true,"category":"guard","expected_grammar_valid":null}
+{"id":"M114","text":"if it rains turn on the wiper","expected_actions":[],"expected_reject":true,"category":"guard","expected_grammar_valid":null}
+{"id":"M115","text":"lights on or horn on","expected_actions":[],"expected_reject":true,"category":"guard","expected_grammar_valid":null}
+{"id":"M116","text":"move forward then lights on","expected_actions":[],"expected_reject":true,"category":"guard","expected_grammar_valid":null}
+{"id":"M117","text":"lights on and then horn on","expected_actions":[],"expected_reject":true,"category":"guard","expected_grammar_valid":null}
+{"id":"M118","text":"turn on lights when dark","expected_actions":[],"expected_reject":true,"category":"guard","expected_grammar_valid":null}
+{"id":"M119","text":"","expected_actions":[],"expected_reject":true,"category":"grammar","expected_grammar_valid":false}
+{"id":"M120","text":"   ","expected_actions":[],"expected_reject":true,"category":"grammar","expected_grammar_valid":false}
+{"id":"M121","text":"and move forward","expected_actions":[],"expected_reject":true,"category":"grammar","expected_grammar_valid":false}
+{"id":"M122","text":"move forward and","expected_actions":[],"expected_reject":true,"category":"grammar","expected_grammar_valid":false}
+{"id":"M123","text":"lights on and and horn on","expected_actions":[],"expected_reject":true,"category":"grammar","expected_grammar_valid":false}
+{"id":"M124","text":"lights on,,horn off","expected_actions":[],"expected_reject":true,"category":"grammar","expected_grammar_valid":false}
+{"id":"M125","text":"lights on;;horn off","expected_actions":[],"expected_reject":true,"category":"grammar","expected_grammar_valid":false}
+{"id":"M126","text":"lights on; ;horn off","expected_actions":[],"expected_reject":true,"category":"grammar","expected_grammar_valid":false}
+{"id":"M127","text":"lights on, and","expected_actions":[],"expected_reject":true,"category":"grammar","expected_grammar_valid":false}
+{"id":"M128","text":"lights on and horn off and wiper on and move forward and lights on","expected_actions":[],"expected_reject":true,"category":"grammar","expected_grammar_valid":false}
+{"id":"M129","text":"forward                                                                                         ","expected_actions":["FORWARD"],"expected_reject":null,"category":"boundary","expected_grammar_valid":true}
+{"id":"M130","text":"forward                                                                                          ","expected_actions":[],"expected_reject":true,"category":"grammar","expected_grammar_valid":false}
+{"id":"M131","text":"forward                                                                                         ;                                                                                      lights on","expected_actions":["FORWARD","LIGHT_ON"],"expected_reject":null,"category":"boundary","expected_grammar_valid":true}
+{"id":"M132","text":"forward                                                                                         ;                                                                                       lights on","expected_actions":[],"expected_reject":true,"category":"grammar","expected_grammar_valid":false}
+{"id":"M133","text":"go go go go go go go go go go go go go go go forward","expected_actions":null,"expected_reject":null,"category":"token_boundary","expected_grammar_valid":true}
+{"id":"M134","text":"go go go go go go go go go go go go go go go go forward","expected_actions":[],"expected_reject":true,"category":"grammar","expected_grammar_valid":false}
+{"id":"M135","text":"lights on\u0000 and horn off","expected_actions":[],"expected_reject":true,"category":"grammar","expected_grammar_valid":false}
+{"id":"M136","text":"lights on and \uacbd\uc801 \ucf1c\uae30","expected_actions":[],"expected_reject":true,"category":"grammar","expected_grammar_valid":false}
+{"id":"M137","text":"sing a song and stop","expected_actions":["STOP"],"expected_reject":null,"category":"stop_dominance","expected_grammar_valid":null}
+{"id":"M138","text":"stop and bake bread","expected_actions":["STOP"],"expected_reject":null,"category":"stop_dominance","expected_grammar_valid":null}
+{"id":"M139","text":"do not move forward and stop","expected_actions":["STOP"],"expected_reject":null,"category":"stop_dominance","expected_grammar_valid":null}
+{"id":"M140","text":"lights on or horn on; stop","expected_actions":["STOP"],"expected_reject":null,"category":"stop_dominance","expected_grammar_valid":null}
+{"id":"M141","text":"lights on and lights off and stop","expected_actions":["STOP"],"expected_reject":null,"category":"stop_dominance","expected_grammar_valid":null}
+{"id":"M142","text":"go go go go go go go go go go go go go go go go forward; stop","expected_actions":["STOP"],"expected_reject":null,"category":"stop_dominance","expected_grammar_valid":null}
+{"id":"M143","text":"stop and","expected_actions":[],"expected_reject":true,"category":"grammar","expected_grammar_valid":false}
+{"id":"M144","text":"stop; lights on; horn on; wiper on; move forward","expected_actions":[],"expected_reject":true,"category":"grammar","expected_grammar_valid":false}
