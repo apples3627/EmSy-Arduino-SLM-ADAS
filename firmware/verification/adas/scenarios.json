@@ -1,0 +1,401 @@
+[
+  {
+    "id": "priority-01",
+    "group": "priority",
+    "name": "1 clauses interrupted early",
+    "inputs": {
+      "clauses": 1,
+      "phase": "early"
+    },
+    "criterion": "Active-low ADAS immediately gates actual outputs; obsolete SLM generation cannot dispatch after clear."
+  },
+  {
+    "id": "priority-02",
+    "group": "priority",
+    "name": "1 clauses interrupted middle",
+    "inputs": {
+      "clauses": 1,
+      "phase": "middle"
+    },
+    "criterion": "Active-low ADAS immediately gates actual outputs; obsolete SLM generation cannot dispatch after clear."
+  },
+  {
+    "id": "priority-03",
+    "group": "priority",
+    "name": "1 clauses interrupted late",
+    "inputs": {
+      "clauses": 1,
+      "phase": "late"
+    },
+    "criterion": "Active-low ADAS immediately gates actual outputs; obsolete SLM generation cannot dispatch after clear."
+  },
+  {
+    "id": "priority-04",
+    "group": "priority",
+    "name": "2 clauses interrupted early",
+    "inputs": {
+      "clauses": 2,
+      "phase": "early"
+    },
+    "criterion": "Active-low ADAS immediately gates actual outputs; obsolete SLM generation cannot dispatch after clear."
+  },
+  {
+    "id": "priority-05",
+    "group": "priority",
+    "name": "2 clauses interrupted middle",
+    "inputs": {
+      "clauses": 2,
+      "phase": "middle"
+    },
+    "criterion": "Active-low ADAS immediately gates actual outputs; obsolete SLM generation cannot dispatch after clear."
+  },
+  {
+    "id": "priority-06",
+    "group": "priority",
+    "name": "2 clauses interrupted late",
+    "inputs": {
+      "clauses": 2,
+      "phase": "late"
+    },
+    "criterion": "Active-low ADAS immediately gates actual outputs; obsolete SLM generation cannot dispatch after clear."
+  },
+  {
+    "id": "priority-07",
+    "group": "priority",
+    "name": "3 clauses interrupted early",
+    "inputs": {
+      "clauses": 3,
+      "phase": "early"
+    },
+    "criterion": "Active-low ADAS immediately gates actual outputs; obsolete SLM generation cannot dispatch after clear."
+  },
+  {
+    "id": "priority-08",
+    "group": "priority",
+    "name": "3 clauses interrupted middle",
+    "inputs": {
+      "clauses": 3,
+      "phase": "middle"
+    },
+    "criterion": "Active-low ADAS immediately gates actual outputs; obsolete SLM generation cannot dispatch after clear."
+  },
+  {
+    "id": "priority-09",
+    "group": "priority",
+    "name": "3 clauses interrupted late",
+    "inputs": {
+      "clauses": 3,
+      "phase": "late"
+    },
+    "criterion": "Active-low ADAS immediately gates actual outputs; obsolete SLM generation cannot dispatch after clear."
+  },
+  {
+    "id": "priority-10",
+    "group": "priority",
+    "name": "4 clauses interrupted early",
+    "inputs": {
+      "clauses": 4,
+      "phase": "early"
+    },
+    "criterion": "Active-low ADAS immediately gates actual outputs; obsolete SLM generation cannot dispatch after clear."
+  },
+  {
+    "id": "priority-11",
+    "group": "priority",
+    "name": "4 clauses interrupted middle",
+    "inputs": {
+      "clauses": 4,
+      "phase": "middle"
+    },
+    "criterion": "Active-low ADAS immediately gates actual outputs; obsolete SLM generation cannot dispatch after clear."
+  },
+  {
+    "id": "priority-12",
+    "group": "priority",
+    "name": "4 clauses interrupted late",
+    "inputs": {
+      "clauses": 4,
+      "phase": "late"
+    },
+    "criterion": "Active-low ADAS immediately gates actual outputs; obsolete SLM generation cannot dispatch after clear."
+  },
+  {
+    "id": "sensor-13",
+    "group": "sensor",
+    "name": "boundary 199mm",
+    "inputs": {
+      "range_mm": 199
+    },
+    "criterion": "<=200mm asserts on first valid sample; >=250mm counts toward release; interior band neither falsely asserts nor releases."
+  },
+  {
+    "id": "sensor-14",
+    "group": "sensor",
+    "name": "boundary 200mm",
+    "inputs": {
+      "range_mm": 200
+    },
+    "criterion": "<=200mm asserts on first valid sample; >=250mm counts toward release; interior band neither falsely asserts nor releases."
+  },
+  {
+    "id": "sensor-15",
+    "group": "sensor",
+    "name": "boundary 201mm",
+    "inputs": {
+      "range_mm": 201
+    },
+    "criterion": "<=200mm asserts on first valid sample; >=250mm counts toward release; interior band neither falsely asserts nor releases."
+  },
+  {
+    "id": "sensor-16",
+    "group": "sensor",
+    "name": "boundary 249mm",
+    "inputs": {
+      "range_mm": 249
+    },
+    "criterion": "<=200mm asserts on first valid sample; >=250mm counts toward release; interior band neither falsely asserts nor releases."
+  },
+  {
+    "id": "sensor-17",
+    "group": "sensor",
+    "name": "boundary 250mm",
+    "inputs": {
+      "range_mm": 250
+    },
+    "criterion": "<=200mm asserts on first valid sample; >=250mm counts toward release; interior band neither falsely asserts nor releases."
+  },
+  {
+    "id": "sensor-18",
+    "group": "sensor",
+    "name": "release sequence [250, 250]",
+    "inputs": {
+      "range_mm": [
+        250,
+        250
+      ]
+    },
+    "criterion": "Boot/obstacle only releases after three consecutive valid clear samples; invalid or hysteresis sample resets clear count."
+  },
+  {
+    "id": "sensor-19",
+    "group": "sensor",
+    "name": "release sequence [250, 250, 250]",
+    "inputs": {
+      "range_mm": [
+        250,
+        250,
+        250
+      ]
+    },
+    "criterion": "Boot/obstacle only releases after three consecutive valid clear samples; invalid or hysteresis sample resets clear count."
+  },
+  {
+    "id": "sensor-20",
+    "group": "sensor",
+    "name": "release sequence [250, None, 250, 250]",
+    "inputs": {
+      "range_mm": [
+        250,
+        null,
+        250,
+        250
+      ]
+    },
+    "criterion": "Boot/obstacle only releases after three consecutive valid clear samples; invalid or hysteresis sample resets clear count."
+  },
+  {
+    "id": "sensor-21",
+    "group": "sensor",
+    "name": "release sequence [200, 250, 249, 250, 250, 250]",
+    "inputs": {
+      "range_mm": [
+        200,
+        250,
+        249,
+        250,
+        250,
+        250
+      ]
+    },
+    "criterion": "Boot/obstacle only releases after three consecutive valid clear samples; invalid or hysteresis sample resets clear count."
+  },
+  {
+    "id": "sensor-22",
+    "group": "sensor",
+    "name": "stale age 200",
+    "inputs": {
+      "age_ms": 200
+    },
+    "criterion": "At >200ms stale sample asserts sensor fault and active-low output."
+  },
+  {
+    "id": "sensor-23",
+    "group": "sensor",
+    "name": "stale age 201",
+    "inputs": {
+      "age_ms": 201
+    },
+    "criterion": "At >200ms stale sample asserts sensor fault and active-low output."
+  },
+  {
+    "id": "sensor-24",
+    "group": "sensor",
+    "name": "uint32 clock wrap",
+    "inputs": {
+      "start_ms": 4294967200,
+      "end_ms": 105
+    },
+    "criterion": "Unsigned elapsed age remains correct across millis wrap."
+  },
+  {
+    "id": "capture-25",
+    "group": "capture",
+    "name": "physical range 19mm",
+    "inputs": {
+      "range_mm": 19
+    },
+    "criterion": "Outside 2..400cm invalid/fault; endpoints valid with integer conversion."
+  },
+  {
+    "id": "capture-26",
+    "group": "capture",
+    "name": "physical range 20mm",
+    "inputs": {
+      "range_mm": 20
+    },
+    "criterion": "Outside 2..400cm invalid/fault; endpoints valid with integer conversion."
+  },
+  {
+    "id": "capture-27",
+    "group": "capture",
+    "name": "physical range 4000mm",
+    "inputs": {
+      "range_mm": 4000
+    },
+    "criterion": "Outside 2..400cm invalid/fault; endpoints valid with integer conversion."
+  },
+  {
+    "id": "capture-28",
+    "group": "capture",
+    "name": "physical range 4001mm",
+    "inputs": {
+      "range_mm": 4001
+    },
+    "criterion": "Outside 2..400cm invalid/fault; endpoints valid with integer conversion."
+  },
+  {
+    "id": "capture-29",
+    "group": "capture",
+    "name": "Timer1 wrap",
+    "inputs": {
+      "rise_ticks": 65500,
+      "pulse_ticks": 2320
+    },
+    "criterion": "Rising near 65535 then falling after wrap yields short correct pulse, never huge distance."
+  },
+  {
+    "id": "capture-30",
+    "group": "capture",
+    "name": "missing echo",
+    "inputs": {},
+    "criterion": "30ms echo timeout invalidates range and asserts fault; trigger never blocks CPU."
+  },
+  {
+    "id": "capture-31",
+    "group": "capture",
+    "name": "noise edge",
+    "inputs": {},
+    "criterion": "Unmatched or repeated edges cannot create a false clear sample."
+  },
+  {
+    "id": "registry-32",
+    "group": "registry",
+    "name": "independent sources",
+    "inputs": {},
+    "criterion": "Clearing one registered source leaves another active contributor asserted."
+  },
+  {
+    "id": "actor-33",
+    "group": "actor",
+    "name": "ISR while MAIN stalled",
+    "inputs": {},
+    "criterion": "ISR gates motor/lamp/wiper/horn registers immediately; UART session retained and sync flag set."
+  },
+  {
+    "id": "actor-34",
+    "group": "actor",
+    "name": "IRQ during reversal",
+    "inputs": {},
+    "criterion": "Pending reversal canceled; foreground stale state cannot restore output."
+  },
+  {
+    "id": "actor-35",
+    "group": "actor",
+    "name": "old ACT after clear",
+    "inputs": {},
+    "criterion": "Old epoch remains inhibited after line release until strictly newer STOP epoch accepted."
+  },
+  {
+    "id": "actor-36",
+    "group": "actor",
+    "name": "strict new epoch STOP",
+    "inputs": {},
+    "criterion": "New STOP after line high synchronizes; same epoch does not; fresh model command needed."
+  },
+  {
+    "id": "main-37",
+    "group": "main",
+    "name": "false clear bus",
+    "inputs": {},
+    "criterion": "Physical low line blocks actuation despite valid clear telemetry."
+  },
+  {
+    "id": "main-38",
+    "group": "main",
+    "name": "stale bus high line",
+    "inputs": {},
+    "criterion": "High line with stale/CRC-invalid telemetry blocks actuation."
+  },
+  {
+    "id": "main-39",
+    "group": "main",
+    "name": "late ACK old epoch",
+    "inputs": {},
+    "criterion": "Old epoch ACK cannot mark appliedKnown or restore requested state."
+  },
+  {
+    "id": "state-40",
+    "group": "state",
+    "name": "explicit SLM STOP",
+    "inputs": {},
+    "criterion": "Requested drive 0 published immediately; applied unknown until matching ACK; SLM+ADAS receive coherent revision."
+  },
+  {
+    "id": "state-41",
+    "group": "state",
+    "name": "drive lease",
+    "inputs": {},
+    "criterion": "500ms motor lease expiry becomes actual 0 and desired 0 after observed status, retaining ancillary outputs."
+  },
+  {
+    "id": "protocol-42",
+    "group": "protocol",
+    "name": "metadata negatives",
+    "inputs": {},
+    "criterion": "H32/old protocol/old labels rejected; full H64 metadata requires include-bias=1."
+  },
+  {
+    "id": "model-43",
+    "group": "model",
+    "name": "full CPP logits",
+    "inputs": {},
+    "criterion": "All ten real full-worker scores match frozen full kernel and include global bias exactly once."
+  },
+  {
+    "id": "retry-44",
+    "group": "retry",
+    "name": "immutable identity",
+    "inputs": {},
+    "criterion": "Repeated request ID requires identical operation and payload; changed payload rejected without action."
+  }
+]

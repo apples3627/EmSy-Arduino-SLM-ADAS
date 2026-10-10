@@ -1,0 +1,7 @@
+{
+  "reference_commit": "fa02378be1a37cb6609d389e6be43f1059b4d81a",
+  "model_id": "0x95616d56",
+  "kernel": "firmware/tests/compute_full_reference.cpp",
+  "model_sha256": "930b0afacc6842799c52b2ca41b7f78504f9c05ef520ca9790522f47d3424f01",
+  "score_header_sha256": "d466c21260bbd45e78269acb2c0e2c745368c1b78a959f3faba6749341c85bb6"
+}
