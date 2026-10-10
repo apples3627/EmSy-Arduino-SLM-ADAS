@@ -8,12 +8,13 @@
 |---|---|---|---|
 |MAIN D3 / PD3|ACTUATOR D0 / PD0 RX|MAIN TX → 제어 RX|9600, 8N1, 바이너리 32B|
 |MAIN D2 / PD2 INT0|ACTUATOR D1 / PD1 TX|제어 TX → MAIN RX|TX끼리/RX끼리 연결하지 않음|
-|MAIN A4 / PC4 SDA|COMPUTE_I2C A4 / PC4 SDA|양방향 SDA|주소 0x12, 100kHz|
-|MAIN A5 / PC5 SCL|COMPUTE_I2C A5 / PC5 SCL|MAIN SCL → slave, open-drain|clock stretching 허용|
-|MAIN D10 / PB2 SS|COMPUTE_SPI D10 / PB2 SS|MAIN 출력 → slave 입력|active LOW|
-|MAIN D11 / PB3 MOSI|COMPUTE_SPI D11 / PB3 MOSI|MAIN 출력 → slave 입력|Mode0, MSB first|
-|MAIN D12 / PB4 MISO|COMPUTE_SPI D12 / PB4 MISO|slave 출력 → MAIN 입력|다른 핀에 연결 금지|
-|MAIN D13 / PB5 SCK|COMPUTE_SPI D13 / PB5 SCK|MAIN 출력 → slave 입력|125kHz, LED 제어 핀으로 쓰지 않음|
+|MAIN A4 / PC4 SDA|ADAS_I2C A4 / PC4 SDA|양방향 SDA|주소 0x12, 100kHz|
+|MAIN A5 / PC5 SCL|ADAS_I2C A5 / PC5 SCL|MAIN SCL → slave, open-drain|clock stretching 허용|
+|MAIN D10 / PB2 SS|SLM_SPI D10 / PB2 SS|MAIN 출력 → slave 입력|active LOW|
+|MAIN D11 / PB3 MOSI|SLM_SPI D11 / PB3 MOSI|MAIN 출력 → slave 입력|Mode0, MSB first|
+|MAIN D12 / PB4 MISO|SLM_SPI D12 / PB4 MISO|slave 출력 → MAIN 입력|다른 핀에 연결 금지|
+|MAIN D13 / PB5 SCK|SLM_SPI D13 / PB5 SCK|MAIN 출력 → slave 입력|125kHz, LED 제어 핀으로 쓰지 않음|
+|ADAS D4 / PD4 open-drain|MAIN D4 / PD4 PCINT20 + ACTUATOR D3 / PD3 INT1|공통 active LOW ALERT|4.7kΩ 풀업 한 개 → MAIN 5V, HIGH 출력 금지|
 |MAIN GND|I2C·SPI·ACTUATOR GND|공통 기준 전위|네 보드 GND 모두 연결|
 
 **I2C 풀업:** SDA→4.7kΩ→MAIN 5V, SCL→4.7kΩ→MAIN 5V를 한 쌍만 둡니다. 모듈에 기존 풀업이 있는지 먼저 확인합니다. 풀업용 5V와 다른 보드의 5V 공급선을 연결하는 것은 별개입니다.
@@ -26,14 +27,17 @@
 |---|---|---|
 |MAIN|D0/D1|USB PC 콘솔 전용. 외부 장치 연결 없음|
 |MAIN|D2/D3|software UART RX/TX|
-|MAIN|A4/A5|I2C 계산 보드|
-|MAIN|D10/D11/D12/D13|SPI 계산 보드|
-|I2C 계산|A4/A5|TWI slave SDA/SCL|
-|I2C 계산|D4|추론 중 HIGH 디버그 출력. 선택적 계측만 연결|
-|SPI 계산|D10~D13|SS/MOSI/MISO/SCK|
-|SPI 계산|D4|추론 중 HIGH 디버그 출력. 선택적 계측만 연결|
-|두 계산 보드|D0/D1|펌웨어 동작 중 외부 UART 연결 없음|
+|MAIN|D4|ADAS ALERT 입력 PCINT20|
+|MAIN|A4/A5|ADAS 센서 보드|
+|MAIN|D10/D11/D12/D13|SLM 보드|
+|ADAS|A4/A5|TWI slave SDA/SCL|
+|ADAS|D4|open-drain ALERT, MAIN D4·ACTUATOR D3에 연결|
+|ADAS|D7/D8|HC-SR04 Trig / Echo ICP1|
+|SLM|D10~D13|SS/MOSI/MISO/SCK|
+|SLM|D5|추론 중 HIGH 디버그 출력. 선택적 계측만 연결|
+|SLM·ADAS 보드|D0/D1|펌웨어 동작 중 외부 UART 연결 없음|
 |ACTUATOR|D0/D1|MAIN UART RX/TX. 업로드 때 선 분리|
+|ACTUATOR|D3|ADAS ALERT 입력 INT1, output 직접 차단|
 |ACTUATOR|D2|로컬 전체 정지 버튼 입력, 내부 pull-up|
 |ACTUATOR|D4/D7/D5|H-bridge IN1/IN2/PWM|
 |ACTUATOR|D12|선택적 H-bridge STBY. **MAIN D12에 연결하지 않음**|
@@ -81,11 +85,20 @@
 |MAIN|Timer0 COMPA|1ms 시간 기준, core overflow OFF|
 |MAIN|Timer1 COMPA/COMPB + INT0|D3 TX / D2 RX, 약9615 baud|
 |MAIN|USART0|D0/D1 PC 콘솔|
+|MAIN|PCINT2 / PCINT20|D4 ALERT 이벤트 보존|
 |MAIN|TWI / SPI|A4/A5와 D10~D13, 동시에 운용|
-|I2C·SPI 계산|Timer0 COMPA|시간 기준, 모델 계산은 foreground|
+|SLM|Timer0 COMPA|시간 기준, H64 모델 계산은 foreground|
+|ADAS|Timer0 COMPA / Timer1 ICP1·COMPA·OVF|1ms tick / echo capture·trigger 종료·overflow|
 |ACTUATOR|Timer0 mode7 COMPA / OC0B|1ms tick + D5 PWM, 1kHz|
 |ACTUATOR|Timer1 mode14 / OC1A|D9 servo, 50Hz|
 |ACTUATOR|Timer2 CTC COMPA|D6 수동 피에조, 1kHz 토글 출력|
+|ACTUATOR|INT1|D3 ALERT에서 출력 레지스터 직접 OFF|
 |ACTUATOR|USART0|D0/D1 MAIN 링크|
 
 ACTUATOR에서는 Timer2의 D3/D11 PWM을 추가 모터용으로 쓰지 않습니다. MAIN의 Timer1과 ACTUATOR의 Timer1은 서로 다른 칩이므로 충돌하지 않습니다. 모든 핀 기준은 Uno R3입니다.
+
+## 6. HC-SR04와 ALERT 연결 검수
+
+HC-SR04 Vcc→ADAS 5V, GND→ADAS GND, Trig→ADAS D7, Echo→ADAS D8입니다. 모듈 인쇄 핀 순서를 확인합니다. ALERT는 ADAS D4, MAIN D4, ACTUATOR D3를 **같은 한 선**으로 연결하고 MAIN 5V에4.7kΩ 풀업 한 개를 답니다. SDA/SCL 풀업 두 개와 별도입니다. ACTUATOR D2 버튼 선 및 MAIN D2/D3 UART 선과 혼동하지 않습니다. ADAS는 LOW만 구동합니다.
+
+20cm 이하에서 모든 출력 OFF, 25cm 이상 세 번 연속 후 해제입니다. 부팅·누락 echo·오래된 데이터도 정지 조건입니다. 해제 후 새 명령이 필요합니다. ACTUATOR INT1은 물리 출력 신호를 즉시 차단하되 모터 관성·서보 전원 차단을 보증하지 않습니다. 실제 지연과 배선 오류 대응은 팀 실물 시험으로 확인합니다.

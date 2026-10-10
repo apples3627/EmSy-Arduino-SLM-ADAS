@@ -1,3 +1,9 @@
+# 현재 프로젝트: 영어 SLM + 초음파 ADAS 자동차 제어
+
+최신 네 Uno 구성은 MAIN + SLM_SPI + ADAS_I2C + ACTUATOR_UART입니다. **[현재 코드·담당자 업로드 가이드](firmware/README.md)**, **[핀 연결표](firmware/PIN_MAP.md)**, **[ADAS 독립 검증](firmware/reports/ADAS_INDEPENDENT.md)**를 먼저 읽으세요. 기존 H32 분산 구조와 문장 생성 예제는 아래 이전 기록이며 현재 팀 배포와 다릅니다.
+
+---
+
 # V4 다중 영어 명령 자동차 제어
 
 최대4개의 명령절을 신경망으로 각각 분류하고 전체 계획을 검증한 뒤 한 묶음으로 적용합니다.

@@ -11,11 +11,11 @@ text=re.sub(r'VOCAB_TAG=0x[0-9a-fA-F]+UL', 'VOCAB_TAG=0x'+meta['vocabulary_sha25
 for key,value in [('VOCAB_SIZE',len(meta['vocabulary'])),('LABELS_VERSION',meta['labels_version']),('EMBED_SIZE',meta['embedding']),('HIDDEN_TOTAL',meta['hidden'])]:
     text=re.sub(key+r'=\d+',key+'='+str(value),text)
 protocol.write_text(text)
-for role in ('main','compute_i2c','compute_spi','actuator_uart'):
+for role in ('main','slm_spi','adas_i2c','actuator_uart'):
     folder=ROOT/'firmware'/role/'src'
     folder.mkdir(parents=True,exist_ok=True)
     shutil.copy2(ROOT/'firmware/common/protocol.h',folder/'protocol.h')
-    if role!='actuator_uart':
+    if role in ('main','slm_spi'):
         model=folder/'model'
         shutil.copytree(ROOT/'intent/uno_probe/src',model,dirs_exist_ok=True)
 print('Prepared standalone src/protocol.h and frozen src/model/ assets')

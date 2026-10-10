@@ -21,7 +21,7 @@ SDA와 SCL에는 각각 별도의 4.7kΩ 풀업을 MAIN 5V에 연결합니다. I
 
 부팅부터 ALERT는 LOW입니다. 25cm 이상 유효 측정이 세 번 연속 있어야 초기 정지가 풀립니다. 20cm 이하는 첫 sample부터 장애물 정지, 21..24cm는 clear count를 초기화하며 기존 정지를 해제하지 않습니다. fault 뒤에도 같은 세 번 확인을 거칩니다. 정지 해제는 차량 자동 재출발을 뜻하지 않습니다. MAIN/ACTUATOR는 새 SLM 명령이 있을 때까지 STOP을 유지합니다. 앞 센서 하나의 보수적 기본 정책으로 후진까지 모든 주행을 정지합니다.
 
-`config.h`에서 STOP_CM=20, RELEASE_CM=25, CLEAR_REQUIRED=3, PERIOD_MS=70, TIMEOUT_MS=30, STALE_MS=200을 빌드 시 변경할 수 있습니다. ADAS_CONFIG는 예약되어 BAD_OP입니다. 정책 임계값은 `0 < STOP_CM < RELEASE_CM`, trigger 주기는 60ms 초과로 유지하세요.
+MAIN은 현재 metadata를20/25/3/70ms로 고정 확인하므로 임계값·주기를 변경할 때 MAIN의 metadata/status 검증과 테스트도 함께 수정하고 네 역할을 재배포해야 합니다. `config.h`에서 STOP_CM=20, RELEASE_CM=25, CLEAR_REQUIRED=3, PERIOD_MS=70, TIMEOUT_MS=30, STALE_MS=200을 빌드 시 변경할 수 있습니다. ADAS_CONFIG는 예약되어 BAD_OP입니다. 정책 임계값은 `0 < STOP_CM < RELEASE_CM`, trigger 주기는 60ms 초과로 유지하세요.
 
 센서 추가는 `SourceRegistry::registerSource(index)`로 독립 source를 활성화하고 foreground에서 `update(index, STARTUP/OBSTACLE/SENSOR_FAULT)`를 호출합니다. 현재 HC-SR04는 index 0이며 총 네 source 공간이 있습니다. 활성 source는 최초 STARTUP hazard로 시작합니다. 다른 source의 clear는 기존 hazard를 지우지 않으며 어떤 source라도 hazard면 공통 ALERT가 LOW입니다. 사용하지 않는 source는 `registerSource(index, false)`로 명시적으로 비활성화합니다. 현재 장애물 판단은 desired motion과 무관합니다. STATE_SYNC에 저장된 desired/applied snapshot은 향후 플러그인 참고용입니다.
 

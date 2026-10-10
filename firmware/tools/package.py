@@ -5,7 +5,7 @@ import subprocess,sys,zipfile,hashlib,json,re
 ROOT=Path(__file__).resolve().parents[2]
 subprocess.run([sys.executable,str(ROOT/'firmware/tools/prepare.py')],check=True)
 out=ROOT/'firmware/packages';out.mkdir(exist_ok=True);manifest={}
-for role in ('main','compute_i2c','compute_spi','actuator_uart'):
+for role in ('main','slm_spi','adas_i2c','actuator_uart'):
     folder=ROOT/'firmware'/role;archive=out/(role+'_uno_r3.zip');files=[]
     assert (folder/(role+'.ino')).exists() and (folder/'GUIDE.md').exists()
     start=(f'# {role} 보드 업로드 시작\n\n'
