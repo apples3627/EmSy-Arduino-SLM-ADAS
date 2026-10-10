@@ -23,3 +23,9 @@ PASS — 독립 호스트 검증과 네 Arduino Uno R3 빌드를 통과했습니
 네 역할 모두 flash 32256 이하, 정적 SRAM 1536 이하 기준을 통과했습니다. 정적 여유는 linker 결과이며 런타임 stack 최대 사용량을 측정한 값이 아닙니다. 호스트 AVR shim은 실제 ISR와 출력 함수의 레지스터 값을 점검하지만 인터럽트 전기 지연·센서의 실제 오차·기계적 정지 거리·실물 동작을 입증하지 않습니다.
 
 재현: `python3 firmware/verification/adas/run.py --build-uno` (Arduino CLI와 Uno AVR core 필요, 업로드 없음). 공통 프로토콜 테스트는 검증 작업트리의 canonical header를 사용하며, 다른 실제 역할 header는 `--source-root`로 지정할 수 있습니다.
+
+## 최종 배포 재검증 — 2026-10-10
+
+원본 독립 검증 이후 루트 통합 소스 `0ee9d30`에서 전체 호스트 검증8개, 구현 담당 MAIN/ACT 레지스터 회귀2개(지연 HELLO ACK 포함), Python full-score parity33개를 다시 통과했습니다. 공통 헤더의 오래된 protocol2 설명을 protocol3으로 고쳤고 역할별 가이드·핀 표를 정리했습니다. `results.json`은 이 최종 루트 소스의 독립 재실행 및 네 Uno 빌드를 기록합니다.
+
+최종 팀 ZIP4개는 manifest의 archive/file SHA256을 전부 확인하고 임시 폴더에 풀어 각각 독립 Uno 컴파일을 통과했습니다. 기록은 `package_verification.json`입니다. 루트 빌드의 MAIN flash는18,696 / 정적 SRAM1,459(여유589)바이트이며 나머지 세 보드는 위 표와 같습니다. 서로 다른 경로에서 나온 원본 검증 크기는 원본 기록으로 유지하며 배포별 정확한 수치는 build_sizes.json과 package_verification.json을 사용합니다. 실제 보드 업로드는 수행하지 않았습니다.

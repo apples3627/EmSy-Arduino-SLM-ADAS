@@ -5,33 +5,33 @@
   "boards": [
     {
       "board": "main",
-      "flash_bytes": 15902,
-      "static_sram_bytes": 1360,
-      "sram_static_spare": 688,
+      "flash_bytes": 18696,
+      "static_sram_bytes": 1459,
+      "sram_static_spare": 589,
       "flash_limit": 32256,
       "sram_limit": 2048
     },
     {
-      "board": "compute_i2c",
-      "flash_bytes": 12858,
-      "static_sram_bytes": 341,
-      "sram_static_spare": 1707,
+      "board": "slm_spi",
+      "flash_bytes": 14948,
+      "static_sram_bytes": 369,
+      "sram_static_spare": 1679,
       "flash_limit": 32256,
       "sram_limit": 2048
     },
     {
-      "board": "compute_spi",
-      "flash_bytes": 12960,
-      "static_sram_bytes": 341,
-      "sram_static_spare": 1707,
+      "board": "adas_i2c",
+      "flash_bytes": 3984,
+      "static_sram_bytes": 291,
+      "sram_static_spare": 1757,
       "flash_limit": 32256,
       "sram_limit": 2048
     },
     {
       "board": "actuator_uart",
-      "flash_bytes": 4954,
-      "static_sram_bytes": 411,
-      "sram_static_spare": 1637,
+      "flash_bytes": 5858,
+      "static_sram_bytes": 421,
+      "sram_static_spare": 1627,
       "flash_limit": 32256,
       "sram_limit": 2048
     }

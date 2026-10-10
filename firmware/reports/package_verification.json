@@ -1,0 +1,39 @@
+{
+  "protocol_version": 3,
+  "model_id": "95616d56",
+  "hardware_verified": false,
+  "packages": [
+    {
+      "role": "main",
+      "archive": "main_uno_r3.zip",
+      "sha256": "af7b36804d07d24dc91be8a68848d27a3ab6e976a28049ed7cccf97deac91444",
+      "file_hashes_passed": true,
+      "standalone_uno_compile_passed": true,
+      "sizes": "Sketch uses 18696 bytes (57%) of program storage space. Maximum is 32256 bytes.\nGlobal variables use 1459 bytes (71%) of dynamic memory, leaving 589 bytes for local variables. Maximum is 2048 bytes."
+    },
+    {
+      "role": "slm_spi",
+      "archive": "slm_spi_uno_r3.zip",
+      "sha256": "27eff29352066961489e41621d5bfa5a9325056fc56a1c0685b0fd2e38af51e9",
+      "file_hashes_passed": true,
+      "standalone_uno_compile_passed": true,
+      "sizes": "Sketch uses 14948 bytes (46%) of program storage space. Maximum is 32256 bytes.\nGlobal variables use 369 bytes (18%) of dynamic memory, leaving 1679 bytes for local variables. Maximum is 2048 bytes."
+    },
+    {
+      "role": "adas_i2c",
+      "archive": "adas_i2c_uno_r3.zip",
+      "sha256": "fc41f380dab43fc3594c39d1a5a63c2085fc64487a08cff4f0d47f7a5e6f7f59",
+      "file_hashes_passed": true,
+      "standalone_uno_compile_passed": true,
+      "sizes": "Sketch uses 3984 bytes (12%) of program storage space. Maximum is 32256 bytes.\nGlobal variables use 291 bytes (14%) of dynamic memory, leaving 1757 bytes for local variables. Maximum is 2048 bytes."
+    },
+    {
+      "role": "actuator_uart",
+      "archive": "actuator_uart_uno_r3.zip",
+      "sha256": "686cc2095c4d2da5b37c5b5d78874500997d6cb0ca75f6e1018aaee070845cd5",
+      "file_hashes_passed": true,
+      "standalone_uno_compile_passed": true,
+      "sizes": "Sketch uses 5858 bytes (18%) of program storage space. Maximum is 32256 bytes.\nGlobal variables use 421 bytes (20%) of dynamic memory, leaving 1627 bytes for local variables. Maximum is 2048 bytes."
+    }
+  ]
+}
