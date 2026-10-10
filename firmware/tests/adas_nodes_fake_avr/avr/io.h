@@ -1,0 +1,6 @@
+#pragma once
+#include <stdint.h>
+#define _BV(b) (1U<<(b))
+enum {DDD7=7,PORTD7=7,DDB0=0,PORTB0=0,PINB0=0,ICNC1=7,ICES1=6,CS11=1,TOV1=0,ICF1=5,OCF1A=1,TOIE1=0,ICIE1=5,OCIE1A=1};
+inline volatile uint8_t SREG,DDRD,PORTD,DDRB,PORTB,PINB,TCCR1A,TCCR1B,TIFR1,TIMSK1;
+inline volatile uint16_t TCNT1,OCR1A,ICR1;
