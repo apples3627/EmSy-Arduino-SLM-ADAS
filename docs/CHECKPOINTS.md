@@ -7,3 +7,5 @@
 이 변경 전 상태를 `pre-adas-2026-10-10` 태그로 보관하고 GitHub 비공개 저장소에 먼저 업로드한다. 이후 검증 완료한 새 구조는 MAIN + SLM_FULL_SPI + ADAS_I2C + ACTUATOR로 별도 커밋/태그를 남긴다.
 
 macOS .DS_Store와 사용자가 풀어둔 firmware/packages/compute_i2c/의 미추적 사본은 프로젝트 정본에 추가하지 않고 로컬에 그대로 보존한다. 기록된 소스·모델·데이터·문서·배포 ZIP만 업로드한다.
+
+GitHub 비공개 저장소: https://github.com/apples3627/EmSy-Arduino-SLM-ADAS (생성 후 isPrivate=true/visibility=PRIVATE 확인). 변경 전 커밋26e2ab0와 태그의 원격 업로드를 완료했다.

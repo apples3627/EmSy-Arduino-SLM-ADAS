@@ -7,12 +7,12 @@
 #endif
 #endif
 namespace Proto {
-static const uint8_t FRAME_SIZE=32, PAYLOAD_SIZE=24, VERSION=2;
+static const uint8_t FRAME_SIZE=32, PAYLOAD_SIZE=24, VERSION=3;
 static const uint32_t MODEL_ID=0x95616d56UL, VOCAB_TAG=0xbfd74d7eUL;
 static const uint16_t VOCAB_SIZE=245, PAD=0xffff;
 static const uint8_t LABELS_VERSION=3, LABEL_COUNT=10, EMBED_SIZE=16, HIDDEN_TOTAL=64;
-enum Op : uint8_t { HELLO=1, HELLO_ACK=2, LOAD_INPUT=3, START=4, ACK=5, STATUS=6, STATUS_REPLY=7, GET_RESULT=8, RESULT=9, ERROR_REPLY=10, ACTUATE=11, STOP_ALL=12, HEARTBEAT=13, ACTUATE_BATCH=14 };
-enum Error : uint8_t { OK=0, BAD_FRAME=1, BAD_LENGTH=2, BAD_JOB=3, NOT_READY=4, BAD_TOKEN=5, BAD_MODEL=6, BAD_SESSION=7, OLD_COMMAND=8, BUSY=9, RX_OVERFLOW=10, LOCAL_STOP=11, BAD_OP=12 };
+enum Op : uint8_t { HELLO=1, HELLO_ACK=2, LOAD_INPUT=3, START=4, ACK=5, STATUS=6, STATUS_REPLY=7, GET_RESULT=8, RESULT=9, ERROR_REPLY=10, ACTUATE=11, STOP_ALL=12, HEARTBEAT=13, ACTUATE_BATCH=14, ADAS_META=15, ADAS_STATUS_REPLY=16, ADAS_CONFIG=17, STATE_SYNC=18 };
+enum Error : uint8_t { OK=0, BAD_FRAME=1, BAD_LENGTH=2, BAD_JOB=3, NOT_READY=4, BAD_TOKEN=5, BAD_MODEL=6, BAD_SESSION=7, OLD_COMMAND=8, BUSY=9, RX_OVERFLOW=10, LOCAL_STOP=11, BAD_OP=12, STALE_SAFETY=13, SAFETY_INHIBIT=14 };
 enum WorkerState : uint8_t { IDLE=0, RECEIVING=1, COMPUTING=2, RESULT_READY=3, FAULT=4 };
 enum IntentId : uint8_t { FORWARD=0, REVERSE=1, ALL_STOP=2, LIGHT_ON=3, LIGHT_OFF=4, WIPER_ON=5, WIPER_OFF=6, UNKNOWN_INTENT=7, HORN_ON=8, HORN_OFF=9 };
 struct Frame { uint8_t bytes[FRAME_SIZE]; };
@@ -40,7 +40,7 @@ inline bool compatible(const Frame& f,uint8_t lo,uint8_t hi){const uint8_t* p=pa
 // Controller requests ACTUATE len7: session32,intent8,duration16; STOP_ALL/STATUS/HEARTBEAT len4: session32.
 // Controller ACK/STATUS_REPLY len12: session32,drive(int8),lights,wiper,horn,servoAngle,flags,lastAppliedCommand16.
 // flags: bit0 reversing pending, bit1 local stop latched. ACK frame id is the acknowledged command; STATUS id echoes query.
-static const uint8_t CONTROLLER_STATUS_SIZE=12;
+static const uint8_t CONTROLLER_STATUS_SIZE=18;
 inline bool newer16(uint16_t a,uint16_t b){return int16_t(a-b)>0;}
 struct StreamParser {Frame frame;uint8_t used;StreamParser():used(0){} void reset(){used=0;} bool push(uint8_t b,Frame& out){if(!used&&b!=0xa5)return false;frame.bytes[used++]=b;if(used<FRAME_SIZE)return false;if(valid(frame)){out=frame;used=0;return true;}uint8_t next=1;while(next<FRAME_SIZE&&frame.bytes[next]!=0xa5)next++;used=uint8_t(FRAME_SIZE-next);if(used)memmove(frame.bytes,frame.bytes+next,used);return false;} };
 }
@@ -48,3 +48,23 @@ struct StreamParser {Frame frame;uint8_t used;StreamParser():used(0){} void rese
 // ACTUATE_BATCH payload: session32,count8,intents[count 1..4],duration16; len=7+count.
 // Validate the full batch before output changes. Duplicate intents collapse, opposite intents conflict.
 // ALL_STOP/UNKNOWN takes precedence and clears every output; no partial action on rejection.
+
+namespace Proto {
+enum StopSource : uint16_t { SLM_STOP=1, ADAS_OBSTACLE=2, ADAS_SENSOR_FAULT=4, COMM_FAULT=8, USER_ESTOP=16, BOOT_STOP=32, DRIVE_LEASE=64 };
+static const uint8_t ADAS_ROLE=0xad, HC_SR04=1, SHARED_STATE_SIZE=22;
+struct SharedState {uint32_t session,revision,safetyEpoch;uint16_t command;int8_t desiredDrive,appliedDrive;uint8_t desiredFlags,appliedFlags;uint16_t stopSources;bool appliedKnown;uint8_t actorFlags;};
+inline void encodeState(uint8_t* p,const SharedState& s){put32(p,s.session);put32(p+4,s.revision);put32(p+8,s.safetyEpoch);put16(p+12,s.command);p[14]=uint8_t(s.desiredDrive);p[15]=uint8_t(s.appliedDrive);p[16]=s.desiredFlags;p[17]=s.appliedFlags;put16(p+18,s.stopSources);p[20]=s.appliedKnown?1:0;p[21]=s.actorFlags;}
+inline bool decodeState(const Frame& f,SharedState& s){if(!valid(f)||op(f)!=STATE_SYNC||len(f)!=SHARED_STATE_SIZE)return false;const uint8_t* p=payload(f);s.session=get32(p);s.revision=get32(p+4);s.safetyEpoch=get32(p+8);s.command=get16(p+12);s.desiredDrive=int8_t(p[14]);s.appliedDrive=int8_t(p[15]);s.desiredFlags=p[16];s.appliedFlags=p[17];s.stopSources=get16(p+18);s.appliedKnown=p[20]!=0;s.actorFlags=p[21];return s.desiredDrive>=-1&&s.desiredDrive<=1&&s.appliedDrive>=-1&&s.appliedDrive<=1&&(s.desiredFlags&~7)==0&&(s.appliedFlags&~7)==0&&p[20]<=1;}
+// SLM HELLO_ACK: existing metadata16 plus byte16=1 (full H64 scores INCLUDE global bias).
+inline void fullSlmMeta(Frame& f,uint16_t job){computeMeta(f,job,0,64);f.bytes[6]=17;payload(f)[16]=1;f.bytes[31]=crc8(f.bytes,31);}
+inline bool fullSlmCompatible(const Frame& f){if(!valid(f)||op(f)!=HELLO_ACK||len(f)!=17||payload(f)[16]!=1)return false;const uint8_t* p=payload(f);return get32(p)==MODEL_ID&&get32(p+4)==VOCAB_TAG&&p[8]==LABELS_VERSION&&p[9]==10&&p[10]==16&&p[11]==64&&p[12]==0&&p[13]==64&&get16(p+14)==VOCAB_SIZE;}
+// ADAS_META len8: roleAD,sensorHC,stopCm,releaseCm,clearRequired,protocol3,periodMs16.
+// ADAS_STATUS_REPLY len18: roleAD,flags,rangeMm16,sampleId16,ageMs16,stopCm,releaseCm,clearCount,clearRequired,periodMs16,sharedRevision32.
+// ADAS flags: bit0 startup,bit1 obstacle,bit2 sensorFault,bit3 validSample,bit4 ALERT line asserted.
+// Protocol3 ACTUATE len11: session32,safetyEpoch32,intent8,duration16.
+// Protocol3 ACTUATE_BATCH len11+count: session32,safetyEpoch32,count8,intents[count],duration16.
+// Protocol3 STOP_ALL len10: session32,newSafetyEpoch32,stopSources16.
+// STATUS/HEARTBEAT still len4 session32. Controller ACK/STATUS_REPLY len18:
+// session32,epoch32,drive8,lights8,wiper8,horn8,servo8,flags8,lastAppliedCmd16,stopSources16.
+// flags bit0 reversalPending,bit1 localStopLatched,bit2 adasLineActive,bit3 safetySyncRequired.
+}
