@@ -37,15 +37,14 @@ inline void computeMeta(Frame& f,uint16_t job,uint8_t lo,uint8_t hi){uint8_t p[1
 inline bool compatible(const Frame& f,uint8_t lo,uint8_t hi){const uint8_t* p=payload(f);return valid(f)&&op(f)==HELLO_ACK&&len(f)==16&&get32(p)==MODEL_ID&&get32(p+4)==VOCAB_TAG&&p[8]==LABELS_VERSION&&p[9]==LABEL_COUNT&&p[10]==EMBED_SIZE&&p[11]==HIDDEN_TOTAL&&p[12]==lo&&p[13]==hi&&get16(p+14)==VOCAB_SIZE;}
 // Compute STATUS_REPLY len6: state,error,inputMask,workerRole,activeJob16.
 // Controller HELLO request len9: session32,model32,labelsVersion. ACK len10: session32,model32,labelsVersion,capabilities0x0f.
-// Controller requests ACTUATE len7: session32,intent8,duration16; STOP_ALL/STATUS/HEARTBEAT len4: session32.
-// Controller ACK/STATUS_REPLY len12: session32,drive(int8),lights,wiper,horn,servoAngle,flags,lastAppliedCommand16.
-// flags: bit0 reversing pending, bit1 local stop latched. ACK frame id is the acknowledged command; STATUS id echoes query.
+// Controller protocol3 request/reply layouts are documented below.
+// ACK frame id is the acknowledged command; STATUS id echoes its query.
 static const uint8_t CONTROLLER_STATUS_SIZE=18;
 inline bool newer16(uint16_t a,uint16_t b){return int16_t(a-b)>0;}
 struct StreamParser {Frame frame;uint8_t used;StreamParser():used(0){} void reset(){used=0;} bool push(uint8_t b,Frame& out){if(!used&&b!=0xa5)return false;frame.bytes[used++]=b;if(used<FRAME_SIZE)return false;if(valid(frame)){out=frame;used=0;return true;}uint8_t next=1;while(next<FRAME_SIZE&&frame.bytes[next]!=0xa5)next++;used=uint8_t(FRAME_SIZE-next);if(used)memmove(frame.bytes,frame.bytes+next,used);return false;} };
 }
 
-// ACTUATE_BATCH payload: session32,count8,intents[count 1..4],duration16; len=7+count.
+// ACTUATE_BATCH uses protocol3 session and safety epoch; see layout below.
 // Validate the full batch before output changes. Duplicate intents collapse, opposite intents conflict.
 // ALL_STOP/UNKNOWN takes precedence and clears every output; no partial action on rejection.
 
