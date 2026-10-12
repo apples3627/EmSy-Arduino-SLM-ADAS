@@ -1,0 +1,17 @@
+{
+  "source_commit": "ba7408938073c5ca47049d5f5675f5778dca86bc",
+  "model_id": "95616d56",
+  "protocol_version": 3,
+  "copied_on": "2026-10-12",
+  "read_only_origin": {
+    "intent/model_int8.npz": "88ca94525dfd32c0a502611da5243d513480b9a52cda5b794bd50a99f9b7b154",
+    "intent/metadata.json": "95a5cf4e05ee1c3c3473297a8c35d1068ccc8908797303f34a5ad1a5968a5bcb",
+    "intent/uno_probe/src/intent_model.h": "7b95cf726ddfdb1bdeee35bb05d32c649c54899e06e8f9b5609f64bbb36e7b98",
+    "intent/uno_probe/src/command_plan.h": "3b07200666436b3e76e30afdad59449950407d151881b12cc0a87d74683b28cd",
+    "firmware/main/src/board_app.h": "447c55b3eb1c76d76ee520ef91831b9cdbd3a4b889225f0f981be286dc738fc0",
+    "firmware/adas_i2c/src/ownengine/adapters/policy.h": "f32d591eec838823985d670775dfa5ccd52d2214f425db8302448106b0a8c4d6",
+    "firmware/actuator_uart/src/control_engine.h": "dee2a0adb72a7eca99696809677c831c156a70489719fc475da04cf92c4e5eeb"
+  },
+  "runtime_external_dependencies": [],
+  "hardware_access": false
+}

@@ -1,0 +1,20 @@
+{
+  "engine_assertions": 232,
+  "golden_clauses": 17,
+  "golden_score_comparisons": 170,
+  "browser_scenarios": [
+    "boot READY",
+    "two-clause inference and applied ACK",
+    "20cm interrupt gates outputs",
+    "three clear samples and no automatic resume",
+    "STOP outputs and snapshots",
+    "ADAS board pin detail"
+  ],
+  "desktop_1440_horizontal_overflow": false,
+  "mobile_390_horizontal_overflow": false,
+  "browser_console_errors": 0,
+  "external_resources": [],
+  "original_source_hashes_unchanged": true,
+  "hardware_access": false,
+  "file_url_automation": "Browser tool blocks file URLs; browser integration tested with loopback-only static server. Uses classic scripts and no fetch/modules."
+}
