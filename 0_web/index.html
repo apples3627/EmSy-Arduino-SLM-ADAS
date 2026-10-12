@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f4ee">
+  <title>EmSy · 명령에서 움직임까지</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="model.js" defer></script>
+  <script src="engine.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="page-header">
+      <a class="brand" href="#"><span class="brand-icon" aria-hidden="true">E<span>↗</span></span><span>EmSy <small>임베디드 시스템 관찰실</small></span></a>
+      <div class="header-meta"><span class="offline-badge"><i></i> 독립 실행 · 브라우저 시뮬레이션</span><span class="version">4개 보드 / 1개의 흐름</span></div>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <div><p class="eyebrow">명령이 움직임이 되는 과정</p><h1 id="page-title">말하고, 연결하고,<br><span>안전하게 움직입니다.</span></h1><p class="intro-copy">영어 명령을 입력하고 네 개의 보드가 상태를 공유하는 과정을 살펴보세요.<br>장애물 앞에서는 안전 판단이 움직임보다 먼저입니다.</p></div>
+        <div class="intro-aside"><div class="status-badge ready" id="status-badge">READY</div><p id="status-text" class="status-description">영어 명령을 보내세요.</p><p>현재 시뮬레이션 시간 <strong id="sim-time">0 ms</strong></p><div class="intro-stats"><span><b>500 ms</b>동작 유지</span><span><b>20 cm</b>안전 정지</span><span><b>3회</b>해제 확인</span></div></div>
+      </section>
+
+      <section class="demo-strip" aria-label="추천 시나리오"><span class="strip-label"><span aria-hidden="true">↗</span> 한 번에 살펴보기</span><div class="demo-buttons"><button type="button" data-demo="normal">01 정상 주행</button><button type="button" data-demo="obstacle">02 장애물 감지</button><button type="button" data-demo="recovery">03 안전 복귀</button><button type="button" data-demo="stop">04 즉시 정지</button><button type="button" data-demo="conflict">05 명령 충돌</button></div></section>
+
+      <div class="dashboard-grid">
+        <section class="card control-card" aria-labelledby="command-title">
+          <div class="section-heading"><div><p class="eyebrow">01 / 입력</p><h2 id="command-title">차량에게 요청하기</h2></div><span class="small-tag">영어 명령</span></div>
+          <form id="command-form"><label for="command-input">어떤 동작을 할까요?</label><div class="command-field"><input id="command-input" type="text" value="go forward" placeholder="예: go forward and lights on" autocomplete="off" spellcheck="false"><button id="send-command" type="submit" aria-label="명령 보내기">보내기 <span aria-hidden="true">↗</span></button></div></form>
+          <p class="field-help">학습된 분류기가 명령을 읽고, MAIN 보드가 요청을 정리합니다.</p>
+          <div class="example-chips" aria-label="예제 명령"><button type="button" data-command="go forward">go forward</button><button type="button" data-command="lights on">lights on</button><button type="button" data-command="wipers on">wipers on</button><button type="button" data-command="horn on">horn on</button><button type="button" data-command="go forward and lights on">go forward and lights on</button><button type="button" data-command="go forward and reverse">go forward and reverse</button><button type="button" data-command="do not move forward">do not move forward</button></div>
+          <div class="classification"><div class="subheading"><h3>명령 분류 결과</h3><span>학습 가중치 기반</span></div><div id="classifier-results" class="classifier-results"><p class="empty-hint">명령을 보내면 동작별 분류 점수가 표시됩니다.</p></div></div>
+          <div class="safety-actions"><button type="button" id="stop-all" class="stop-button"><span aria-hidden="true">■</span> 긴급 정지 <small>STOP</small></button><button type="button" id="reset-demo" class="reset-button"><span aria-hidden="true">↺</span> 초기화</button></div>
+        </section>
+
+        <section class="card scene-card" aria-labelledby="scene-title">
+          <div class="section-heading"><div><p class="eyebrow">02 / 움직임</p><h2 id="scene-title">지금, 차량의 상태</h2></div><span class="live-label"><i></i> 실시간 관찰</span></div>
+          <div id="car-scene" class="car-scene" data-drive="0" data-lights="false" data-wiper="false" data-horn="false">
+            <div class="scene-grid" aria-hidden="true"></div><span class="scene-label">안전 거리 관찰</span><span id="car-direction" class="direction-label">대기 중</span>
+            <svg viewBox="0 0 680 260" role="img" aria-label="차량과 장애물 사이의 거리를 나타내는 시뮬레이션" class="car-svg">
+              <defs><linearGradient id="body-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#233e49"/><stop offset="1" stop-color="#152f3b"/></linearGradient><linearGradient id="glass-fill" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c4e5dd"/><stop offset="1" stop-color="#79b9b0"/></linearGradient></defs>
+              <path class="road" d="M30 211H650"/><path class="road-dashes" d="M35 232H640"/>
+              <g id="car-body"><ellipse cx="261" cy="211" rx="142" ry="9" fill="#173c3b" opacity=".09"/><path d="M126 173l25-51c6-13 18-21 34-21h102c18 0 29 6 40 19l33 40 25 7c13 4 18 11 18 25v13H112v-20c0-7 5-11 14-12z" fill="url(#body-fill)"/><path d="M159 147l15-29h59v37h-78zM244 118h41c9 0 16 4 23 12l21 25h-85z" fill="url(#glass-fill)"/><path d="M241 115v85" stroke="#5a7980" stroke-width="3"/><path d="M127 177h254" stroke="#4b6670" stroke-width="2"/><path d="M259 170h16" stroke="#bfd8d0" stroke-linecap="round" stroke-width="4"/><path d="M111 197h292" stroke="#152832" stroke-width="8" stroke-linecap="round"/>
+                <g id="car-lights"><path class="light-beam" d="M398 173l117-35v73l-117-25z" fill="#ffda7a" opacity="0"/><rect x="375" y="172" width="23" height="13" rx="4" fill="#c8d3c9"/><rect x="116" y="174" width="13" height="12" rx="3" fill="#ce7b68"/></g>
+                <g id="car-wiper"><path d="M274 151l27-22" stroke="#173945" stroke-width="4" stroke-linecap="round"/><circle cx="274" cy="151" r="3" fill="#173945"/></g>
+              </g>
+              <g id="car-wheels"><g class="wheel wheel-back"><circle cx="173" cy="199" r="26" fill="#152832"/><circle cx="173" cy="199" r="15" fill="#d8e0d9"/><path d="M173 186v26m-13-13h26" stroke="#849b98" stroke-width="3"/><circle cx="173" cy="199" r="5" fill="#223e49"/></g><g class="wheel wheel-front"><circle cx="340" cy="199" r="26" fill="#152832"/><circle cx="340" cy="199" r="15" fill="#d8e0d9"/><path d="M340 186v26m-13-13h26" stroke="#849b98" stroke-width="3"/><circle cx="340" cy="199" r="5" fill="#223e49"/></g></g>
+              <g id="car-horn" fill="none" stroke="#e79e3c" stroke-width="4" stroke-linecap="round" opacity="0"><path d="M363 122q15-13 0-26M374 132q27-23 0-47M386 140q39-31 0-62"/></g>
+              <g id="obstacle"><rect x="560" y="133" width="39" height="72" rx="5" fill="#c78352"/><rect x="556" y="138" width="47" height="13" rx="2" fill="#e5a96e"/><rect x="556" y="166" width="47" height="13" rx="2" fill="#e5a96e"/><path d="M553 205h54" stroke="#9b6242" stroke-width="5" stroke-linecap="round"/></g>
+              <path class="distance-line" d="M416 218v-9m0 5h132m0-5v9" stroke="#7c9a90" stroke-width="1.5"/>
+            </svg>
+            <div class="scene-readout"><span><i class="tiny-dot"></i> 적용 상태를 시각화합니다</span><span id="phase-text">명령 대기</span></div>
+          </div>
+          <div class="sensor-controls"><div class="sensor-heading"><label for="distance-input">장애물까지의 거리</label><output id="distance-value" for="distance-input">100 cm</output></div><input id="distance-input" type="range" min="0" max="150" step="1" value="100"><div class="range-labels"><span>0 cm · 가까움</span><span>150 cm · 멀리</span></div><div class="sensor-footer"><label class="toggle-label"><input id="sensor-fault" type="checkbox"><span class="toggle-track" aria-hidden="true"></span> 센서 응답 오류</label><span class="clear-label">안전 확인 <b id="clear-count">0 / 3</b></span></div></div>
+          <div class="playback-controls"><button id="pause-demo" type="button">Ⅱ 일시 정지</button><button id="step-demo" type="button">한 단계 진행 <span aria-hidden="true">→</span></button><label for="speed-input">재생 속도 <select id="speed-input"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label></div>
+        </section>
+
+        <section class="card topology-card" aria-labelledby="topology-title"><div class="section-heading"><div><p class="eyebrow">03 / 연결</p><h2 id="topology-title">네 개의 보드, 하나의 판단</h2></div><span class="small-tag">보드를 눌러 자세히 보기</span></div>
+          <div class="topology"><button type="button" data-board="slm" class="board-node slm-node"><span class="board-number">02</span><span class="board-name">SLM</span><span class="board-role">명령 분류</span><span class="board-chip">UNO · 학습 가중치</span></button><div id="protocol-spi" class="protocol-link spi-link"><span>SPI</span><i aria-hidden="true">↔</i><small>명령 / 분류 결과</small></div><button type="button" data-board="main" class="board-node main-node"><span class="board-number">01</span><span class="board-name">MAIN</span><span class="board-role">상태 조율 · 안전 제어</span><span class="board-chip">UNO · 중심 제어</span></button><div id="protocol-uart" class="protocol-link uart-link"><span>UART</span><i aria-hidden="true">→</i><small>적용 명령 / 확인 응답</small></div><button type="button" data-board="actuator" class="board-node actuator-node"><span class="board-number">04</span><span class="board-name">ACT</span><span class="board-role">차량 동작 적용</span><span class="board-chip">UNO · 모터 / 출력</span></button><div id="protocol-i2c" class="protocol-link i2c-link"><span>I²C</span><i aria-hidden="true">↕</i><small>거리 / 안전 상태</small></div><button type="button" data-board="adas" class="board-node adas-node"><span class="board-number">03</span><span class="board-name">ADAS</span><span class="board-role">거리 감지 · 위험 판단</span><span class="board-chip">UNO · HC-SR04</span></button><div id="protocol-alert" class="protocol-link alert-link"><span>ALERT</span><i aria-hidden="true">↗</i><small>즉시 안전 신호 <b id="alert-value">LOW</b></small></div></div>
+          <div id="board-detail" class="board-detail"><span class="detail-icon" aria-hidden="true">↖</span><div><h3>보드 안쪽까지 살펴보세요</h3><p>보드를 선택하면 담당 역할, 연결 핀과 프로토콜을 확인할 수 있습니다.</p></div></div>
+        </section>
+
+        <section class="card state-card" aria-labelledby="state-title"><div class="section-heading"><div><p class="eyebrow">04 / 상태</p><h2 id="state-title">요청과 실제 적용 사이</h2></div><span class="epoch-tag">세대 <b id="epoch-value">0</b></span></div><div class="state-pair"><div class="state-block"><h3><span class="state-mark requested-mark"></span>요청 상태</h3><div id="requested-state" class="state-values"><p class="empty-hint">아직 요청이 없습니다.</p></div></div><div class="state-block applied-block"><h3><span class="state-mark applied-mark"></span>적용 상태</h3><div id="applied-state" class="state-values"><p class="empty-hint">차량이 정지해 있습니다.</p></div></div></div><div class="subheading snapshot-heading"><h3>보드가 알고 있는 상태</h3><span>마지막 동기화 스냅샷</span></div><div class="snapshots"><div><h4><i></i> MAIN</h4><div id="snapshot-main" class="snapshot-content">—</div></div><div><h4><i></i> SLM</h4><div id="snapshot-slm" class="snapshot-content">—</div></div><div><h4><i></i> ADAS</h4><div id="snapshot-adas" class="snapshot-content">—</div></div></div><p class="state-note"><span aria-hidden="true">↳</span> 안전 정지나 충돌이 발생하면 요청과 적용 상태가 달라질 수 있습니다.</p></section>
+
+        <section class="card log-card" aria-labelledby="log-title"><div class="section-heading"><div><p class="eyebrow">05 / 기록</p><h2 id="log-title">흐름을 따라 읽기</h2></div><span class="small-tag">시간순 이벤트</span></div><div class="log-header" aria-hidden="true"><span>시뮬레이션 시간</span><span>이벤트 / 메시지</span></div><div id="event-log" class="event-log" role="log" aria-live="polite" aria-relevant="additions"><p class="empty-hint">명령, 통신, 안전 판단의 순서가 여기에 기록됩니다.</p></div></section>
+      </div>
+      <section class="method-note" aria-label="시뮬레이션 안내"><span class="note-symbol" aria-hidden="true">i</span><div><h2>화면을 읽는 방법</h2><p>브라우저는 복사한 학습 가중치로 명령을 분류합니다. 통신과 움직임은 이해를 돕기 위한 시뮬레이션이며, 실제 MCU 펌웨어나 하드웨어가 실행되는 것은 아닙니다.</p><p>동작 유지 500 ms · 20 cm 이하 정지 · 25 cm 이상에서 70 ms 간격으로 3회 안전 확인 · 센서 데이터 200 ms 초과 시 안전 정지</p></div></section>
+    </main>
+    <footer><span>EmSy <b>·</b> 명령에서 안전한 동작까지</span><span>오프라인에서 작동하는 시스템 탐색 도구</span></footer>
+  </div>
+</body>
+</html>
