@@ -1,0 +1,18 @@
+#include <cassert>
+#include <cstdio>
+#include "../peripheral_spi/src/engine.h"
+static Proto::Frame hello(uint32_t sid){uint8_t p[9];Proto::put32(p,sid);Proto::put32(p+4,Proto::MODEL_ID);p[8]=Proto::LABELS_VERSION;Proto::Frame f;Proto::make(f,Proto::HELLO,0,0,p,9);return f;}
+static Proto::Frame stop(uint32_t sid,uint32_t ep,uint16_t id){uint8_t p[10];Proto::put32(p,sid);Proto::put32(p+4,ep);Proto::put16(p+8,Proto::SLM_STOP);Proto::Frame f;Proto::make(f,Proto::STOP_ALL,id,0,p,10);return f;}
+static Proto::Frame batch(uint32_t sid,uint32_t ep,uint16_t id,const uint8_t* intents,uint8_t n){uint8_t p[24]={0};Proto::put32(p,sid);Proto::put32(p+4,ep);p[8]=n;memcpy(p+9,intents,n);Proto::put16(p+9+n,500);Proto::Frame f;Proto::make(f,Proto::ACTUATE_BATCH,id,0,p,11+n);return f;}
+int main(){Peripheral::Engine e;Proto::Frame out;auto call=[&](const Proto::Frame& req,uint32_t now=0){assert(e.handle(req,out,now));assert(Proto::valid(out));};
+ call(hello(1));assert(Proto::peripheralCompatible(out,1));assert(e.takePersist());assert(e.inhibited());
+ const uint8_t on[]={0,3,8};call(batch(1,0,1,on,3));assert(Proto::op(out)==Proto::ERROR_REPLY);call(stop(1,1,1));assert(!e.inhibited());auto first=batch(1,1,2,on,3);call(first);assert(e.outputs().lights&&e.outputs().horn);const uint8_t* p=Proto::payload(out);assert(Proto::len(out)==18&&p[8]==0&&p[10]==0&&p[12]==0);assert(p[9]==1&&p[11]==1&&Proto::get16(p+14)==2);
+ call(first);assert(e.outputs().lights);call(hello(1));assert(e.epoch()==1&&e.outputs().lights&&!e.takePersist());
+ Proto::SharedState s={1,2,19,99,-1,-1,0,0,8,true,16};uint8_t data[22];Proto::encodeState(data,s);Proto::Frame sync;Proto::make(sync,Proto::STATE_SYNC,99,0,data,22);call(sync);assert(Proto::len(out)==2&&e.outputs().lights&&e.outputs().horn&&e.epoch()==1&&e.snapshot().safetyEpoch==19);
+ data[14]=2;Proto::make(sync,Proto::STATE_SYNC,99,0,data,22);call(sync);assert(e.outputs().lights&&e.outputs().horn);s.session=2;Proto::encodeState(data,s);Proto::make(sync,Proto::STATE_SYNC,99,0,data,22);call(sync);assert(e.outputs().lights);
+ const uint8_t wiper[]={3,5};call(batch(1,1,3,wiper,2));assert(Proto::op(out)==Proto::ERROR_REPLY&&!e.outputs().lights&&!e.outputs().horn);
+ call(batch(1,1,3,on,3));const uint8_t conflict[]={3,4,8};call(batch(1,1,4,conflict,3));assert(Proto::op(out)==Proto::ERROR_REPLY&&!e.outputs().lights&&!e.outputs().horn);
+ const uint8_t unknown[]={7};call(batch(1,1,4,unknown,1));assert(Proto::op(out)==Proto::ERROR_REPLY);const uint8_t invalid[]={255};call(batch(1,1,4,invalid,1));assert(Proto::op(out)==Proto::ERROR_REPLY);
+ call(batch(1,1,4,on,3));e.adas(true);e.adas(false);assert(e.inhibited()&&!e.outputs().horn);call(stop(1,1,5));assert(e.inhibited());call(stop(1,0,6));assert(e.inhibited()&&e.epoch()==1);call(stop(1,2,6));assert(!e.inhibited());call(batch(1,1,7,on,3));assert(Proto::op(out)==Proto::ERROR_REPLY);call(batch(1,2,7,on,3));assert(e.outputs().horn);
+ e.tick(2000);assert(e.session()==1&&e.inhibited()&&!e.outputs().horn);call(hello(1),2001);assert(e.inhibited());call(stop(1,2,8),2001);assert(e.inhibited());call(stop(1,3,9),2001);assert(!e.inhibited());e.lcdFault(true);call(batch(1,3,10,on,3),2002);assert((Proto::payload(out)[13]&16)&&e.outputs().horn);const uint8_t dominates[]={0,1,2,5,7,8,9};call(batch(1,3,11,dominates,7),2003);assert(Proto::op(out)==Proto::ACK&&!e.outputs().lights&&!e.outputs().horn);const uint8_t badStop[]={2,255};call(batch(1,3,12,badStop,2),2003);assert(Proto::op(out)==Proto::ERROR_REPLY);e.init(1);call(hello(1));assert(Proto::op(out)==Proto::ERROR_REPLY);call(hello(2));assert(Proto::peripheralCompatible(out,2));
+ puts("PASS peripheral engine protocol/session/epoch/watchdog/observation");}
