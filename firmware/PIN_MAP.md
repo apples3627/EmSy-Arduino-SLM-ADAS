@@ -9,7 +9,7 @@
 |SLM D3 TX|MAIN D2 RX / INT0|software UART9600 8N1|
 |MAIN D3 TX|SLM D2 RX / INT0|software UART 반환 ACK/상태|
 |SLM D0/D1|USB PC USART0|PC 영어 명령9600/Newline; 외부 배선 없음|
-|MAIN A4 SDA|ADAS A4 SDA|I2C0x12/100kHz|
+|MAIN A4 SDA|ADAS A4 SDA|I2C0x12/약30.4kHz|
 |MAIN A5 SCL|ADAS A5 SCL|I2C clock|
 |MAIN **D8 / PB0**|SPI 보드 D10 SS|SPI chip select, active LOW|
 |MAIN D11 MOSI|SPI 보드 D11 MOSI|SPI Mode0/125kHz|
@@ -18,7 +18,7 @@
 |ADAS **D4 open-drain**|MAIN **D6 PCINT22** + SPI 보드 **D2 INT0**|같은 공통 ALERT선, active LOW|
 |각 보드 GND|나머지 세 보드 GND|공통 기준 전위|
 
-ALERT→4.7kΩ→MAIN5V 풀업 한 개. ADAS는 LOW만 구동합니다. MAIN↔ADAS의 SDA/SCL에는 각각4.7kΩ→MAIN5V 풀업 한 개씩(기존 모듈 풀업 확인). MAIN D2/D3는 UART이며 ALERT를 연결하지 않습니다. **MAIN D10은 모터 PWM이므로 SPI 보드 D10과 연결하지 않습니다.**
+ALERT→4.7kΩ→MAIN5V 풀업 한 개. ADAS는 LOW만 구동합니다. MAIN↔ADAS의 SDA/SCL은 두 Uno의 내부 풀업을 활성화합니다. 짧은 배선으로 시험하고 필요 시 외부4.7kΩ을 각선에 추가합니다. MAIN D2/D3는 UART이며 ALERT를 연결하지 않습니다. **MAIN D10은 모터 PWM이므로 SPI 보드 D10과 연결하지 않습니다.**
 
 ## MAIN → L298N 두 모터
 
@@ -82,3 +82,13 @@ SPI 보드 D2는 ALERT 전용입니다. 이전 작동 보드의 로컬 정지 �
 |SPI 보드|INT0|D2 ALERT, LED·부저 즉시OFF|
 
 D10은 AVR SPI master의 하드웨어SS이기도 하지만 MAIN에서 **OUTPUT**으로 유지하므로 PWM 출력과 master 기능이 공존합니다. 실제 slave select는 MAIN D8입니다. 네 역할 모두 Arduino core의 millis/delay 타이머 기능은 사용하지 않습니다. MAIN/주변장치 EEPROM1020..1023은 세션에 예약합니다. EEPROM 네 바이트 쓰기는 원자적 전원차단 보장 방식이 아니므로 세션 기록 도중 전원을 끄지 않습니다.
+
+## MAIN–ADAS 내부 I2C 풀업 — 2026-10-13
+
+현재 MAIN과 ADAS는 A4/SDA·A5/SCL의 내부 풀업을 레지스터로 활성화합니다. DDRC4/5=0, PORTC4/5=1, MCUCR.PUD=0입니다. 별도4.7kΩ 없이 우선 짧은 점퍼선으로 두 보드를 연결할 수 있도록 MAIN TWI 속도를 약30.4kHz(TWBR=255, prescaler1)로 낮췄습니다. 기존주소0x12,70ms센서주기,프레임/CRC,STOP/ADAS우선정책은 유지합니다.
+
+두 보드 모두 재업로드해야 합니다. 모터 전원을 끄고MAIN·ADAS를업로드한뒤A4↔A4,A5↔A5,GND↔GND를확인합니다. 센서앞25cm이상공간에서 `!status`, `!diag`로 adas=1/clear=1 및READY를확인합니다.
+
+AVR내부풀업은대략20~50kΩ로외부4.7kΩ보다약하며, 두보드의풀업은각선에서병렬로작동합니다. 속도를낮춰도전기적상승시간을보증하지는않습니다. 긴배선/큰정전용량/잡음에서문제가남으면외부풀업을추가해야합니다. 실물파형/통신성공은아직측정하지않았습니다. [Arduino 내부풀업자료](https://docs.arduino.cc/retired/boards/arduino-uno-rev3-with-long-pins/)
+
+LCD는SPI보드의별도I2C버스이며이번변경의대상이아닙니다. ALERT선의정지용풀업배선도별개입니다. SDA/SCL을5V에직접단락하는배선이아니며내부저항을통해끌어올립니다.

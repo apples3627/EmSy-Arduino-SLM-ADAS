@@ -15,7 +15,7 @@ ZIP을 풀어 `adas_i2c/adas_i2c.ino`, `config.h`, `src/`를 함께 보존합니
 
 HC-SR04 모듈의 실제 Vcc/Trig/Echo/GND 인쇄 순서를 확인하세요. 이 ADAS에는 로컬 정지 버튼이 없습니다. ALERT는 하나의 공통 신호선입니다. MAIN 5V에서 ALERT까지 외부 4.7kΩ 풀업 **한 개**를 연결합니다. ADAS는 PORTD4 latch를 LOW로 유지하고 DDRD4 출력으로 LOW를 주장하며 입력으로 풀어 줍니다. HIGH를 push하지 않습니다. SPI 보드의 약한 내부 풀업은 선택적 보조입니다. 이 선은 전원 레일 점퍼가 아닙니다. 별도 USB를 사용하는 Uno 사이의 5V 레일은 연결하지 않고 GND만 공통으로 만듭니다.
 
-SDA와 SCL에는 각각 별도의 4.7kΩ 풀업을 MAIN 5V에 연결합니다. I2C 주소는 `0x12`, MAIN clock은 100kHz입니다. 송신 cache를 읽기 전에 요청 32바이트를 쓰고 STOP으로 transaction을 끝냅니다. 응답 역시 32바이트이며 id/op/CRC로 확인합니다. 부팅 기본 cache는 유효 ADAS_STATUS_REPLY입니다.
+SDA와 SCL은 MAIN·ADAS 양쪽의 내부 풀업을 사용합니다. 짧은 배선부터 시험하며 외부4.7kΩ은 필요 시 추가합니다. I2C 주소는 `0x12`, MAIN clock은 약30.4kHz입니다. 송신 cache를 읽기 전에 요청 32바이트를 쓰고 STOP으로 transaction을 끝냅니다. 응답 역시 32바이트이며 id/op/CRC로 확인합니다. 부팅 기본 cache는 유효 ADAS_STATUS_REPLY입니다.
 
 [HC-SR04 데이터시트](https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf)에 따른 최소 10µs trigger와 60ms 초과 주기, `echo µs / 58 = cm`를 사용합니다. 기본 주기는 70ms, 총 echo timeout은 30ms입니다. Timer1 prescaler 8의 0.5µs tick과 하드웨어 ICP1 capture를 사용하고 ISR은 edge timestamp/width만 저장합니다. Timer1 COMPA가 20 tick 뒤 trigger를 내립니다. 인터럽트 지연으로 실제 펄스는 10µs보다 길 수 있습니다. valid echo는 232..46,400 tick(2..400cm)입니다. 너무 짧거나 범위 밖 pulse, stuck HIGH, 누락 rising/falling, 200ms 초과 유효 sample 부재는 fault로 정지합니다. Timer0 COMPA 1ms clock을 쓰고 Arduino core overflow interrupt를 비활성화합니다. blocking pulseIn/delay는 없습니다.
 
@@ -28,3 +28,13 @@ MAIN은 현재 metadata를20/25/3/70ms로 고정 확인하므로 임계값·주�
 HELLO session32는 공유 snapshot만 재설정하고 실제 센서 hazard는 지우지 않습니다. STATE_SYNC는 22바이트 session/revision 검증 후 ACK하며 출력이나 센서 상태를 바꾸지 않습니다. 이전 revision은 BAD_JOB, 다른 session은 BAD_SESSION이고 동일 revision/동일 내용 재전송은 허용합니다. STATUS_REPLY payload 18바이트 flags는 startup bit0, obstacle bit1, fault bit2, valid bit3, ALERT bit4입니다. range가 invalid면 FFFF, 유효 sample이 없으면 age FFFF입니다. shared snapshot revision은 offset 14입니다. HELLO metadata payload는 8바이트 role AD/sensor HC/20/25/3/protocol4/period16입니다.
 
 검증은 `adas_nodes_policy_test.cpp`와 `adas_nodes_capture_test.cpp`에서 threshold, hysteresis, noise/fault, startup, stale/wrap, 여러 source, snapshot, frame cache, capture overflow race, trigger 종료, 누락 edge 취소를 확인합니다. Uno core 1.8.6 빌드: flash 3,984 / 32,256, static SRAM 291 / 2,048바이트. 실제 clone 센서의 거리 정확도·잘못된 반사·ALERT 지연과 네 보드 배선은 물리적으로 검증되지 않았습니다.
+
+## MAIN–ADAS 내부 I2C 풀업 — 2026-10-13
+
+현재 MAIN과 ADAS는 A4/SDA·A5/SCL의 내부 풀업을 레지스터로 활성화합니다. DDRC4/5=0, PORTC4/5=1, MCUCR.PUD=0입니다. 별도4.7kΩ 없이 우선 짧은 점퍼선으로 두 보드를 연결할 수 있도록 MAIN TWI 속도를 약30.4kHz(TWBR=255, prescaler1)로 낮췄습니다. 기존주소0x12,70ms센서주기,프레임/CRC,STOP/ADAS우선정책은 유지합니다.
+
+두 보드 모두 재업로드해야 합니다. 모터 전원을 끄고MAIN·ADAS를업로드한뒤A4↔A4,A5↔A5,GND↔GND를확인합니다. 센서앞25cm이상공간에서 `!status`, `!diag`로 adas=1/clear=1 및READY를확인합니다.
+
+AVR내부풀업은대략20~50kΩ로외부4.7kΩ보다약하며, 두보드의풀업은각선에서병렬로작동합니다. 속도를낮춰도전기적상승시간을보증하지는않습니다. 긴배선/큰정전용량/잡음에서문제가남으면외부풀업을추가해야합니다. 실물파형/통신성공은아직측정하지않았습니다. [Arduino 내부풀업자료](https://docs.arduino.cc/retired/boards/arduino-uno-rev3-with-long-pins/)
+
+LCD는SPI보드의별도I2C버스이며이번변경의대상이아닙니다. ALERT선의정지용풀업배선도별개입니다. SDA/SCL을5V에직접단락하는배선이아니며내부저항을통해끌어올립니다.

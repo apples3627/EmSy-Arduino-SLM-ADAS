@@ -1,6 +1,6 @@
 {
   "source_root": "/Users/jiseonpark/Desktop/EmSy/LLM",
-  "source_commit": "05fe50539ce19daf2d1d5dc9516ac0342d828d35",
+  "source_commit": "332b6356e37945a320e0e3f6265dfc9e384cb91c",
   "scenario_seal": {
     "sha256": "31f4ad4d8aa078617e25d23e1d76542ddf8d229dc709575ed63b41b582310a28",
     "before_source_review": true
@@ -9,7 +9,7 @@
   "host_tests": [
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-f_6xtf6d/protocol_contract"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-1c9gcnpj/protocol_contract"
       ],
       "exit_code": 0,
       "output": "PASS protocol4 metadata, observed state and repeated framed-link parsing\n",
@@ -17,7 +17,7 @@
     },
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-f_6xtf6d/main_contract"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-1c9gcnpj/main_contract"
       ],
       "exit_code": 0,
       "output": "PASS actual MAIN register gating: two PWM enables, both direction pairs, independent D8 CS/D10 SS, Timer0/1/2 separation and sticky ALERT ISR\n",
@@ -25,7 +25,7 @@
     },
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-f_6xtf6d/peripheral_contract"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-1c9gcnpj/peripheral_contract"
       ],
       "exit_code": 0,
       "output": "PASS actual peripheral engine: whole-plan validation, STOP dominance, snapshots, epochs, sticky safety and LCD diagnostic\n",
@@ -33,7 +33,7 @@
     },
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-f_6xtf6d/peripheral_register_contract"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-1c9gcnpj/peripheral_register_contract"
       ],
       "exit_code": 0,
       "output": "PASS actual peripheral ISR registers: sticky pulse, recovery STOP, active/passive buzzer and LCD timeout with SPI alive\n",
@@ -41,7 +41,7 @@
     },
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-f_6xtf6d/peripheral_register_contract"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-1c9gcnpj/peripheral_register_contract"
       ],
       "exit_code": 0,
       "output": "PASS actual peripheral ISR registers: sticky pulse, recovery STOP, active/passive buzzer and LCD timeout with SPI alive\n",
@@ -49,7 +49,7 @@
     },
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-f_6xtf6d/lcd_display_contract"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-1c9gcnpj/lcd_display_contract"
       ],
       "exit_code": 0,
       "output": "PASS actual LCD expander output: matching known drive, immediate local accessories, inhibited/old-epoch drive unknown\n",
@@ -57,7 +57,7 @@
     },
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-f_6xtf6d/slm_contract"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-1c9gcnpj/slm_contract"
       ],
       "exit_code": 0,
       "output": "PASS actual SLM full NN (50 golden evaluations), STOP/guard/wiper planner, UART framing and epoch cancellation\n",
@@ -65,7 +65,7 @@
     },
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-f_6xtf6d/adas_contract"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-1c9gcnpj/adas_contract"
       ],
       "exit_code": 0,
       "output": "PASS ADAS policy 33 assertions\n",
@@ -73,7 +73,7 @@
     },
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-f_6xtf6d/adas_capture_contract"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-1c9gcnpj/adas_capture_contract"
       ],
       "exit_code": 0,
       "output": "PASS actual capture ISR: wrap, pending overflow, ignored unarmed edge, 10us trigger, stuck-high refusal\n",
@@ -81,7 +81,7 @@
     },
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-f_6xtf6d/adas_board_contract"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-1c9gcnpj/adas_board_contract"
       ],
       "exit_code": 0,
       "output": "PASS actual ADAS board: open-drain gate, timeout 29/30ms, role/status invalid range, snapshots, immutable transmit buffer\n",
@@ -89,7 +89,7 @@
     },
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-f_6xtf6d/actual_peer_integration"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-1c9gcnpj/actual_peer_integration"
       ],
       "exit_code": 0,
       "output": "PASS actual MAIN + SLM + peripheral engines: matching ACK, old ACK/epoch, STOP snapshots, 100ms reversal, 500ms lease, sticky pulse and link failure\n",
@@ -101,42 +101,42 @@
     {
       "board": "main",
       "exit_code": 0,
-      "archive_sha256": "70398a002f5c7958acf1fdf18b036272072b3e9a942c48cef1bde3abe02ef53c",
+      "archive_sha256": "801d43f73de588e7c827eb9af8ba5061d2f7cfbe0d3d955fcf9b8ebb2a1f60a2",
       "file_count": 11,
       "standalone_includes": true
     },
     {
       "board": "slm_uart",
       "exit_code": 0,
-      "archive_sha256": "57dd8b25a3844563c4267926154bc27ed2777653d44ffaf18ea1037481679645",
+      "archive_sha256": "f8f82316db836723bc1fd0011f7f847d9e7df86b8c51ddb2df84ac06d5593b7e",
       "file_count": 17,
       "standalone_includes": true
     },
     {
       "board": "adas_i2c",
       "exit_code": 0,
-      "archive_sha256": "7c78635bd390d99d427ff6aa00fcdf1b6cd2d7287339aa7d14b0fa9f0dcce42a",
+      "archive_sha256": "3bf0908a6735761f42d9dbdf3220f5df22b2295d7ed8d86ae9bf30300fcbc569",
       "file_count": 13,
       "standalone_includes": true
     },
     {
       "board": "peripheral_spi",
       "exit_code": 0,
-      "archive_sha256": "3994754c827006e53af6c1ed72e88923858195a68f7a5acd59c652d31855431d",
+      "archive_sha256": "85f7e28e25678587f4105684e460a31347a1fa3b1918a378dcba6805c8655216",
       "file_count": 11,
       "standalone_includes": true
     }
   ],
   "source_files_sha256": {
     "firmware/main/.DS_Store": "f230fe64f798b6352526d97a8aac10b4eaa946b679fd2fd67571166f31cb97d9",
-    "firmware/main/GUIDE.md": "ee4e75a2661e059867175be21104ef6e5041ccec5822a400aac62249b49f6952",
+    "firmware/main/GUIDE.md": "98924e5be4549ed7a169e350acd399ea7a6be17de1d1784c884f3277e429b6dc",
     "firmware/main/main.ino": "6fab0449c9385b8a5ea4fdab8f10fd1573d61bc745abd6b3242ee7f88f725f8a",
     "firmware/main/src/board_app.h": "fe4faa5c42c29d47f54381e87df5e4238271d1e9c7a5d4b7cf3d847399bc0b81",
     "firmware/main/src/board_config.h": "0da472d0d29eb8bf923ad1321525ccf78b6dc089da61f811d26500dd580d2ae5",
     "firmware/main/src/compute_links.h": "95de83d621ae920c2d63e34500c0dd2eb01bf28a084faab36cf4b8974620992a",
     "firmware/main/src/control_engine.h": "ad1f86ac00d498cd6f89569508260fbb8051bcf6daba1298800e5940afdace17",
     "firmware/main/src/protocol.h": "a4435a80752a47153695a246f2edfa69194a3ec7b8f65624addb18e2c0e44d6d",
-    "firmware/main/src/register_io.h": "57131408a94839d462a96f1d8d633d3aacfa6939fb67848bd85aec6c4b6c601c",
+    "firmware/main/src/register_io.h": "a7d9ccc4899e5ada3435018c6810008159ff1bf111bff68e460b609f92142bb4",
     "firmware/slm_uart/GUIDE.md": "d9834db16e81328202fd2a859d518fc801a474fed7b7ed6fc29cff88c1c5d876",
     "firmware/slm_uart/slm_uart.ino": "cf4d4ab96c998594f418e4d64d1ea582f4e8800f5464dfa75dec76f78f7d4901",
     "firmware/slm_uart/src/board_app.h": "f78c219aaa03a5bce483b3b7e1c92227de29909b5c324c16b9b22cf4ccc69544",
@@ -151,10 +151,10 @@
     "firmware/slm_uart/src/protocol.h": "a4435a80752a47153695a246f2edfa69194a3ec7b8f65624addb18e2c0e44d6d",
     "firmware/slm_uart/src/register_io.h": "f3986b94d374da12e1aec91db5259258610f09f69a89c9301139cb2a66b7b9fb",
     "firmware/slm_uart/src/session.h": "71e5424a0c82356b886b8abd518fc3d878e5d3a0c87171dd96afa1c1a874ae6c",
-    "firmware/adas_i2c/GUIDE.md": "94b1b2385b48f5ac5a3a97e5134572be30147f844578ab22045e01dddfde636b",
+    "firmware/adas_i2c/GUIDE.md": "3eaa76b7ba0283a04d8f6a9b776ee104b0b7a4ec24c0a28df39efa40ccbf5b56",
     "firmware/adas_i2c/adas_i2c.ino": "12711001d9e32c76d3fa2e8a5a25077206c632d610591f6d999f4034b6b8d4dc",
     "firmware/adas_i2c/config.h": "b55238c727635ea21d6629907ad099cd3f5bbbdeb91f4f32a3d191513dfdafbe",
-    "firmware/adas_i2c/src/ownengine/adapters/board_app.h": "7be6bd0ba1db91f5885d3a5d1d20e952e9857eb2268ff2ad1da66a1d0c76b4f2",
+    "firmware/adas_i2c/src/ownengine/adapters/board_app.h": "e1e7bff2af554c548635c8895797815ec468a7912f42e163bb3d781b0c4b4219",
     "firmware/adas_i2c/src/ownengine/adapters/capture.h": "99d7ce0221fb1f0b38187508d6d3927e82a35de3ab5bf599ca90a8e22c351363",
     "firmware/adas_i2c/src/ownengine/adapters/policy.h": "f32d591eec838823985d670775dfa5ccd52d2214f425db8302448106b0a8c4d6",
     "firmware/adas_i2c/src/ownengine/adapters/snapshot.h": "4cadd2c1d8981eb39a8a58f3904dcb93d15fc243ef1e549a61105c620e57730c",

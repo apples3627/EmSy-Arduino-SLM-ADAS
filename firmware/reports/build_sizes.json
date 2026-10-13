@@ -5,7 +5,7 @@
   "boards": [
     {
       "board": "main",
-      "flash_bytes": 11112,
+      "flash_bytes": 11130,
       "static_sram_bytes": 777,
       "sram_static_spare": 1271,
       "flash_limit": 32256,
@@ -21,7 +21,7 @@
     },
     {
       "board": "adas_i2c",
-      "flash_bytes": 3984,
+      "flash_bytes": 3990,
       "static_sram_bytes": 291,
       "sram_static_spare": 1757,
       "flash_limit": 32256,

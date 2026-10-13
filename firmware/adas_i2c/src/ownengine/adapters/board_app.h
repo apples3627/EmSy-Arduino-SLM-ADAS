@@ -14,7 +14,7 @@ uint32_t now(){uint8_t s=SREG;cli();uint32_t n=ticks;SREG=s;return n;}
 // Open drain: PORT latch stays LOW, only direction changes.
 void alert(){PORTD&=~_BV(PORTD4);if(worker.policy.sources.asserted())DDRD|=_BV(DDD4);else DDRD&=~_BV(DDD4);}
 bool publish(){if(!outgoingPending)return true;uint8_t next=active^1;replies[next]=outgoing;uint8_t s=SREG;cli();bool idle=!reading;if(idle)active=next;SREG=s;if(idle)outgoingPending=false;return idle;}
-void setup(){cli();alert();worker.status(replies[0],0);replies[1]=replies[0];TCCR0A=_BV(WGM01);TCCR0B=_BV(CS01)|_BV(CS00);OCR0A=249;TCNT0=0;TIMSK0=_BV(OCIE0A);Capture::setup();DDRC&=~(_BV(DDC4)|_BV(DDC5));PORTC&=~(_BV(PORTC4)|_BV(PORTC5));TWAR=0x24;TWCR=_BV(TWEN)|_BV(TWEA)|_BV(TWIE);lastTrigger=uint32_t(0)-AdasConfig::PERIOD_MS;sei();}
+void setup(){cli();alert();worker.status(replies[0],0);replies[1]=replies[0];TCCR0A=_BV(WGM01);TCCR0B=_BV(CS01)|_BV(CS00);OCR0A=249;TCNT0=0;TIMSK0=_BV(OCIE0A);Capture::setup();DDRC&=~(_BV(DDC4)|_BV(DDC5));MCUCR&=uint8_t(~_BV(PUD));PORTC|=_BV(PORTC4)|_BV(PORTC5);TWAR=0x24;TWCR=_BV(TWEN)|_BV(TWEA)|_BV(TWIE);lastTrigger=uint32_t(0)-AdasConfig::PERIOD_MS;sei();}
 void loop(){
  uint32_t time=now(),width;
  if(Capture::take(width)){waiting=false;worker.policy.sample(width,time);}

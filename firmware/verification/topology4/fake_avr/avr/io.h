@@ -21,3 +21,7 @@ enum {PB2=2,SPIE=7,PCINT2=2,PCIF0=0,PCIE0=0,PCINT22=6,COM1B1=5,WGM10=0,CS10=0,CS
 inline volatile uint8_t PCMSK0;
 enum {PIND6=6,DDD6=6,PORTD6=6,DDC0=0,DDC1=1,DDB1=1,OCIE2B=2};
 inline volatile uint8_t OCR2B;
+
+// Global pull-up disable register for internal I2C pull-up regression.
+enum {PUD=4};
+inline volatile uint8_t MCUCR;
