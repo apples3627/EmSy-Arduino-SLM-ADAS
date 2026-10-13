@@ -54,7 +54,9 @@ class Controller {
   if(globalStop){stop(Proto::SLM_STOP,now);if(!periphReady)statusU(Proto::ACK,lastU);return true;}
   stagedDrive=state.appliedDrive;stagedFlags=state.appliedFlags;
   if(seen&1)stagedDrive=1;if(seen&2)stagedDrive=-1;if(seen&8)stagedFlags|=1;if(seen&16)stagedFlags&=uint8_t(~1);if(seen&256)stagedFlags|=4;if(seen&512)stagedFlags&=uint8_t(~4);
-  duration=Proto::get16(p+9+p[8]);if(!duration)duration=500;if(duration>1000)duration=1000;actionCount=p[8];for(uint8_t i=0;i<actionCount;i++)actions[i]=p[9+i];
+  // Zero means latched motion until STOP/safety/link cancellation. Auxiliary-only
+  // commands preserve the existing motion deadline instead of renewing it.
+  if(seen&3){duration=Proto::get16(p+9+p[8]);if(duration>1000)duration=1000;}actionCount=p[8];for(uint8_t i=0;i<actionCount;i++)actions[i]=p[9+i];
   awaitAux=periphAvailable()&&(seen&792);pending=true;state.desiredDrive=stagedDrive;state.desiredFlags=stagedFlags;state.appliedKnown=false;state.stopSources=0;reversing=stagedDrive&&motorDirection&&stagedDrive!=motorDirection;if(reversing){motorDirection=0;reversalAt=now;}changed();return true;
  }
  bool acceptPeripheral(const Proto::Frame& f,const Proto::Frame& request,uint32_t now){now_=now;if(!Proto::valid(f))return false;
@@ -89,7 +91,7 @@ class Controller {
   bool hazard=safetyActive_?((adasFlags&3)||rangeMm<=200||adasCount<3||physicalLow):requireADAS_;
   adasClear=!hazard;if(hazard&&!blocked){blocked=true;stop(safetyActive_?Proto::ADAS_OBSTACLE:Proto::ADAS_SENSOR_FAULT,now);}else if(!hazard&&blocked){blocked=false;stop(Proto::BOOT_STOP,now);}
   if(slmReady&&elapsed(now,uAt,2000)){slmReady=false;note(Proto::UART_WATCHDOG);stop(Proto::COMM_FAULT,now);}
-  if(motorDirection&&elapsed(now,driveAt,duration)){motorDirection=0;state.desiredDrive=state.appliedDrive=0;state.stopSources=Proto::DRIVE_LEASE;changed();}
+  if(motorDirection&&duration&&elapsed(now,driveAt,duration)){motorDirection=0;state.desiredDrive=state.appliedDrive=0;state.stopSources=Proto::DRIVE_LEASE;if(pending&&!seenMotion())stagedDrive=0;changed();}
   if(pWaiting&&elapsed(now,pAt,300)){if(pRetries<2){if(periph.push(pRequest)){pRetries++;pAt=now;}}else{note(Proto::SPI_TIMEOUT);losePeripheral();}}
   if(pending&&!awaitAux&&(!reversing||elapsed(now,reversalAt,100)))applyLocal();
   if(!pWaiting){if(!periphReady)helloP();else if(!policyKnown)sendPolicyP();else if(needStop){if(!blocked||!state.appliedKnown||elapsed(now,pollAt,300))sendStopP();else serviceObservation(now);}else if(pending&&awaitAux){if(!reversing||elapsed(now,reversalAt,100)){reversing=false;sendBatchP();}}else serviceObservation(now);}

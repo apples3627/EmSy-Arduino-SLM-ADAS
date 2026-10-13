@@ -46,6 +46,7 @@ def main():
     print(f'UART 연결: {args.port}, {args.baud} baud / Newline', flush=True)
     print('READY 후 일반 명령을 보내세요. WAIT 중에도 !status / stop 사용 가능.', flush=True)
     print('예: go forward / go backward / lights on / horn on / stop', flush=True)
+    print('전진/후진은 계속 유지됩니다. stop으로 전체 정지합니다.', flush=True)
     print('다중 명령: go forward and lights on and horn on', flush=True)
     print('APPLIED/READY를 확인한 뒤 다음 명령. 종료: exit 또는 Ctrl+C', flush=True)
     reader = threading.Thread(target=receive, daemon=True)

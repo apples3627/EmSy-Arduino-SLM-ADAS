@@ -73,6 +73,8 @@ inline bool fullSlmCompatible(const Frame& f){if(!valid(f)||op(f)!=HELLO_ACK||le
 // SLM_META len21: full metadata16,full-bias marker1,session32 at offset17.
 // PERIPHERAL_META len10: session32,model32,labelsVersion,capabilities(LED1|HORN2|LCD4|SAFETY_POLICY8|SENSOR_TELEMETRY16).
 // SLM -> MAIN ACTUATE_BATCH: len11+count, session32,observedEpoch32,count,intents,duration16.
+// duration16=0 latches motor direction until explicit STOP or safety/link cancellation;
+// nonzero duration is a bounded timed move. Auxiliary-only plans preserve motion timing.
 // SLM -> MAIN STOP_ALL: len10 session32,observedEpoch32,source16. MAIN owns new epoch.
 // MAIN -> SLM ACK/STATUS_REPLY len18 is authoritative applied state (wiper field ALWAYS0).
 // MAIN -> SLM STATE_SYNC len22; actorFlags bit4 indicates command pending/busy.

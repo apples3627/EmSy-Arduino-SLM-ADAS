@@ -17,7 +17,7 @@ ZIP 전체를 풀고 역할 폴더의 .ino를 엽니다. src/와 config를 유�
 
 유효한 ADAS 측정이 들어오면 자동으로 ACTIVE가 됩니다. 20cm 이하에서 모든 동작 출력을 정지하고, 25cm 이상3회 정상 측정 뒤 해제합니다. 센서 주기는70ms, echo timeout30ms, freshness200ms입니다. 정상 측정에서 ALERT ISR은 모터와 LED·부저를 즉시 끕니다. ACTIVE↔BYPASS 또는 SPI 연결 변경은 실행 중 명령을 취소하고 OFF로 전환합니다. **이전 명령은 자동 재개하지 않으며 READY 뒤 새 명령을 보내야 합니다.**
 
-SPI가 없으면 LED·부저만 건너뛰며 새 모터 명령은 가능합니다. 콘솔에 `SKIPPED auxiliary_outputs_unavailable`, `aux=unavailable`을 표시합니다. 이때 lights/horn=0은 물리 OFF 확인이 아니라 사용 불가 상태입니다. SPI가 있으면 LED·부저 포함 계획은 적용 ACK를 기다리고, LCD 오류 자체는 LED·부저 사용을 막지 않습니다. 모터 기본500ms lease와 반전100ms 대기는 유지됩니다. UART 단절·오류 및 STOP은 항상 정지합니다.
+SPI가 없으면 LED·부저만 건너뛰며 새 모터 명령은 가능합니다. 콘솔에 `SKIPPED auxiliary_outputs_unavailable`, `aux=unavailable`을 표시합니다. 이때 lights/horn=0은 물리 OFF 확인이 아니라 사용 불가 상태입니다. SPI가 있으면 LED·부저 포함 계획은 적용 ACK를 기다리고, LCD 오류 자체는 LED·부저 사용을 막지 않습니다. 전진·후진은 STOP 또는 안전/통신 취소까지 유지하며 기본 PWM은180/255(약71%)입니다. 반전100ms 대기는 유지됩니다. UART 단절·오류 및 STOP은 항상 정지합니다.
 
 ## LCD 표시
 

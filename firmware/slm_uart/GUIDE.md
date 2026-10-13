@@ -93,3 +93,7 @@ USB전원을각보드에넣는경우보드끼리5V선을묶지않고GND만공통
 사용하는 네 역할을 모두 새 버전으로 업로드합니다. MAIN+SLM은 필수이고 ADAS/SPI는 기본 시연에서 선택입니다. `!status`의 aux=0/1과 adas_mode=BYPASS/ACTIVE/UNKNOWN으로 확인합니다. SPI 미연결 계획의 LED·horn은 `SKIPPED auxiliary_outputs_unavailable`, APPLIED의 aux=unavailable로 표시합니다. 이때 lights/horn=0은 사용 불가이며 물리 OFF를 확인한 뜻이 아닙니다. MAIN의 새 모터 명령은 정상 실행 가능합니다.
 
 ADAS 미연결·오류·stale는 BYPASS이며 정상 측정은 ACTIVE로 전환해20cm 정지를 적용합니다. 모드/연결 전환은 명령 취소·OFF 후 새 명령을 요구합니다. READY 뒤 실행하세요. STOP과 UART watchdog은 항상 유지합니다.
+
+## 지속 주행 수정
+
+SLM은 일반 전진/후진 계획에 duration=0을 보냅니다. MAIN은 이 값을 STOP·ADAS 정지·모드/연결 변경·UART 오류/2초 watchdog까지 유지하는 명령으로 처리합니다. 이번 지속 주행 수정은 MAIN과 SLM_UART 두 보드를 함께 재업로드해야 합니다. SPI/ADAS는 기존 protocol5를 그대로 사용할 수 있습니다.

@@ -16,6 +16,10 @@ with tempfile.TemporaryDirectory() as td:
   subprocess.run(['c++','-std=c++17','-O2','-Wall','-Wextra','-I'+str(ROOT/'firmware/verification/topology4/fake_avr'),str(ROOT/f'firmware/tests/partial_main_{name}_test.cpp'),'-o',str(exe)],check=True)
   subprocess.run([str(exe)],check=True)
 with tempfile.TemporaryDirectory() as td:
+ exe=Path(td)/'continuous_motion'
+ subprocess.run(['c++','-std=c++17','-O2','-Wall','-Wextra',str(ROOT/'firmware/tests/continuous_motion_test.cpp'),'-o',str(exe)],check=True)
+ subprocess.run([str(exe)],check=True)
+with tempfile.TemporaryDirectory() as td:
  exe=Path(td)/'uart_repair'
  subprocess.run(['c++','-std=c++17','-O2','-Wall','-Wextra','-I'+str(ROOT/'firmware/verification/topology4/fake_avr'),str(ROOT/'firmware/tests/uart_repair_test.cpp'),str(ROOT/'firmware/tests/uart_repair_peer.cpp'),'-o',str(exe)],check=True)
  subprocess.run([str(exe)],check=True)
