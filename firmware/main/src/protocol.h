@@ -7,11 +7,11 @@
 #endif
 #endif
 namespace Proto {
-static const uint8_t FRAME_SIZE=32, PAYLOAD_SIZE=24, VERSION=4;
+static const uint8_t FRAME_SIZE=32, PAYLOAD_SIZE=24, VERSION=5;
 static const uint32_t MODEL_ID=0x95616d56UL, VOCAB_TAG=0xbfd74d7eUL;
 static const uint16_t VOCAB_SIZE=245, PAD=0xffff;
 static const uint8_t LABELS_VERSION=3, LABEL_COUNT=10, EMBED_SIZE=16, HIDDEN_TOTAL=64;
-enum Op : uint8_t { HELLO=1, HELLO_ACK=2, LOAD_INPUT=3, START=4, ACK=5, STATUS=6, STATUS_REPLY=7, GET_RESULT=8, RESULT=9, ERROR_REPLY=10, ACTUATE=11, STOP_ALL=12, HEARTBEAT=13, ACTUATE_BATCH=14, ADAS_META=15, ADAS_STATUS_REPLY=16, ADAS_CONFIG=17, STATE_SYNC=18, SLM_META=19, PERIPHERAL_META=20, DIAGNOSTIC=21, I2C_DIAGNOSTIC=22 };
+enum Op : uint8_t { HELLO=1, HELLO_ACK=2, LOAD_INPUT=3, START=4, ACK=5, STATUS=6, STATUS_REPLY=7, GET_RESULT=8, RESULT=9, ERROR_REPLY=10, ACTUATE=11, STOP_ALL=12, HEARTBEAT=13, ACTUATE_BATCH=14, ADAS_META=15, ADAS_STATUS_REPLY=16, ADAS_CONFIG=17, STATE_SYNC=18, SLM_META=19, PERIPHERAL_META=20, DIAGNOSTIC=21, I2C_DIAGNOSTIC=22, SAFETY_POLICY=23, SENSOR_TELEMETRY=24 };
 enum Error : uint8_t { OK=0, BAD_FRAME=1, BAD_LENGTH=2, BAD_JOB=3, NOT_READY=4, BAD_TOKEN=5, BAD_MODEL=6, BAD_SESSION=7, OLD_COMMAND=8, BUSY=9, RX_OVERFLOW=10, LOCAL_STOP=11, BAD_OP=12, STALE_SAFETY=13, SAFETY_INHIBIT=14 };
 enum WorkerState : uint8_t { IDLE=0, RECEIVING=1, COMPUTING=2, RESULT_READY=3, FAULT=4 };
 enum IntentId : uint8_t { FORWARD=0, REVERSE=1, ALL_STOP=2, LIGHT_ON=3, LIGHT_OFF=4, WIPER_ON=5, WIPER_OFF=6, UNKNOWN_INTENT=7, HORN_ON=8, HORN_OFF=9 };
@@ -80,7 +80,7 @@ inline bool fullSlmCompatible(const Frame& f){if(!valid(f)||op(f)!=HELLO_ACK||le
 // STATE_SYNC is observation only; it MUST NOT change peripheral output bits.
 // MAIN grants motors only after matching peripheral command ACK; SPI timeout stops motors.
 namespace Proto {
-static const uint8_t PERIPHERAL_CAPABILITIES=7, BUSY_FLAG=16;
+static const uint8_t PERIPHERAL_CAPABILITIES=31, BUSY_FLAG=16;
 inline bool helloRequest(const Frame& f,uint32_t& session){if(!valid(f)||op(f)!=HELLO||seq(f)||len(f)!=9)return false;const uint8_t* p=payload(f);session=get32(p);return session&&session!=0xffffffffUL&&get32(p+4)==MODEL_ID&&p[8]==LABELS_VERSION;}
 inline void slmMeta(Frame& f,uint32_t session,uint16_t id=0){fullSlmMeta(f,id);f.bytes[2]=SLM_META;f.bytes[6]=21;put32(payload(f)+17,session);f.bytes[31]=crc8(f.bytes,31);}
 inline bool slmCompatible(const Frame& f,uint32_t session){if(!valid(f)||op(f)!=SLM_META||seq(f)||len(f)!=21||get32(payload(f)+17)!=session)return false;Frame meta=f;meta.bytes[2]=HELLO_ACK;meta.bytes[6]=17;memset(payload(meta)+17,0,7);meta.bytes[31]=crc8(meta.bytes,31);return fullSlmCompatible(meta);}
@@ -100,3 +100,23 @@ namespace Proto {enum DiagnosticCause:uint8_t {DIAG_NONE=0,UART_RX_ERROR=1,UART_
 // replyOp,replyVersion,replyLength,accepted16,rejected16,metadataKnown,sensorFlags.
 // error1 write-address NACK,2 data NACK,3 read-address NACK,4 unexpected state,
 // 5 bad frame/CRC/version,6 transfer timeout,7 STOP timeout,8 rejected metadata/status.
+
+// Protocol5: component availability and optional-ADAS demonstration mode.
+// Actor flags: bit0 reversing,bit2 active ADAS stop,bit3 global UART/startup inhibit,
+// bit4 command pending,bit5 AUX_AVAILABLE,bit6 ADAS_ACTIVE,bit7 ADAS_BYPASS.
+// MAIN motors no longer require an SPI peer; unavailable auxiliary actions are skipped
+// and AUX_AVAILABLE=0 makes their applied fields unavailable (not confirmed physical OFF).
+// SAFETY_POLICY23 len9: session32,epoch32,mode8 (0=require ALERT,1=optional bypass).
+// Policy transition always gates outputs OFF and requires strictly newer STOP synchronization.
+// SENSOR_TELEMETRY24 len16: session32,epoch32,sampleId16,rangeMm16,ageMs16,flags8,mode8.
+// flags: bit0 ADAS metadata present,bit1 fresh valid range,bit2 fault,bit3 stale,
+// bit4 obstacle,bit5 startup. Mode0 ACTIVE/REQUIRED,mode1 BYPASS.
+// Telemetry is observation-only: it must never set outputs or clear synchronization.
+namespace Proto {
+static const uint8_t AUX_AVAILABLE=32,ADAS_ACTIVE_FLAG=64,ADAS_BYPASS_FLAG=128;
+enum SafetyMode:uint8_t{REQUIRE_ALERT=0,BYPASS_ADAS=1};
+enum SensorFlag:uint8_t{SENSOR_PRESENT=1,SENSOR_FRESH=2,SENSOR_ERROR=4,SENSOR_STALE=8,SENSOR_OBSTACLE=16,SENSOR_STARTUP=32};
+struct SensorTelemetry{uint32_t session,epoch;uint16_t sampleId,rangeMm,ageMs;uint8_t flags,mode;};
+inline void encodeTelemetry(uint8_t* p,const SensorTelemetry& s){put32(p,s.session);put32(p+4,s.epoch);put16(p+8,s.sampleId);put16(p+10,s.rangeMm);put16(p+12,s.ageMs);p[14]=s.flags;p[15]=s.mode;}
+inline bool decodeTelemetry(const Frame& f,SensorTelemetry& s){if(!valid(f)||op(f)!=SENSOR_TELEMETRY||seq(f)||len(f)!=16)return false;const uint8_t* p=payload(f);s={get32(p),get32(p+4),get16(p+8),get16(p+10),get16(p+12),p[14],p[15]};return s.mode<=1&&!(s.flags&~63)&&(!(s.flags&SENSOR_FRESH)||(s.rangeMm>=20&&s.rangeMm<=4000&&s.ageMs<=200));}
+}

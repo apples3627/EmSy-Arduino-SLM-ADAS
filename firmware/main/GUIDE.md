@@ -1,57 +1,29 @@
-# MAIN 담당자 지침 — 두 모터·UART/I2C/SPI 중재
+# MAIN 담당자 지침 — 두 모터·선택적 ADAS/SPI
 
-`main` 폴더 전체를 풀어 main.ino를 Arduino Uno R3에 업로드합니다. 외부 배선과 모터 전원을 분리하고 해당 USB 포트를 선택합니다. MAIN USB는 업로드/전원용이며 PC 영어 명령은 **SLM_UART USB**에 입력합니다. 레지스터 I/O만 사용하며 별도 Arduino 통신/Servo 라이브러리가 필요 없습니다.
+`main` 폴더 전체의 main.ino를 Arduino Uno R3에 컴파일·업로드합니다. 모터 외부 전원을 끄고 역할별 USB 포트를 확인합니다. MAIN USB는 업로드/전원용이며 PC 영어 명령은 **SLM_UART USB**로 보냅니다. MAIN은 레지스터 I/O만 사용합니다. 자동 업로드는 수행하지 않았습니다.
 
-[전체 핀 연결표](../PIN_MAP.md)의 현재2026-10-13 구성만 사용합니다. 독립 ZIP에는 같은 파일이 PIN_MAP.md로 동봉됩니다. 핵심: D2RX/D3TX→SLM 교차UART, D6ALERT, A4/A5→ADAS, D8CS→SPI 보드D10, D11~13SPI입니다. L298N은 IN1D4/IN2D7/IN3A0/IN4A1/ENAD9/ENBD10입니다. MAIN D10과 SPI 보드D10을 연결하지 않습니다.
+최소 시연 구성은 PC + SLM_UART + MAIN입니다. ADAS_I2C와 PERIPHERAL_SPI는 선택적으로 연결합니다. `src/board_config.h`의 `REQUIRE_ADAS_FOR_MOTION=false`가 기본 시연 설정입니다. 센서 미연결·초기화·고장·오래된 측정이면 ADAS_BYPASS로 표시되고 새 모터 명령을 허용합니다. 이 설정에서는 센서 고장 때문에 ALERT가 LOW여도 ISR과 motorWrite가 모터를 차단하지 않습니다. RAW LOW는 LINK/DIAG에 계속 기록합니다. ADAS를 필수로 사용할 구성은 해당 상수를 true로 바꾸고 다시 컴파일합니다.
 
-MAIN은 EEPROM에서 새session을 만들고 SLM/peripheralHELLO 및 ADAS metadata를 확인합니다. 센서 정상3회와 새epoch STOP의OFF ACK가 있어야 READY입니다. SLM 계획을 검증하고 주변장치의 같은session/epoch/id ACK를 받은 뒤 두 모터를 켭니다. ADAS D6의PCINT22는 PWM compare와 네 방향 출력을 직접 끕니다. 짧은 LOW/HIGH 펄스도 sticky 이벤트로 남아 전경 루프의 출력 재활성화를 막습니다.
+ADAS 메타데이터와 상태가 유효하고 VALID 비트, 정상 거리20~4000mm, 센서 age와 증가하는 sampleId의 마지막 갱신이 각각200ms 이내이면 ADAS_ACTIVE로 전환합니다. 이때 장애물(200mm 이하/OBSTACLE), 초기화 상태, 해제에 필요한 정상3회 미완료, 물리 ALERT LOW·짧은 sticky 펄스가 정지 우선권을 갖습니다. 센서가 끊기거나 고장 나면 BYPASS로 돌아갑니다. **모드 전환과 연결 변경은 두 모터를 OFF하고 새 safetyEpoch를 만들며 진행 중 계획을 취소합니다. 이전 주행은 자동 재개하지 않고 새 명령을 요구합니다.**
 
-SLM STOP은 MAIN의 새epoch를 만들며 desired전부0, appliedKnown0을 게시합니다. 주변장치OFF ACK와 모터OFF를 확인한 뒤 applied전부0/known1로 동기화합니다. 오래된 명령·ACK는 무시합니다. 반복된 동일STOP은 대기 중 새epoch를 계속 만들지 않습니다. 센서 해제 뒤 이전 명령을 재실행하지 않습니다.
+SPI가 없으면 모터만 로컬 적용하고 LED·부저 명령은 건너뜁니다. ACK/STATE_SYNC의 AUX_AVAILABLE(bit5)=0일 때 lights/horn 필드는 사용 불가이며 실제 출력 OFF를 확인했다는 뜻이 아닙니다. SPI가 정상 동기화됐으면 부가장치를 포함한 계획은 같은 session/epoch/id의 적용 ACK 뒤에 모터를 켭니다. 그 ACK가 시간초과되면 해당 계획을 취소·정지하지만 다음 새 모터 명령은 SPI 없이 실행할 수 있습니다. invalid/OOV/상충 자연어 계획은 SLM에서 전체 거부하며 지원하지 않는 와이퍼는 실행하지 않습니다.
 
-모터 기본500ms lease, 약30% PWM이며 두 모터 모두 전진/후진/정지합니다. 반전100ms 동안 둘 다OFF이고 부가 변경도 대기합니다. INVERT_MOTOR_A/B는 설치 방향에 맞춰 설정합니다. LCD·부저·LED는 SPI 보드가 담당하고 와이퍼는 사용하지 않습니다. 로컬 버튼 기능은 이번 MAIN 핀 배치에 없습니다.
+STOP_ALL은 주변 보드 연결 여부와 무관하게 즉시 MAIN 모터와 desired 상태를 지우고 새 epoch를 만듭니다. 연결된 SPI에도 STOP을 전달하고 그 OFF ACK를 공유 상태에 반영합니다. 오래된 명령·ACK, 잘못된 CRC/session과 재전송 공격은 허용하지 않습니다. 같은 STOP의 중복은 새 epoch를 반복 생성하지 않습니다. UART 신선도2초 초과·수신 오류는 모터를 정지합니다. SPI 미연결 자체는 CORE READY를 차단하지 않습니다.
 
-Timer0tick, Timer1두PWM, Timer2softUART를 분리했습니다. SPI선택은D8이며 D10은 OUTPUT을 유지한ENB입니다. I2C/SPI단계와 UART를 비차단 서비스하며 ADC timeout, SPI300ms재시도2회 실패, UART2s신선도 실패에서 전체 정지합니다. appliedKnown은 출력 신호 적용 확인이며 실제 바퀴 센서 측정이 아닙니다.
+Protocol5 SPI 순서는 HELLO → SAFETY_POLICY(모드 및 현재 epoch, ACK2) → **정책보다 엄격히 새 epoch의 STOP_ALL** → 출력 명령입니다. ADAS 모드 변경도 OFF·정책·STOP 장벽 뒤에 부가장치를 다시 사용할 수 있습니다. SENSOR_TELEMETRY는 session/epoch/sampleId/실제 rangeMm/age/flags/mode를 전달합니다. 거리20~4000mm의 신선한 측정만 FRESH로 게시하며 미연결·고장·오래된 거리는 `0xffff`로 표시합니다. SLM이 끊겨도 SPI의 상태·snapshot·약100ms 목표 거리 갱신을 순환 서비스하므로 LCD가 현재 모드를 표시할 수 있습니다. 버스 전송이 느리면 실제 갱신 간격은 늘어납니다.
 
-독립 host/레지스터 및 Uno컴파일 검증을 사용합니다. 실제4대 배선·회로·모터 시험은 통합 지침을 따라 별도로 합니다. 자동 업로드는 수행하지 않았습니다.
+actorFlags는 bit0 반전 대기, bit2 ACTIVE ADAS 정지, bit3 UART/시작 차단, bit4 명령 진행 중, bit5 AUX_AVAILABLE, bit6 ADAS_ACTIVE, bit7 ADAS_BYPASS입니다. 모터 기본 lease는500ms, 반전 대기100ms이며 약30% PWM으로 두 채널을 함께 제어합니다. `INVERT_MOTOR_A/B`는 설치 방향에 맞춰 설정합니다. appliedKnown은 MAIN 출력과 연결된 SPI ACK의 적용 확인이며 실제 바퀴 측정이 아닙니다.
 
-## UART/SPI 통신 진단 업데이트 — 2026-10-13
+[전체 핀 연결표](../PIN_MAP.md)의 현재 구성만 사용합니다. D2 RX/D3 TX→SLM 교차 UART, D6 ALERT, A4/A5→ADAS, D8 CS→SPI 보드D10, D11~13 SPI입니다. L298N IN1 D4/IN2 D7/IN3 A0/IN4 A1/ENA D9/ENB D10입니다. MAIN D10과 SPI 보드 D10을 연결하지 않습니다. Timer0 tick, Timer1 두 PWM, Timer2 soft UART를 분리했고 SPI 선택은 D8입니다. D10은 ENB 출력으로 유지합니다.
 
-PC의 SLM 콘솔에서 `!status`는 STATUS와 LINK를 출력하고, `!diag`는 MAIN의 상세 카운터를 출력합니다. 먼저 MAIN/SLM_UART/PERIPHERAL_SPI 세 역할을 이 수정본으로 업데이트합니다. 모터 외부 전원을 끄고 역할별 포트를 확인해 업로드한 뒤 연결을 복원하세요. ADAS의 센서/배선 규칙은 그대로입니다.
+MAIN과 ADAS의 A4/SDA·A5/SCL 내부 풀업은 DDRC4/5=0, PORTC4/5=1, MCUCR.PUD=0이며 TWI 약30.4kHz(TWBR255/prescaler1)를 유지합니다. 주소0x12와 센서70ms 주기도 유지합니다. 두 보드를 USB로 공급하면 보드 간5V를 묶지 않고 GND만 공통 연결합니다. SPI LCD의 로컬 I2C 버스는 ADAS 버스와 별개입니다. 실물 배선·회로·모터와 버스 파형 검증은 통합 지침에 따라 별도로 수행합니다.
 
-```text
-!status
-!diag
+SLM 콘솔 `!status`, `!diag`, `!i2c`로 LINK/DIAG/I2C를 확인합니다. LINK alert는 RAW LOW이고 BYPASS 모드에서는 정지 사유가 아닙니다. I2C error1=쓰기주소 NACK,2=데이터 NACK,3=읽기주소 NACK,4=예상밖 상태,5=CRC/프레임/버전 오류,6=timeout,7=STOP timeout,8=메타데이터/상태 거부입니다. Protocol5의 ADAS HELLO는 reply15/len8/version5입니다. DIAG cause1 UART수신오류,2 UART watchdog,3 SPI timeout,4 SPI peer오류,5 SPI차단,7 ADAS freshness,8 ALERT,10 SPI세션복구입니다. 높은 EEPROM session을 가진 SPI의 BAD_SESSION hint는 모터 OFF 후 MAIN 새 session을 저장하고 재핸드셰이크합니다(boot당 최대3회/1초 간격).
+
+호스트 정책 테스트:
+```sh
+c++ -std=c++17 -Wall -Wextra firmware/tests/partial_main_policy_test.cpp -o /tmp/partial-main-policy
+/tmp/partial-main-policy
 ```
 
-LINK uart는 MAIN이 연산 보드 응답을 확인했는지, spi는 주변 보드 메타데이터를 확인했는지, spi_safe는 STOP 동기화됐는지, adas는 센서 상태 프레임이 유효한지, clear는 정상 거리3회/freshness 조건인지, alert는 물리LOW인지입니다. uart=1/spi=0이면 UART 전체 단절로 판단하지 말고 SPI D8→D10/11/12/13와 주변 보드 역할/버전을 확인합니다. uart=0이면서 rx_errors가 증가하면 교차D2/D3/GND와 UART 수신 타이밍을 확인합니다.
-
-DIAG cause:1 UART수신오류,2 UART2s watchdog,3 SPI응답 timeout,4 SPI peer 오류,5 SPI안전동기화미완료,6 잘못된적용ACK(예약),7 ADAS freshness,8 ALERT,9 잘못된UART명령(예약),10 SPI 세션복구입니다. peer_error:6모델/라벨불일치,7세션거부,13오래된epoch,14안전차단입니다. rx_bytes/rx_frames/rx_errors는 MAIN UART 수신, spi_bad는 CRC/전송확인 실패 수입니다. 원인은 마지막 기록이며 정상 복구 후에도 남을 수 있습니다.
-
-수정은 송신32바이트 복사 중의 인터럽트 차단 제거(완성 후8bit head 공개), SLM RX half-bit 계산의 나눗셈 제거, SPI 세션거부 시 motorsOFF→새세션EEPROM저장→양쪽재핸드셰이크(boot당최대3회/1s간격), 느린SPI에서도 상태snapshot우선 전달입니다. SPI ERROR_REPLY의 HELLO/BAD_SESSION은 선택적으로 EEPROM의최고세션을 포함합니다. 오래된 낮은hint는 무시하며 replay 보호를 해제하지 않습니다.
-
-기존 STOP/ADAS/epoch/READY 차단은 유지됩니다. `light` 대신 `lights on/off`를 사용하고 READY 전 일반 명령을 보내지 않습니다. 이 수정은 코드의 취약점과 진단부족을 보완한 것이며 현재 실물 실패 원인이 단 하나로 확정됐다는 뜻은 아닙니다. 새펌웨어의 LINK/DIAG 출력으로 실물을 재확인해야 합니다.
-
-## MAIN–ADAS 내부 I2C 풀업 — 2026-10-13
-
-현재 MAIN과 ADAS는 A4/SDA·A5/SCL의 내부 풀업을 레지스터로 활성화합니다. DDRC4/5=0, PORTC4/5=1, MCUCR.PUD=0입니다. 별도4.7kΩ 없이 우선 짧은 점퍼선으로 두 보드를 연결할 수 있도록 MAIN TWI 속도를 약30.4kHz(TWBR=255, prescaler1)로 낮췄습니다. 기존주소0x12,70ms센서주기,프레임/CRC,STOP/ADAS우선정책은 유지합니다.
-
-두 보드 모두 재업로드해야 합니다. 모터 전원을 끄고MAIN·ADAS를업로드한뒤A4↔A4,A5↔A5,GND↔GND를확인합니다. 센서앞25cm이상공간에서 `!status`, `!diag`로 adas=1/clear=1 및READY를확인합니다.
-
-AVR내부풀업은대략20~50kΩ로외부4.7kΩ보다약하며, 두보드의풀업은각선에서병렬로작동합니다. 속도를낮춰도전기적상승시간을보증하지는않습니다. 긴배선/큰정전용량/잡음에서문제가남으면외부풀업을추가해야합니다. 실물파형/통신성공은아직측정하지않았습니다. [Arduino 내부풀업자료](https://docs.arduino.cc/retired/boards/arduino-uno-rev3-with-long-pins/)
-
-LCD는SPI보드의별도I2C버스이며이번변경의대상이아닙니다. ALERT선의정지용풀업배선도별개입니다. SDA/SCL을5V에직접단락하는배선이아니며내부저항을통해끌어올립니다.
-
-## I2C 개별 진단 — 2026-10-13
-
-MAIN·SLM_UART 수정본을 재업로드한 뒤 SLM 콘솔에 `!i2c`를 보냅니다. 출력은 MAIN의 마지막 완료된 I2C 시도이며 자동재시도 중에도 유지됩니다. 새로운 sideband 정보는 READY/명령/epoch를 변경하지 않습니다.
-
-```text
-!i2c
-I2C twsr=... error=... req=... reply=... version=... len=... ok=... fail=... meta=... flags=... since_ms=...
-```
-
-TWSR은 십진수입니다:32(0x20)은 쓰기주소 NACK,72(0x48)은 읽기주소 NACK,88(0x58)은 마지막 읽기바이트 완료입니다. error1=쓰기주소응답없음,2=데이터NACK,3=읽기주소응답없음,4=예상밖하드웨어상태,5=응답CRC/프레임/버전불일치,6=진행timeout,7=STOPtimeout,8=metadata/status정책불일치입니다. error0은드라이버성공이고 version4/reply15/len8은ADAS HELLO metadata 형태입니다. meta1은MAIN metadata검증통과입니다. version2/3이면이전펌웨어일수있습니다. since_ms가2000보다크면새로운로그를기다립니다.
-
-코드수정: 이미완료된read STOP뒤의불필요한추가STOP을제거하고CRC결과를바로완료로게시합니다. 오류·NACK·시간초과·취소는기존유한STOP복구를유지합니다. timeout의32비트시간값은안전하게읽은service now를사용합니다. 실물실패의원인이중복STOP이라고확정하지는않습니다.
-
-USB전원을각보드에넣는경우보드끼리5V선을묶지않고GND만공통으로연결합니다. MAIN A4→ADAS A4/A5→A5 및SPI보드의로컬LCD I2C와분리된배선을확인합니다. 현재내부풀업/약30.4kHz설정은유지합니다.
+Arduino CLI Uno 컴파일도 확인하며 MAIN SRAM 예산은1536바이트 이하입니다. 장치 업로드·물리 주행 시험은 이 검증에 포함하지 않습니다.
