@@ -1,3 +1,9 @@
+# 현재 정본: Protocol5 선택 ADAS + 실시간 거리 LCD
+
+PC+SLM_UART+MAIN으로 모터 명령을 실행하며, ADAS/SPI는 선택 연결입니다. ADAS가 정상 측정하면20cm 정지 정책을 자동 적용합니다. LCD는 실제 거리·오류·BYPASS를 표시합니다. 사용하는 네 보드는 모두 새 protocol5로 업데이트하세요. [현재 코드·배포 안내](firmware/README.md) · [실물 부분 연결 시험](firmware/INTEGRATION_CHECKLIST.md) · [검증 보고](firmware/reports/PARTIAL5_INDEPENDENT.md). 아래는 이전 변경 기록입니다.
+
+---
+
 # 현재 정본 — PC → SLM_UART → MAIN, L298N 두 모터
 
 2026-10-13 수정본은 **[현재 네 보드 코드/배포 가이드](firmware/README.md)**와 **[현재 핀 연결표](firmware/PIN_MAP.md)**를 사용합니다. MAIN이두모터, ADAS가초음파, SPI보드가LCD/LED/부저를담당하며와이퍼는보류입니다. 아래 이전본문과0_web은이전배치기록입니다.

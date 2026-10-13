@@ -1,0 +1,171 @@
+{
+  "source_root": "/Users/jiseonpark/Desktop/EmSy/LLM",
+  "source_roots": {
+    "main": "/Users/jiseonpark/Desktop/EmSy/LLM",
+    "peripheral_spi": "/Users/jiseonpark/Desktop/EmSy/LLM",
+    "slm_uart": "/Users/jiseonpark/Desktop/EmSy/LLM",
+    "adas_i2c": "/Users/jiseonpark/Desktop/EmSy/LLM"
+  },
+  "source_commits": {
+    "main": "16f77c963995c9f68c3e4c2946ab0404fda4e06b",
+    "peripheral_spi": "16f77c963995c9f68c3e4c2946ab0404fda4e06b",
+    "slm_uart": "16f77c963995c9f68c3e4c2946ab0404fda4e06b",
+    "adas_i2c": "16f77c963995c9f68c3e4c2946ab0404fda4e06b"
+  },
+  "acceptance_seal_sha256": "f699ad195b9f51f7fe9e28f1acbf43e2c37cfcac511f597c28b4ab3b1a1fcf44",
+  "hardware_verified": false,
+  "host_tests": [
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/partial5-independent-za92l2ny/protocol_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS protocol5 wire values, range/age bounds, CRC, capabilities and unsupported intents\n",
+      "name": "protocol_contract"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/partial5-independent-za92l2ny/main_strict_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS actual MAIN strict=true fail-closed: missing/stale/invalid sensor, valid activation and 20cm stop with contradictory HIGH line\n",
+      "name": "main_strict_contract"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/partial5-independent-za92l2ny/main_register_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS actual MAIN registers: optional LOW bypass, active immediate/sticky ISR gate, both motor channels/directions and independent SPI/timers\n",
+      "name": "main_register_contract"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/partial5-independent-za92l2ny/peripheral_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS peripheral policy/STOP boot barrier, physical-LOW bypass, transitions, telemetry SID/epoch/sample wrap/age replay and watchdog\n",
+      "name": "peripheral_contract"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/partial5-independent-za92l2ny/peripheral_register_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS actual peripheral registers: boot/policy/STOP barrier, LOW bypass vs active ISR, sticky recovery and LCD timeout\n",
+      "name": "peripheral_register_contract"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/partial5-independent-za92l2ny/peripheral_register_contract_passive_3f"
+      ],
+      "exit_code": 0,
+      "output": "PASS actual peripheral registers: boot/policy/STOP barrier, LOW bypass vs active ISR, sticky recovery and LCD timeout\n",
+      "name": "peripheral_register_contract_passive_3f"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/partial5-independent-za92l2ny/lcd_display_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS decoded PCF8574 LCD writes: five distance boundaries, ERR/N/A/stale, local outputs, inhibited stale motor observation\n",
+      "name": "lcd_display_contract"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/partial5-independent-za92l2ny/lcd_display_contract_3f"
+      ],
+      "exit_code": 0,
+      "output": "PASS decoded PCF8574 LCD writes: five distance boundaries, ERR/N/A/stale, local outputs, inhibited stale motor observation\n",
+      "name": "lcd_display_contract_3f"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/partial5-independent-za92l2ny/slm_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS actual SLM full NN (50 golden evaluations), STOP/guard/wiper planner, UART framing and epoch cancellation\n",
+      "name": "slm_contract"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/partial5-independent-za92l2ny/adas_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS ADAS policy 33 assertions\n",
+      "name": "adas_contract"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/partial5-independent-za92l2ny/adas_capture_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS actual capture ISR: wrap, pending overflow, ignored unarmed edge, 10us trigger, stuck-high refusal\n",
+      "name": "adas_capture_contract"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/partial5-independent-za92l2ny/adas_board_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS actual ADAS board: open-drain gate, timeout 29/30ms, role/status invalid range, snapshots, immutable transmit buffer\n",
+      "name": "adas_board_contract"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/partial5-independent-za92l2ny/actual_peer_integration"
+      ],
+      "exit_code": 0,
+      "output": "PASS actual MAIN+SLM+SPI staged integration: minimum topology, fault bypass, active ISR STOP, range boundaries, attach/unplug cancellation, unavailable AUX and UART watchdog\n",
+      "name": "actual_peer_integration"
+    }
+  ],
+  "builds": [],
+  "packages": [],
+  "source_files_sha256": {
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/main/.DS_Store": "f230fe64f798b6352526d97a8aac10b4eaa946b679fd2fd67571166f31cb97d9",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/main/GUIDE.md": "f6d0fff73a13988085ece9150e43b372591b5d8c4e6792cae27e96b2ef4c2066",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/main/main.ino": "6fab0449c9385b8a5ea4fdab8f10fd1573d61bc745abd6b3242ee7f88f725f8a",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/main/src/board_app.h": "fdea50dbe9f1f24527bc5f308f468c1bd824a6836764aba94d105c35658a32cf",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/main/src/board_config.h": "51997b80f23198c2c5870680c4d1209abd37b9971aebd2a6ef7c4739ae1137f5",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/main/src/compute_links.h": "2f4422dae80060460a0e551689926e9522e1a1913c540f3f21e5215be2667231",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/main/src/control_engine.h": "7a5608031869bc4cf90b5375281d6fa0ff902cda4df4151efd2c3cd702650a34",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/main/src/protocol.h": "595b08d3d56eb62618a53607b72c6947716eaecb94929522b71d9be33464ff2a",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/main/src/register_io.h": "bf2b01673746f702c8b4ecbaa081bf9ca313ae649c7a50131d5eb4dc5f30813f",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/peripheral_spi/GUIDE.md": "0132e6ac7e3b3f334a863d9abffe67df7bf346c865156bdd76ac1f79741d20d8",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/peripheral_spi/config.h": "20732db99fc21b8d46c43a0e924bcf97bbeaa6987f18fe07bed2ab18e7df989a",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/peripheral_spi/peripheral_spi.ino": "fd4132a3f06b2beab25ca5babdc3756a240ff774f1dd8e9b0b9afe51cc81e1be",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/peripheral_spi/src/board_app.h": "b82d087bd2834fe8d2e0fc83eaaa2d06fe76f6457d452789bb54bc412baf4a35",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/peripheral_spi/src/engine.h": "7287b88fd89782d1e1abeb92563a05075c3dd6330c0348ab8346a2b0c5ddf24f",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/peripheral_spi/src/lcd.h": "754e29e3bcd07fe70fc6c222aee1a99acb2e80617609006cf84248aae741dca6",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/peripheral_spi/src/protocol.h": "595b08d3d56eb62618a53607b72c6947716eaecb94929522b71d9be33464ff2a",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/peripheral_spi/src/transport.h": "a137de7bd0fba844c7306c115ea84bdefdd87e8464b11fe7a88a872a4351c732",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/slm_uart/GUIDE.md": "ce16d2737ab2cc88b86c514faaa03ee69495879ce6ed86818a6bdbdababed300",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/slm_uart/slm_uart.ino": "cf4d4ab96c998594f418e4d64d1ea582f4e8800f5464dfa75dec76f78f7d4901",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/slm_uart/src/board_app.h": "563de1472f6613c5580a95cd7660338badeddfbc1046424a8fdf2eec7ae5c0c4",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/slm_uart/src/model/command_plan.h": "3b07200666436b3e76e30afdad59449950407d151881b12cc0a87d74683b28cd",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/slm_uart/src/model/generated/config.h": "edf3d3c00c0a096a80d826b5df574e1a01fdf6d9b6ad73cc56c541ff9a3bd142",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/slm_uart/src/model/generated/main_bias.h": "2d3f9bfa1ec1dab35f3667007ed7d2870c071a2a93c0084cd52954f51089cce8",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/slm_uart/src/model/generated/model_full.h": "930b0afacc6842799c52b2ca41b7f78504f9c05ef520ca9790522f47d3424f01",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/slm_uart/src/model/generated/model_i2c.h": "4d8c3f230e7904a56082f3b244c43ed81852058e4af0de214915af3964e33c31",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/slm_uart/src/model/generated/model_spi.h": "55aa2ce676d07a43d0359350dd6c01ca954fe1b9d3fa52759d19b8b2692b3095",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/slm_uart/src/model/intent_model.h": "7b95cf726ddfdb1bdeee35bb05d32c649c54899e06e8f9b5609f64bbb36e7b98",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/slm_uart/src/planner.h": "cb016ba7661985c8238a55cbacdc6921fd33e704a84f86d15841bab0a40a6180",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/slm_uart/src/protocol.h": "595b08d3d56eb62618a53607b72c6947716eaecb94929522b71d9be33464ff2a",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/slm_uart/src/register_io.h": "f3986b94d374da12e1aec91db5259258610f09f69a89c9301139cb2a66b7b9fb",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/slm_uart/src/session.h": "f0fff61270ef90368193c89802331bfad206f836e62c313efa9e612ee1a8e521",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/adas_i2c/GUIDE.md": "69ad7d92db947da564ff84cb6231fed04dedfccfbd9972ab3566c2bf0e97c233",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/adas_i2c/adas_i2c.ino": "12711001d9e32c76d3fa2e8a5a25077206c632d610591f6d999f4034b6b8d4dc",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/adas_i2c/config.h": "b55238c727635ea21d6629907ad099cd3f5bbbdeb91f4f32a3d191513dfdafbe",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/adas_i2c/src/ownengine/adapters/board_app.h": "e1e7bff2af554c548635c8895797815ec468a7912f42e163bb3d781b0c4b4219",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/adas_i2c/src/ownengine/adapters/capture.h": "99d7ce0221fb1f0b38187508d6d3927e82a35de3ab5bf599ca90a8e22c351363",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/adas_i2c/src/ownengine/adapters/policy.h": "f32d591eec838823985d670775dfa5ccd52d2214f425db8302448106b0a8c4d6",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/adas_i2c/src/ownengine/adapters/snapshot.h": "4cadd2c1d8981eb39a8a58f3904dcb93d15fc243ef1e549a61105c620e57730c",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/adas_i2c/src/ownengine/adapters/transport.h": "2ddae3598da00993369522f406fd48e197343a8edefc45a4ef835846381483ae",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/adas_i2c/src/ownengine/adapters/worker.h": "63fa8dba5992f4d99887255ba49c138f124b97b3d299b4ba58dc49172cdf0665",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/adas_i2c/src/protocol.h": "595b08d3d56eb62618a53607b72c6947716eaecb94929522b71d9be33464ff2a",
+    "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/common/protocol.h": "595b08d3d56eb62618a53607b72c6947716eaecb94929522b71d9be33464ff2a"
+  },
+  "source_files_stable": true,
+  "passed": true
+}

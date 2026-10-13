@@ -1,0 +1,37 @@
+#include <vector>
+#include MAIN_ENGINE_HEADER
+#include "frame_helpers.h"
+extern "C" void peer_reset();extern "C" void peer_exchange(const uint8_t*,uint8_t*,uint32_t);extern "C" void peer_alert(bool,bool);extern "C" int peer_flags();extern "C" void peer_snapshot(void*);
+extern "C" void slm_reset();extern "C" bool slm_exchange(const uint8_t*,uint8_t*,uint32_t);extern "C" bool slm_command(const char*,uint8_t*,uint32_t);extern "C" void slm_snapshot(void*);extern "C" bool slm_pending();
+struct Sim {
+ MainVehicle::Controller c;uint32_t t=0;uint16_t sample=0;bool spi=true,uartConnected=true,sensor=false;uint16_t mm=250,age=0;uint8_t sensorFlags=8;std::vector<Proto::Frame> requests,uartFrames;
+ Sim(bool hasSPI=true):spi(hasSPI){peer_reset();slm_reset();c.init(100,0);c.alert(true,true,0);peer_alert(true,true);}
+ void metadata(){Proto::Frame q,r;Proto::make(q,Proto::HELLO,0);uint8_t p[8]={Proto::ADAS_ROLE,1,20,25,3,Proto::VERSION,70,0};Proto::make(r,Proto::ADAS_META,0,0,p,8);CHECK(c.acceptADAS(r,q,t));}
+ Proto::Frame measure(uint16_t n,uint16_t range,uint16_t reportAge,uint8_t flags){uint8_t p[18]={Proto::ADAS_ROLE,flags};Proto::put16(p+2,range);Proto::put16(p+4,n);Proto::put16(p+6,reportAge);p[8]=20;p[9]=25;p[10]=p[11]=3;Proto::put16(p+12,70);Proto::Frame q,r;Proto::make(q,Proto::STATUS,0);Proto::make(r,Proto::ADAS_STATUS_REPLY,0,0,p,18);return r;}
+ bool accept(const Proto::Frame& r){Proto::Frame q;Proto::make(q,Proto::STATUS,0);return c.acceptADAS(r,q,t);}
+ void pumpUART(){Proto::Frame q,r;while(c.uart.pop(q)){uartFrames.push_back(q);if(uartConnected&&slm_exchange(q.bytes,r.bytes,t))c.acceptUART(r,t);}}
+ void pumpSPI(){Proto::Frame q,r;while(c.periph.pop(q)){requests.push_back(q);if(spi){peer_exchange(q.bytes,r.bytes,t);c.acceptPeripheral(r,q,t);}}}
+ void step(){if(sensor&&t%50==0){bool low=sensorFlags&16;c.alert(low,low,t);peer_alert(low,low);CHECK(accept(measure(++sample,mm,age,sensorFlags)));}c.tick(t);pumpSPI();pumpUART();t++;}
+ void advance(uint32_t n){while(n--)step();}
+ void boot(){advance(30);if(!c.ready)fprintf(stderr,"boot ready=%d slm=%d SPI=%d safe=%d pending=%d flags=%u epoch=%u\n",c.ready,c.slmReady,c.periphReady,c.periphSafe,c.pending,c.state.actorFlags,unsigned(c.state.safetyEpoch));CHECK(c.ready&&!c.motorDirection);}
+ Proto::Frame text(const char* words){pumpUART();Proto::Frame q;bool sent=slm_command(words,q.bytes,t);if(!sent)fprintf(stderr,"NL blocked '%s', ready=%d pending=%d epoch=%u flags=%u\n",words,c.ready,slm_pending(),unsigned(c.state.safetyEpoch),c.state.actorFlags);CHECK(sent);CHECK(c.acceptUART(q,t));return q;}
+ void invalidNL(const char* words){Proto::Frame q;CHECK(!slm_command(words,q.bytes,t));CHECK(!c.motorDirection&&!peer_flags());}
+ size_t count(uint8_t op)const{size_t n=0;for(const auto& q:requests)if(Proto::op(q)==op)n++;return n;}
+};
+int main(){
+ // The minimum useful topology is a live SLM and MAIN only, even with ADAS LOW.
+ {Sim s(false);s.boot();CHECK((s.c.state.actorFlags&128)&&!(s.c.state.actorFlags&32));s.text("go forward and turn lights on and honk horn");s.advance(3);CHECK(s.c.motorDirection==1&&s.c.state.appliedDrive==1&&s.c.state.desiredFlags==5&&!s.c.state.appliedFlags&&s.c.state.appliedKnown);Proto::SharedState ss;slm_snapshot(&ss);CHECK(!(ss.actorFlags&32)&&!ss.appliedFlags);s.c.alert(true,true,s.t);s.step();CHECK(s.c.motorDirection==1);auto q=s.text("stop");CHECK(!s.c.motorDirection);s.advance(600);CHECK(!s.c.motorDirection&&s.c.ready);uint32_t ep=s.c.state.safetyEpoch;CHECK(s.c.acceptUART(q,s.t));CHECK(s.c.state.safetyEpoch==ep);s.text("go forward");s.advance(501);CHECK(!s.c.motorDirection&&s.c.state.stopSources==Proto::DRIVE_LEASE);}
+ // SPI only joins through policy+STOP; flags21 physicalLOW fault does not inhibit explicit bypass.
+ {Sim s;s.metadata();s.sensor=true;s.sensorFlags=21;s.mm=0xffff;s.boot();CHECK((s.c.state.actorFlags&160)==160);CHECK(s.count(23)&&s.count(12));s.text("go forward and turn lights on and honk horn");s.advance(5);CHECK(s.c.motorDirection==1&&peer_flags()==5);s.c.stop(Proto::USER_ESTOP,s.t);CHECK(!s.c.motorDirection);s.advance(3);CHECK(!peer_flags());s.advance(300);CHECK(s.c.ready);s.invalidNL("go forward and start wipers");s.invalidNL("go forward and reverse");s.invalidNL("teleport now");}
+ // Valid measurement attaches active ADAS and never resumes a command from bypass.
+ {Sim s;s.boot();s.text("go forward and turn lights on");s.advance(5);CHECK(s.c.motorDirection==1&&peer_flags()==1);s.metadata();s.sensor=true;s.sensorFlags=8;s.mm=250;s.advance(60);CHECK(s.c.safetyActive()&&!s.c.motorDirection&&!peer_flags()&&(s.c.state.actorFlags&64));s.advance(300);CHECK(s.c.ready&&!s.c.motorDirection);s.text("go forward and honk horn");s.advance(5);CHECK(s.c.motorDirection==1&&peer_flags()==4);uint32_t ep=s.c.state.safetyEpoch;s.c.alert(true,true,s.t);peer_alert(true,true);CHECK(!s.c.motorDirection&&!peer_flags()&&s.c.state.safetyEpoch>ep);s.sensorFlags=26;s.mm=199;s.advance(60);CHECK(s.c.safetyActive()&&!s.c.ready&&!s.c.motorDirection&&!peer_flags());s.sensorFlags=8;s.mm=250;s.advance(100);CHECK(s.c.ready&&!s.c.motorDirection&&!peer_flags());s.text("go forward and turn lights on");s.advance(5);CHECK(s.c.motorDirection==1);s.sensor=false;s.advance(220);CHECK(!s.c.safetyActive()&&!s.c.motorDirection&&!peer_flags());s.advance(300);CHECK(s.c.ready&&!s.c.motorDirection);s.text("go forward");s.advance(5);CHECK(s.c.motorDirection==1);s.sensor=true;s.advance(60);CHECK(s.c.safetyActive()&&!s.c.motorDirection&&!peer_flags());}
+ // All valid range boundaries activate ADAS, including the dangerous flags26 readings.
+ for(uint16_t range:{uint16_t(100),uint16_t(199),uint16_t(200),uint16_t(250),uint16_t(4000)}){Sim s(false);s.boot();s.metadata();s.sensor=true;s.mm=range;s.sensorFlags=range<=200?26:8;s.advance(60);CHECK(s.c.safetyActive());CHECK((s.c.state.actorFlags&64)&&!(s.c.state.actorFlags&128));if(range<=200)CHECK(!s.c.ready&&!s.c.motorAllowed());else CHECK(s.c.ready&&s.c.motorAllowed());}
+ // An old sensor sample cannot replace the safety state of a newer sample.
+ {Sim s(false);s.boot();s.metadata();CHECK(s.accept(s.measure(10,250,0,8)));s.c.alert(false,false,s.t);s.step();CHECK(s.c.safetyActive());CHECK(s.accept(s.measure(11,100,0,26)));s.c.alert(true,true,s.t);s.step();CHECK(!s.c.ready);auto old=s.measure(10,250,0,8);CHECK(!s.accept(old));s.c.alert(false,false,s.t);s.step();CHECK(!s.c.ready&&s.c.safetyActive());}
+ // Auxiliary disconnect fails safe, and a later PC command can use the remaining motor.
+ {Sim s;s.boot();s.text("turn lights on");s.advance(5);CHECK(peer_flags()==1);s.spi=false;s.advance(1200);CHECK(!s.c.motorDirection&&!s.c.periphAvailable());s.text("go forward and honk horn");s.advance(5);CHECK(s.c.motorDirection==1&&!(s.c.state.actorFlags&32)&&!s.c.state.appliedFlags);s.spi=true;s.advance(950);CHECK(!s.c.motorDirection);s.advance(300);CHECK(s.c.ready&&!s.c.motorDirection);}
+ // A missing UART remains a watchdog fault; optionality does not bypass command authority.
+ {Sim s(false);s.boot();s.uartConnected=false;s.advance(2100);CHECK(!s.c.motorDirection&&!s.c.slmReady&&(s.c.state.stopSources&8));}
+ puts("PASS actual MAIN+SLM+SPI staged integration: minimum topology, fault bypass, active ISR STOP, range boundaries, attach/unplug cancellation, unavailable AUX and UART watchdog");
+}

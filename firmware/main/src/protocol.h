@@ -37,14 +37,14 @@ inline void computeMeta(Frame& f,uint16_t job,uint8_t lo,uint8_t hi){uint8_t p[1
 inline bool compatible(const Frame& f,uint8_t lo,uint8_t hi){const uint8_t* p=payload(f);return valid(f)&&op(f)==HELLO_ACK&&len(f)==16&&get32(p)==MODEL_ID&&get32(p+4)==VOCAB_TAG&&p[8]==LABELS_VERSION&&p[9]==LABEL_COUNT&&p[10]==EMBED_SIZE&&p[11]==HIDDEN_TOTAL&&p[12]==lo&&p[13]==hi&&get16(p+14)==VOCAB_SIZE;}
 // Compute STATUS_REPLY len6: state,error,inputMask,workerRole,activeJob16.
 // Controller HELLO request len9: session32,model32,labelsVersion. ACK len10: session32,model32,labelsVersion,capabilities0x0f.
-// Controller protocol4 request/reply layouts are documented below.
+// Controller protocol5 request/reply layouts are documented below.
 // ACK frame id is the acknowledged command; STATUS id echoes its query.
 static const uint8_t CONTROLLER_STATUS_SIZE=18;
 inline bool newer16(uint16_t a,uint16_t b){return int16_t(a-b)>0;}
 struct StreamParser {Frame frame;uint8_t used;StreamParser():used(0){} void reset(){used=0;} bool push(uint8_t b,Frame& out){if(!used&&b!=0xa5)return false;frame.bytes[used++]=b;if(used<FRAME_SIZE)return false;if(valid(frame)){out=frame;used=0;return true;}uint8_t next=1;while(next<FRAME_SIZE&&frame.bytes[next]!=0xa5)next++;used=uint8_t(FRAME_SIZE-next);if(used)memmove(frame.bytes,frame.bytes+next,used);return false;} };
 }
 
-// ACTUATE_BATCH uses protocol4 session and safety epoch; see layout below.
+// ACTUATE_BATCH uses protocol5 session and safety epoch; see layout below.
 // Validate the full batch before output changes. Duplicate intents collapse, opposite intents conflict.
 // ALL_STOP/UNKNOWN takes precedence and clears every output; no partial action on rejection.
 
@@ -57,12 +57,12 @@ inline bool decodeState(const Frame& f,SharedState& s){if(!valid(f)||op(f)!=STAT
 // SLM HELLO_ACK: existing metadata16 plus byte16=1 (full H64 scores INCLUDE global bias).
 inline void fullSlmMeta(Frame& f,uint16_t job){computeMeta(f,job,0,64);f.bytes[6]=17;payload(f)[16]=1;f.bytes[31]=crc8(f.bytes,31);}
 inline bool fullSlmCompatible(const Frame& f){if(!valid(f)||op(f)!=HELLO_ACK||len(f)!=17||payload(f)[16]!=1)return false;const uint8_t* p=payload(f);return get32(p)==MODEL_ID&&get32(p+4)==VOCAB_TAG&&p[8]==LABELS_VERSION&&p[9]==10&&p[10]==16&&p[11]==64&&p[12]==0&&p[13]==64&&get16(p+14)==VOCAB_SIZE;}
-// ADAS_META len8: roleAD,sensorHC,stopCm,releaseCm,clearRequired,protocol4,periodMs16.
+// ADAS_META len8: roleAD,sensorHC,stopCm,releaseCm,clearRequired,protocol5,periodMs16.
 // ADAS_STATUS_REPLY len18: roleAD,flags,rangeMm16,sampleId16,ageMs16,stopCm,releaseCm,clearCount,clearRequired,periodMs16,sharedRevision32.
 // ADAS flags: bit0 startup,bit1 obstacle,bit2 sensorFault,bit3 validSample,bit4 ALERT line asserted.
-// Protocol4 ACTUATE len11: session32,safetyEpoch32,intent8,duration16.
-// Protocol4 ACTUATE_BATCH len11+count: session32,safetyEpoch32,count8,intents[count],duration16.
-// Protocol4 STOP_ALL len10: session32,newSafetyEpoch32,stopSources16.
+// Protocol5 ACTUATE len11: session32,safetyEpoch32,intent8,duration16.
+// Protocol5 ACTUATE_BATCH len11+count: session32,safetyEpoch32,count8,intents[count],duration16.
+// Protocol5 STOP_ALL len10: session32,newSafetyEpoch32,stopSources16.
 // STATUS/HEARTBEAT still len4 session32. Controller ACK/STATUS_REPLY len18:
 // session32,epoch32,drive8,lights8,wiper8,horn8,servo8,flags8,lastAppliedCmd16,stopSources16.
 // flags bit0 reversalPending,bit1 localStopLatched,bit2 adasLineActive,bit3 safetySyncRequired.
@@ -71,14 +71,15 @@ inline bool fullSlmCompatible(const Frame& f){if(!valid(f)||op(f)!=HELLO_ACK||le
 // 2026-10-13 topology: PC -> SLM_UART -> MAIN; MAIN drives two L298N channels.
 // MAIN HELLO to SLM/PERIPHERAL: len9 session32,model32,labelsVersion.
 // SLM_META len21: full metadata16,full-bias marker1,session32 at offset17.
-// PERIPHERAL_META len10: session32,model32,labelsVersion,capabilities(LED1|HORN2|LCD4).
+// PERIPHERAL_META len10: session32,model32,labelsVersion,capabilities(LED1|HORN2|LCD4|SAFETY_POLICY8|SENSOR_TELEMETRY16).
 // SLM -> MAIN ACTUATE_BATCH: len11+count, session32,observedEpoch32,count,intents,duration16.
 // SLM -> MAIN STOP_ALL: len10 session32,observedEpoch32,source16. MAIN owns new epoch.
 // MAIN -> SLM ACK/STATUS_REPLY len18 is authoritative applied state (wiper field ALWAYS0).
 // MAIN -> SLM STATE_SYNC len22; actorFlags bit4 indicates command pending/busy.
 // MAIN -> peripheral ACTUATE_BATCH uses same full plan; motor0/1 are display-only there.
 // STATE_SYNC is observation only; it MUST NOT change peripheral output bits.
-// MAIN grants motors only after matching peripheral command ACK; SPI timeout stops motors.
+// Motor-only or unavailable auxiliary plans apply locally. Connected auxiliary plans wait for ACK.
+// SPI loss cancels the current plan; a fresh motor plan may run without the optional SPI peer.
 namespace Proto {
 static const uint8_t PERIPHERAL_CAPABILITIES=31, BUSY_FLAG=16;
 inline bool helloRequest(const Frame& f,uint32_t& session){if(!valid(f)||op(f)!=HELLO||seq(f)||len(f)!=9)return false;const uint8_t* p=payload(f);session=get32(p);return session&&session!=0xffffffffUL&&get32(p+4)==MODEL_ID&&p[8]==LABELS_VERSION;}

@@ -8,8 +8,13 @@ subprocess.run([sys.executable,str(ROOT/'firmware/tests/topology_slm_uart_host_t
 with tempfile.TemporaryDirectory() as td:
  for name in ('engine','lcd','register'):
   exe=Path(td)/name
-  cmd=['c++','-std=c++17','-O2','-Wall','-Wextra','-Werror','-I'+str(ROOT/'firmware/tests/topology_peripheral_fake_avr'),str(ROOT/f'firmware/tests/topology_peripheral_{name}_test.cpp'),'-o',str(exe)]
+  cmd=['c++','-std=c++17','-O2','-Wall','-Wextra','-Werror','-I'+str(ROOT/'firmware/tests/topology_peripheral_fake_avr'),str(ROOT/f'firmware/tests/partial_peripheral_{name}_test.cpp'),'-o',str(exe)]
   subprocess.run(cmd,check=True);subprocess.run([str(exe)],check=True)
+with tempfile.TemporaryDirectory() as td:
+ for name in ('policy','register'):
+  exe=Path(td)/('partial_main_'+name)
+  subprocess.run(['c++','-std=c++17','-O2','-Wall','-Wextra','-I'+str(ROOT/'firmware/verification/topology4/fake_avr'),str(ROOT/f'firmware/tests/partial_main_{name}_test.cpp'),'-o',str(exe)],check=True)
+  subprocess.run([str(exe)],check=True)
 with tempfile.TemporaryDirectory() as td:
  exe=Path(td)/'uart_repair'
  subprocess.run(['c++','-std=c++17','-O2','-Wall','-Wextra','-I'+str(ROOT/'firmware/verification/topology4/fake_avr'),str(ROOT/'firmware/tests/uart_repair_test.cpp'),str(ROOT/'firmware/tests/uart_repair_peer.cpp'),'-o',str(exe)],check=True)
@@ -18,7 +23,7 @@ with tempfile.TemporaryDirectory() as td:
  exe=Path(td)/'i2c_finish'
  subprocess.run(['c++','-std=c++17','-O2','-Wall','-Wextra',str(ROOT/'firmware/tests/i2c_finish_test.cpp'),'-o',str(exe)],check=True)
  subprocess.run([str(exe)],check=True)
-subprocess.run([sys.executable,str(ROOT/'firmware/verification/topology4/run.py')],cwd=ROOT,check=True)
+subprocess.run([sys.executable,str(ROOT/'firmware/verification/partial5/run.py'), '--output', 'latest_host_results.json'],cwd=ROOT,check=True)
 patterns=[r'\b(?:Serial|Wire|SPI)\s*\.',r'\b(?:digitalWrite|digitalRead|analogWrite|analogRead|millis|micros|delay|delayMicroseconds|tone|noTone)\s*\(',r'#\s*include\s*[<"](?:Servo|SoftwareSerial|Wire|SPI)\.h']
 for role in ('main','slm_uart','adas_i2c','peripheral_spi'):
  for p in (ROOT/'firmware'/role).rglob('*'):

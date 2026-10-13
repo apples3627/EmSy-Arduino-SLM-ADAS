@@ -1,4 +1,4 @@
-# 현재 네 Uno R3 배선 — 2026-10-13 / protocol4
+# 현재 네 Uno R3 배선 — 2026-10-13 / protocol5
 
 핀 번호 앞의 보드 역할을 구분합니다. 모든 배선은 전원을 끄고 연결합니다. 별도 USB 전원의5V 레일끼리는 연결하지 않고 공통 GND만 연결합니다.
 
@@ -48,7 +48,7 @@ Timer1 fast PWM8bit 약977Hz, OCR1A/B=75(약30%)이며 기본 주행500ms입니�
 |Trig|D7 / PD7|
 |Echo|D8 / PB0 ICP1|
 
-센서 인쇄 핀 순서를 확인합니다. 20cm 정지,25cm 이상3회 해제입니다. 부팅·센서 누락·invalid echo·stale도 정지 조건입니다. 해제 뒤 새 명령이 필요합니다.
+센서 인쇄 핀 순서를 확인합니다. 20cm 정지,25cm 이상3회 해제입니다. ADAS 보드 자체는 부팅·센서 누락·invalid echo·stale에도 ALERT LOW를 출력합니다. MAIN 기본 시연 모드는 유효한 측정이 없으면 BYPASS로 이 신호를 무시합니다. 유효 측정에서 ACTIVE가 되면20cm 정지/25cm3회 해제를 적용합니다. 모드 전환 뒤 새 명령이 필요합니다.
 
 ## SPI 보드 → LCD·부저·LED
 
@@ -85,9 +85,9 @@ D10은 AVR SPI master의 하드웨어SS이기도 하지만 MAIN에서 **OUTPUT**
 
 ## MAIN–ADAS 내부 I2C 풀업 — 2026-10-13
 
-현재 MAIN과 ADAS는 A4/SDA·A5/SCL의 내부 풀업을 레지스터로 활성화합니다. DDRC4/5=0, PORTC4/5=1, MCUCR.PUD=0입니다. 별도4.7kΩ 없이 우선 짧은 점퍼선으로 두 보드를 연결할 수 있도록 MAIN TWI 속도를 약30.4kHz(TWBR=255, prescaler1)로 낮췄습니다. 기존주소0x12,70ms센서주기,프레임/CRC,STOP/ADAS우선정책은 유지합니다.
+현재 MAIN과 ADAS는 A4/SDA·A5/SCL의 내부 풀업을 레지스터로 활성화합니다. DDRC4/5=0, PORTC4/5=1, MCUCR.PUD=0입니다. 별도4.7kΩ 없이 우선 짧은 점퍼선으로 두 보드를 연결할 수 있도록 MAIN TWI 속도를 약30.4kHz(TWBR=255, prescaler1)로 낮췄습니다. 주소0x12,70ms센서주기,프레임/CRC는 유지합니다. protocol5의 선택 ADAS 정책은 MAIN 지침을 따릅니다.
 
-두 보드 모두 재업로드해야 합니다. 모터 전원을 끄고MAIN·ADAS를업로드한뒤A4↔A4,A5↔A5,GND↔GND를확인합니다. 센서앞25cm이상공간에서 `!status`, `!diag`로 adas=1/clear=1 및READY를확인합니다.
+두 보드 모두 재업로드해야 합니다. 모터 전원을 끄고MAIN·ADAS를업로드한뒤A4↔A4,A5↔A5,GND↔GND를확인합니다. 센서앞25cm이상공간에서 `!status`의 adas_mode=ACTIVE와 READY를 확인합니다. 센서 오류일 때 기본 시연 모드는 BYPASS로 표시합니다.
 
 AVR내부풀업은대략20~50kΩ로외부4.7kΩ보다약하며, 두보드의풀업은각선에서병렬로작동합니다. 속도를낮춰도전기적상승시간을보증하지는않습니다. 긴배선/큰정전용량/잡음에서문제가남으면외부풀업을추가해야합니다. 실물파형/통신성공은아직측정하지않았습니다. [Arduino 내부풀업자료](https://docs.arduino.cc/retired/boards/arduino-uno-rev3-with-long-pins/)
 

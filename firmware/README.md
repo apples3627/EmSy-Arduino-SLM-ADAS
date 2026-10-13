@@ -1,78 +1,50 @@
-# 네 Uno R3: PC → 연산 UART → MAIN + ADAS + SPI 주변장치
+# 네 Uno: 영어 명령, 선택 연결, 실시간 거리 LCD
 
-2026-10-13 현재 정본은 **MAIN + SLM_UART + ADAS_I2C + PERIPHERAL_SPI**입니다. 프로토콜4, 모델95616d56, 라벨 버전3입니다. 네 보드를 함께 업데이트해야 하며 이전 SPI 연산/UART 작동 구조와 섞지 않습니다. I/O는 AVR 레지스터 방식입니다.
+현재 정본은 **MAIN + SLM_UART + ADAS_I2C + PERIPHERAL_SPI, protocol5**입니다. 모델95616d56/라벨3은 그대로입니다. 통신 버전이 바뀌었으므로 사용하는 네 보드에 각각 새 코드를 업로드하세요. 구버전4와 섞지 않습니다. I/O는 AVR 레지스터로 구현합니다.
 
-|담당 보드|역할|업로드 지침|배포 ZIP|
+|보드|역할|코드·업로드 안내|담당자 배포|
 |---|---|---|---|
-|SLM_UART|PC USB UART로 영어 입력, 전체 NN 분류·다중 절 계획, D2/D3 soft UART로 MAIN 전달|[연산 보드](slm_uart/GUIDE.md)|[slm_uart ZIP](packages/slm_uart_uno_r3.zip)|
-|MAIN|UART 결과 검증, ADAS 우선 중재, L298N 두 모터 구동, SPI 주변장치 명령 및 상태 공유|[MAIN](main/GUIDE.md)|[main ZIP](packages/main_uno_r3.zip)|
-|ADAS_I2C|HC-SR04 거리·위험 판단, I2C 보고, 별도 ALERT 출력|[초음파 보드](adas_i2c/GUIDE.md)|[adas_i2c ZIP](packages/adas_i2c_uno_r3.zip)|
-|PERIPHERAL_SPI|MAIN SPI 요청 처리, LED·3핀 부저, 4핀 I2C LCD|[SPI 보드](peripheral_spi/GUIDE.md)|[peripheral_spi ZIP](packages/peripheral_spi_uno_r3.zip)|
+|SLM_UART|PC USB 입력, 전체 H64 신경망과 다중 명령 검증, D2/D3 UART|[SLM 지침](slm_uart/GUIDE.md)|[ZIP](packages/slm_uart_uno_r3.zip)|
+|MAIN|UART 결과 수신, ADAS 중재, L298N 두 모터, SPI/I2C 동시 통신|[MAIN 지침](main/GUIDE.md)|[ZIP](packages/main_uno_r3.zip)|
+|ADAS_I2C|HC-SR04 거리 측정, I2C 보고, ALERT|[ADAS 지침](adas_i2c/GUIDE.md)|[ZIP](packages/adas_i2c_uno_r3.zip)|
+|PERIPHERAL_SPI|LED·부저, 로컬 I2C LCD 거리·상태 표시|[SPI 지침](peripheral_spi/GUIDE.md)|[ZIP](packages/peripheral_spi_uno_r3.zip)|
 
-ZIP 전체를 풀어 역할 폴더의 `.ino`를 엽니다. `src/`와 config를 함께 보존합니다. 외부 배선·모터 전원을 분리하고 Arduino Uno R3/ATmega328P/16MHz와 해당 포트를 선택해 업로드합니다. **PC 시리얼 모니터는 SLM_UART USB 포트에서9600 baud/Newline**으로 엽니다. MAIN USB는 전원/업로드용이며 영어 입력 콘솔이 아닙니다.
+ZIP 전체를 풀고 역할 폴더의 .ino를 엽니다. src/와 config를 유지합니다. 외부 배선·모터 전원을 분리한 뒤 Uno R3/ATmega328P/16MHz와 해당 USB 포트로 업로드합니다. MAIN USB는 전원/업로드용이며 영어 입력은 SLM USB입니다.
 
-## 명령 경로
+## 부분 연결 동작
 
-PC → SLM USART0(D0/D1 USB) → 학습된 full H64 NN·계획 검증 → SLM D3 TX → MAIN D2 RX입니다. MAIN D3 TX → SLM D2 RX로 적용 ACK와 상태를 돌려보냅니다. MAIN 하나가 software UART·I2C master·SPI master를 동시에 운용합니다.
+기본값 `main/src/board_config.h`의 `REQUIRE_ADAS_FOR_MOTION=false`는 사용자가 요청한 시연 모드입니다. **PC+SLM+MAIN만으로 두 모터 명령을 실행합니다.** ADAS가 미연결·센서 오류·오래된 측정이면 `adas_mode=BYPASS`이고 물리 ALERT LOW도 무시합니다. 센서 없이도 차량이 움직이는 설정입니다. ADAS를 필수로 쓰려면 이 상수를 true로 바꿔 MAIN을 재업로드합니다.
 
-- 전진: `go forward`, `please drive ahead`; 후진: `go backward`, `reverse the car`.
-- 조명: `lights on`, `lights off`; 경적: `horn on`, `horn off`.
-- 다중 명령: `go forward and lights on`, `go forward, lights on, horn on`.
-- 전체 정지: `stop`, `stop everything`. 단독 `stop`은 NN/READY를 우회하는 우선 경로입니다.
-- 와이퍼는 보류입니다. `wipers on/off`가 포함된 계획은 **전체 거절/STOP**, 앞부분도 실행하지 않습니다. 유효 STOP이 있는 계획은 STOP 우선입니다.
-- 방향·ON/OFF 충돌, 어휘 밖 단어, 부정/조건/지원 밖 문법도 전체 거절합니다.
+유효한 ADAS 측정이 들어오면 자동으로 ACTIVE가 됩니다. 20cm 이하에서 모든 동작 출력을 정지하고, 25cm 이상3회 정상 측정 뒤 해제합니다. 센서 주기는70ms, echo timeout30ms, freshness200ms입니다. 정상 측정에서 ALERT ISR은 모터와 LED·부저를 즉시 끕니다. ACTIVE↔BYPASS 또는 SPI 연결 변경은 실행 중 명령을 취소하고 OFF로 전환합니다. **이전 명령은 자동 재개하지 않으며 READY 뒤 새 명령을 보내야 합니다.**
 
-전체192 ASCII 바이트/4절, 절마다96바이트/16단어입니다. 구분자는 `and/also/plus`, 쉼표, 세미콜론입니다. 모든 절이 검증된 뒤에만 실행하므로 일부만 먼저 작동하지 않습니다. APPLIED/READY를 기다린 후 다음 일반 명령을 보냅니다. `!status`는 SLM에서 MAIN의 마지막 상태를 보여줍니다. 저장된 모델은 여전히10개 라벨이지만 와이퍼5/6을 운용 정책에서 차단합니다. 모델 재학습은 필요하지 않았습니다.
+SPI가 없으면 LED·부저만 건너뛰며 새 모터 명령은 가능합니다. 콘솔에 `SKIPPED auxiliary_outputs_unavailable`, `aux=unavailable`을 표시합니다. 이때 lights/horn=0은 물리 OFF 확인이 아니라 사용 불가 상태입니다. SPI가 있으면 LED·부저 포함 계획은 적용 ACK를 기다리고, LCD 오류 자체는 LED·부저 사용을 막지 않습니다. 모터 기본500ms lease와 반전100ms 대기는 유지됩니다. UART 단절·오류 및 STOP은 항상 정지합니다.
 
-## 안전과 상태
+## LCD 표시
 
-HC-SR04는20cm 이하 정지,25cm 이상3회 연속 정상 측정 후 해제,70ms 주기/30ms echo timeout/200ms 초과 stale 정지입니다. ALERT는 ADAS D4 → **MAIN D6 PCINT22 + SPI 보드 D2 INT0** 공통 active LOW 선입니다. MAIN ISR이 두 모터 PWM/방향 출력을 직접 끄고, SPI 보드 ISR이 LED·부저를 직접 끕니다. MAIN의 SPI 처리 완료를 기다리지 않습니다.
+LCD는 SPI 보드의 A4/A5에만 연결하는16×2 HD44780+PCF8574입니다. MAIN↔ADAS 버스와 분리합니다. 기본주소0x27, 필요하면 peripheral_spi/config.h에서0x3F로 변경합니다.
 
-해제 뒤 새 STOP epoch의 OFF ACK를 확인하며 이전 명령은 자동 재개하지 않습니다. SLM의 오래된 epoch 계획, MAIN의 오래된 SPI ACK가 주행을 되살리지 못합니다. MAIN은 요청 상태와 적용 확인 상태를 분리하고 변경 시/주기적으로 snapshot을 SLM·ADAS·SPI 보드에 공유합니다. 통신이 끊기거나 센서 상태가 미확인인 경우 주행을 허용하지 않습니다. 와이퍼 상태는 항상0입니다.
+첫 줄 예: `DIST:123.4cm OK ` — 실제 HC-SR04 측정값을 mm에서 cm로 표시합니다. 장애물은 STP, 미연결은 N/A, 측정 오류는 ERR, 오래된 값은 STA입니다. 잘못된 거리를0cm로 꾸미지 않습니다. MAIN은 약100ms 목표로 거리 메시지를 순환 전송하며 버스 지연에 따라 실제 화면 갱신은 늦어질 수 있습니다.
 
-모터는 SPI 보드의 같은 session/epoch/명령 ACK를 확인한 뒤 켭니다. 서로 다른 칩의 출력은 전기적으로 원자적인 동시 변경이 아니며 통신 단계가 있습니다. 방향 반전은 먼저 두 모터를 끄고100ms 대기한 다음 부가 출력을 요청합니다. 기본 주행 lease500ms가 끝나면 **두 모터만** 끄고 LED/부저는 유지합니다. STOP/ADAS는 모든 동작 출력을 끕니다. LCD는 안전 상태를 표시하는 정보 출력이며 STOP에서 화면을 소등하지 않습니다.
+둘째 줄 예: `M:F L:1 H:0 A:B ` — M은 MAIN의 마지막 확인 상태(F/R/0 또는 미확인?), L/H는 로컬 LED·경적, A는 Y=ACTIVE/B=BYPASS/?=미설정입니다. 모터 상태는 바퀴를 직접 측정한 값이 아닙니다. STOP은 LCD 정보를 지우거나 백라이트를 끄지 않습니다.
 
-## LCD와 부저
+## PC 명령과 진단
 
-확인된 LCD 핀은 GND/VCC/SDA/SCL입니다. LCD를 MAIN의 SPI 선에 직접 연결하지 않습니다. SPI 보드가 MAIN과 SPI로 통신하고, 자기 A4/A5에서 LCD를 로컬 I2C로 구동합니다. MAIN↔ADAS I2C와 **서로 다른 버스**입니다. 기본16×2 HD44780/PCF8574, 주소0x27/표준 backpack 배선을 가정하며 주소0x3F·backpack 핀 매핑은 config에서 변경합니다. LCD의 행/칩/주소는 실제 부품에서 확인해야 합니다.
+```sh
+cd /Users/jiseonpark/Desktop/EmSy/LLM
+python3 firmware/tools/uart_cli.py /dev/cu.usbmodemXXXX
+```
 
-3핀 부저는 SPI 보드 D3 signal/5V/GND입니다. 능동 부저 기본 설정이고 수동 피에조면 `PERIPHERAL_ACTIVE_BUZZER=0`으로 바꿔1kHz 신호를 사용합니다. S/+/- 인쇄 순서와 모듈 정격을 확인합니다. LED는 D4에 직렬저항을 사용합니다. LCD 문제는 상태에 보고하되 SPI·ALERT 처리를 막지 않도록 timeout과 비차단 갱신을 구현했습니다.
+포트를 실제 SLM USB로 바꾸고9600/Newline을 사용합니다. READY 뒤 `go forward`, `go backward`, `lights on`, `horn on`, `go forward and lights on and horn on`, `stop`을 보냅니다. APPLIED/READY 뒤 다음 명령을 입력합니다. 최대192 ASCII바이트/4절이고 unknown·부정/조건·충돌·보류 중인 와이퍼는 계획 전체를 거절합니다. 지원 어휘 안의 영어 유사 문장은 기존 모델로 판단합니다.
 
-[전체 배선표](PIN_MAP.md) · [통합 시험](INTEGRATION_CHECKLIST.md) · [독립 검증](reports/TOPOLOGY4_INDEPENDENT.md)
+`!status`의 ready/aux/adas_mode와 LINK를 확인합니다. `!diag`는 누적 오류와 마지막 원인이며 cause는 복구 후에도 남을 수 있습니다. `!i2c`에서 error0/version5는 새 버스 프레임, flags21은 startup+fault+ALERT로 정상 거리 측정이 없다는 뜻입니다. BYPASS에서는 이것만으로 READY를 막지 않습니다. TWSR32/72는 주소NACK,88은 마지막 읽기 완료입니다. 자세한 오류 번호는 MAIN 지침을 참고하세요.
+
+[핀 연결표](PIN_MAP.md) · [실물 시험 순서](INTEGRATION_CHECKLIST.md) · [독립 검증 보고](reports/PARTIAL5_INDEPENDENT.md)
 
 ```sh
 python3 firmware/tools/test.py
 python3 firmware/tools/build.py
 python3 firmware/tools/package.py
+python3 firmware/verification/partial5/run.py --build-uno --verify-packages
 ```
 
-컴파일·호스트 모델/통신/레지스터 검증을 완료한 코드입니다. 실제 네 보드 연결·LCD/부저 모델 확인·전기 파형·모터 구동 및 실행 스택 최대값은 팀 실물 시험이 필요합니다. 자동 업로드는 하지 않습니다. build_sizes.json의 SRAM 여유는 정적 linker 값입니다.
-
-이전 `slm_spi/actuator_uart/compute_i2c/compute_spi`와 이전 이름 ZIP은 재현용 기록입니다. 현재 manifest에는 위 네 역할만 있습니다. `0_web`은 격리된2026-10-12 이전 배치의 설명 snapshot이며 새 핀 배선 기준으로 사용하지 않습니다.
-
-현재 PC UART 터미널은 `python3 firmware/tools/uart_cli.py <SLM_USB포트>`로 실행합니다. `!status`/`!diag` 진단은 [통신 점검](reports/UART_TROUBLESHOOT.md)을 참고합니다.
-
-## MAIN–ADAS 내부 I2C 풀업 — 2026-10-13
-
-현재 MAIN과 ADAS는 A4/SDA·A5/SCL의 내부 풀업을 레지스터로 활성화합니다. DDRC4/5=0, PORTC4/5=1, MCUCR.PUD=0입니다. 별도4.7kΩ 없이 우선 짧은 점퍼선으로 두 보드를 연결할 수 있도록 MAIN TWI 속도를 약30.4kHz(TWBR=255, prescaler1)로 낮췄습니다. 기존주소0x12,70ms센서주기,프레임/CRC,STOP/ADAS우선정책은 유지합니다.
-
-두 보드 모두 재업로드해야 합니다. 모터 전원을 끄고MAIN·ADAS를업로드한뒤A4↔A4,A5↔A5,GND↔GND를확인합니다. 센서앞25cm이상공간에서 `!status`, `!diag`로 adas=1/clear=1 및READY를확인합니다.
-
-AVR내부풀업은대략20~50kΩ로외부4.7kΩ보다약하며, 두보드의풀업은각선에서병렬로작동합니다. 속도를낮춰도전기적상승시간을보증하지는않습니다. 긴배선/큰정전용량/잡음에서문제가남으면외부풀업을추가해야합니다. 실물파형/통신성공은아직측정하지않았습니다. [Arduino 내부풀업자료](https://docs.arduino.cc/retired/boards/arduino-uno-rev3-with-long-pins/)
-
-LCD는SPI보드의별도I2C버스이며이번변경의대상이아닙니다. ALERT선의정지용풀업배선도별개입니다. SDA/SCL을5V에직접단락하는배선이아니며내부저항을통해끌어올립니다.
-
-## I2C 개별 진단 — 2026-10-13
-
-MAIN·SLM_UART 수정본을 재업로드한 뒤 SLM 콘솔에 `!i2c`를 보냅니다. 출력은 MAIN의 마지막 완료된 I2C 시도이며 자동재시도 중에도 유지됩니다. 새로운 sideband 정보는 READY/명령/epoch를 변경하지 않습니다.
-
-```text
-!i2c
-I2C twsr=... error=... req=... reply=... version=... len=... ok=... fail=... meta=... flags=... since_ms=...
-```
-
-TWSR은 십진수입니다:32(0x20)은 쓰기주소 NACK,72(0x48)은 읽기주소 NACK,88(0x58)은 마지막 읽기바이트 완료입니다. error1=쓰기주소응답없음,2=데이터NACK,3=읽기주소응답없음,4=예상밖하드웨어상태,5=응답CRC/프레임/버전불일치,6=진행timeout,7=STOPtimeout,8=metadata/status정책불일치입니다. error0은드라이버성공이고 version4/reply15/len8은ADAS HELLO metadata 형태입니다. meta1은MAIN metadata검증통과입니다. version2/3이면이전펌웨어일수있습니다. since_ms가2000보다크면새로운로그를기다립니다.
-
-코드수정: 이미완료된read STOP뒤의불필요한추가STOP을제거하고CRC결과를바로완료로게시합니다. 오류·NACK·시간초과·취소는기존유한STOP복구를유지합니다. timeout의32비트시간값은안전하게읽은service now를사용합니다. 실물실패의원인이중복STOP이라고확정하지는않습니다.
-
-USB전원을각보드에넣는경우보드끼리5V선을묶지않고GND만공통으로연결합니다. MAIN A4→ADAS A4/A5→A5 및SPI보드의로컬LCD I2C와분리된배선을확인합니다. 현재내부풀업/약30.4kHz설정은유지합니다.
+호스트 검증과 Uno 컴파일은 실물 동작 확인과 다릅니다. 현재 변경에서 자동 업로드·모터/센서/배선 파형 측정은 수행하지 않습니다. SRAM 여유는 정적 linker 값이며 실행 스택 최대값은 측정하지 않았습니다. 0_web 및 이전 보고서는 격리된 이전 구성 기록입니다.

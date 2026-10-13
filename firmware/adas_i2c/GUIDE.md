@@ -25,16 +25,20 @@ MAIN은 현재 metadata를20/25/3/70ms로 고정 확인하므로 임계값·주�
 
 센서 추가는 `SourceRegistry::registerSource(index)`로 독립 source를 활성화하고 foreground에서 `update(index, STARTUP/OBSTACLE/SENSOR_FAULT)`를 호출합니다. 현재 HC-SR04는 index 0이며 총 네 source 공간이 있습니다. 활성 source는 최초 STARTUP hazard로 시작합니다. 다른 source의 clear는 기존 hazard를 지우지 않으며 어떤 source라도 hazard면 공통 ALERT가 LOW입니다. 사용하지 않는 source는 `registerSource(index, false)`로 명시적으로 비활성화합니다. 현재 장애물 판단은 desired motion과 무관합니다. STATE_SYNC에 저장된 desired/applied snapshot은 향후 플러그인 참고용입니다.
 
-HELLO session32는 공유 snapshot만 재설정하고 실제 센서 hazard는 지우지 않습니다. STATE_SYNC는 22바이트 session/revision 검증 후 ACK하며 출력이나 센서 상태를 바꾸지 않습니다. 이전 revision은 BAD_JOB, 다른 session은 BAD_SESSION이고 동일 revision/동일 내용 재전송은 허용합니다. STATUS_REPLY payload 18바이트 flags는 startup bit0, obstacle bit1, fault bit2, valid bit3, ALERT bit4입니다. range가 invalid면 FFFF, 유효 sample이 없으면 age FFFF입니다. shared snapshot revision은 offset 14입니다. HELLO metadata payload는 8바이트 role AD/sensor HC/20/25/3/protocol4/period16입니다.
+HELLO session32는 공유 snapshot만 재설정하고 실제 센서 hazard는 지우지 않습니다. STATE_SYNC는 22바이트 session/revision 검증 후 ACK하며 출력이나 센서 상태를 바꾸지 않습니다. 이전 revision은 BAD_JOB, 다른 session은 BAD_SESSION이고 동일 revision/동일 내용 재전송은 허용합니다. STATUS_REPLY payload 18바이트 flags는 startup bit0, obstacle bit1, fault bit2, valid bit3, ALERT bit4입니다. range가 invalid면 FFFF, 유효 sample이 없으면 age FFFF입니다. shared snapshot revision은 offset 14입니다. HELLO metadata payload는 8바이트 role AD/sensor HC/20/25/3/protocol5/period16입니다.
 
 검증은 `adas_nodes_policy_test.cpp`와 `adas_nodes_capture_test.cpp`에서 threshold, hysteresis, noise/fault, startup, stale/wrap, 여러 source, snapshot, frame cache, capture overflow race, trigger 종료, 누락 edge 취소를 확인합니다. Uno core 1.8.6 빌드: flash 3,984 / 32,256, static SRAM 291 / 2,048바이트. 실제 clone 센서의 거리 정확도·잘못된 반사·ALERT 지연과 네 보드 배선은 물리적으로 검증되지 않았습니다.
 
 ## MAIN–ADAS 내부 I2C 풀업 — 2026-10-13
 
-현재 MAIN과 ADAS는 A4/SDA·A5/SCL의 내부 풀업을 레지스터로 활성화합니다. DDRC4/5=0, PORTC4/5=1, MCUCR.PUD=0입니다. 별도4.7kΩ 없이 우선 짧은 점퍼선으로 두 보드를 연결할 수 있도록 MAIN TWI 속도를 약30.4kHz(TWBR=255, prescaler1)로 낮췄습니다. 기존주소0x12,70ms센서주기,프레임/CRC,STOP/ADAS우선정책은 유지합니다.
+현재 MAIN과 ADAS는 A4/SDA·A5/SCL의 내부 풀업을 레지스터로 활성화합니다. DDRC4/5=0, PORTC4/5=1, MCUCR.PUD=0입니다. 별도4.7kΩ 없이 우선 짧은 점퍼선으로 두 보드를 연결할 수 있도록 MAIN TWI 속도를 약30.4kHz(TWBR=255, prescaler1)로 낮췄습니다. 주소0x12,70ms센서주기,프레임/CRC와 ADAS 자체의 ALERT 정책은 유지합니다. MAIN의 선택 시연 정책은 아래를 따릅니다.
 
 두 보드 모두 재업로드해야 합니다. 모터 전원을 끄고MAIN·ADAS를업로드한뒤A4↔A4,A5↔A5,GND↔GND를확인합니다. 센서앞25cm이상공간에서 `!status`, `!diag`로 adas=1/clear=1 및READY를확인합니다.
 
 AVR내부풀업은대략20~50kΩ로외부4.7kΩ보다약하며, 두보드의풀업은각선에서병렬로작동합니다. 속도를낮춰도전기적상승시간을보증하지는않습니다. 긴배선/큰정전용량/잡음에서문제가남으면외부풀업을추가해야합니다. 실물파형/통신성공은아직측정하지않았습니다. [Arduino 내부풀업자료](https://docs.arduino.cc/retired/boards/arduino-uno-rev3-with-long-pins/)
 
 LCD는SPI보드의별도I2C버스이며이번변경의대상이아닙니다. ALERT선의정지용풀업배선도별개입니다. SDA/SCL을5V에직접단락하는배선이아니며내부저항을통해끌어올립니다.
+
+## MAIN의 선택 ADAS 시연 정책
+
+ADAS 보드는 기존처럼 센서 startup/fault/stale에서 ALERT LOW를 출력합니다. protocol5 MAIN 기본값은 유효한 측정이 없을 때 BYPASS로 이 신호를 무시하고 새 모터/부가 명령을 허용합니다. 정상 측정이 들어오면 ACTIVE로20cm 정지/25cm3회 해제를 적용합니다. 두 모드 사이 전환은 OFF 후 새 명령을 요구합니다. 이 기준은 MAIN에서 결정하며 ADAS 자체가 fault를 정상으로 꾸미지 않습니다. LCD는 미연결 N/A, 오류 ERR, stale STA와 모드를 표시합니다. 현재 실제 빌드 크기는 reports/build_sizes.json을 따릅니다.

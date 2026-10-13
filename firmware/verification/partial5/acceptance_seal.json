@@ -1,0 +1,18 @@
+{
+  "sealed_before_proto5_implementation_inspection": true,
+  "protocol": {"version": 5, "policy_payload": "SID32 epoch32 mode8", "telemetry_payload": "SID32 epoch32 sample16 rangeMm16 age16 flagsMode16", "capabilities": {"AUX_AVAILABLE":32,"ADAS_ACTIVE":64,"ADAS_BYPASS":128}},
+  "acceptance": [
+    {"id":"P01", "stage":"main actual engine", "requirement":"Default optional ADAS permits fresh user motor operation with only PC/SLM+Main; no SPI and no ADAS must not stop the motor solely for missing optional peers."},
+    {"id":"P02", "stage":"main+SPI actual engines", "requirement":"Fresh policy bypass plus fresh STOP barrier permits optional auxiliaries with ADAS flags 21 and physical ADAS LOW. Boot before policy or fresh STOP produces no output."},
+    {"id":"P03", "stage":"main actual engine/register ISR", "requirement":"Fresh valid range 20..4000 mm activates ADAS; <=200 mm globally stops motor and auxiliary immediately. 100,199,200,250,4000 mm boundaries are explicit."},
+    {"id":"P04", "stage":"main+SPI actual engines", "requirement":"Every active/bypass policy transition forces outputs OFF, cancels old commands and requires a fresh user command. Disconnect/reconnect while moving cannot automatically resume."},
+    {"id":"P05", "stage":"main actual engine", "requirement":"REQUIRE_ADAS_FOR_MOTION=true preserves fail-closed without ADAS; default false bypass accepts supported motor operation."},
+    {"id":"P06", "stage":"protocol+actual engines", "requirement":"Wrong SID, old epoch, policy replay, old telemetry sample, malformed payload and stale age cannot create fresh safety authority or revive commands."},
+    {"id":"P07", "stage":"SLM+main", "requirement":"Unknown NL, conflicts and wiper reject the entire plan. Supported unavailable optional outputs are SKIPPED with capability flags and do not falsely claim confirmed physical OFF."},
+    {"id":"P08", "stage":"local stop+actual peers", "requirement":"Global STOP acts locally immediately regardless of peer connectivity and reaches connected remote peers. Watchdog, SID and epoch safety remain effective."},
+    {"id":"P09", "stage":"LCD actual PCF writes", "requirement":"Decode LCD bus output to verify fresh distances 100/199/200/250/4000 mm, ERR, N/A and stale statuses; distance formatting fits the LCD and never silently displays old distance as fresh."},
+    {"id":"P10", "stage":"actual AVR register gates", "requirement":"Motor and auxiliary physical register gates honor active ADAS physical LOW immediately; bypass permits operation despite physical ADAS LOW only after valid policy and STOP barrier."},
+    {"id":"P11", "stage":"build+freeze", "requirement":"All four Uno firmware targets compile; extracted distribution ZIP matches frozen source hashes and also builds. Source revision and hashes are reported."}
+  ],
+  "limits": {"hardware": "No flashing, hardware, serial or GitHub actions; physical root cause remains unknown.", "method": "Exercise production engine paths and AVR register ISR paths using fake shims; do not implement a duplicate policy simulator."}
+}

@@ -12,7 +12,7 @@ for role in ('main','slm_uart','adas_i2c','peripheral_spi'):
            f'ZIP을 풀어 {role} 폴더 전체를 유지하고 {role}.ino를 Arduino IDE에서 여세요. src/를 함께 둡니다.\n\n'
            '[보드별 업로드·배선 지침](GUIDE.md) · [전체 핀 연결표](PIN_MAP.md) · [팀 통합 체크리스트](INTEGRATION_CHECKLIST.md)\n\n'
            f'Arduino Uno R3/ATmega328P/16MHz를 선택하고 자기 보드 포트를 확인합니다. 외부 배선을 분리한 상태에서 업로드하세요. '
-           f'네 보드 모두의 역할별 코드가 있어야 협력 동작합니다. 이 ZIP은 {role} 담당자용입니다.\n')
+           f'Protocol5를 쓰는 연결 보드는 모두 같은 버전으로 업데이트합니다. 최소 명령 구성은 SLM_UART+MAIN이며 ADAS/SPI는 선택 연결입니다. 이 ZIP은 {role} 담당자용입니다.\n')
     with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
         for f in sorted(folder.rglob('*')):
             if f.is_file() and f.name!='.DS_Store':
