@@ -1,0 +1,31 @@
+{
+  "sealed_before_source_review": true,
+  "model_id": "0x95616d56",
+  "boards": ["main", "slm_uart", "adas_i2c", "peripheral_spi"],
+  "requirements": {
+    "main_motor_pins": {"left_direction": [4, 7], "right_direction": ["A0", "A1"], "enable": [9, 10], "timer": 1},
+    "main_spi": {"cs": 8, "mosi": 11, "miso": 12, "sck": 13},
+    "main_soft_uart": {"rx": 2, "tx": 3, "timer": 2, "clock_hz": 2000000, "bit_ticks": 208, "half_ticks": 104},
+    "main_alert": {"pin": 6, "interrupt": "PCINT22"},
+    "peripheral": {"led": 4, "buzzer": 3, "alert": 2, "spi_ss": 10, "lcd": ["A4", "A5"], "lcd_addresses": [39, 63]},
+    "adas": {"address": 18, "stop_cm": 20, "clear_cm": 25, "clear_samples": 3, "sample_ms": 70, "timeout_ms": 30, "stale_ms": 200, "alert_open_drain": 4}
+  },
+  "cases": [
+    "matching peripheral ACK required before motor enable",
+    "old ACK and old epoch cannot reenable either motor",
+    "direction reverse disables both enables for at least 100 ms before accessory request",
+    "drive lease expires after 500 ms and preserves accessory flags",
+    "SPI timeout and UART failure stop both motor enables",
+    "MAIN alert ISR zeros OCR1A and OCR1B immediately",
+    "peripheral alert ISR disables LED and active/passive buzzer immediately",
+    "brief alert pulse cancels pending plan and remains sticky after physical release",
+    "recovery requires fresh STOP and then a new command; no old plan restoration",
+    "STOP dominates compound plan and observer snapshots converge to stopped epoch",
+    "unsupported wiper rejects whole plan unless STOP dominates",
+    "MAIN D10 PWM hardware SS stays output; D8 selects SPI independently",
+    "LCD absent or timeout does not wedge SPI or corrupt ACK and status",
+    "full SLM NN equals frozen PC scores for repeated commands across UART and SPI links",
+    "all four actual Uno sketches build with no upload",
+    "four role packages contain standalone includes and correct role sketch"
+  ]
+}
