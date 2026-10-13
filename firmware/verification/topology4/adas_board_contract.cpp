@@ -1,0 +1,10 @@
+#include <cstdio>
+#ifndef ADAS_BOARD_HEADER
+#define ADAS_BOARD_HEADER "../../adas_i2c/src/ownengine/adapters/board_app.h"
+#endif
+#include ADAS_BOARD_HEADER
+#define CHECK(x) do{if(!(x)){fprintf(stderr,"FAIL line %d: %s\n",__LINE__,#x);return 1;}}while(0)
+int main(){BoardApp::setup();CHECK(TWAR==0x24);CHECK((DDRD&_BV(DDD4))&&!(PORTD&_BV(PORTD4)));BoardApp::loop();CHECK(BoardApp::waiting);BoardApp::ticks=29;BoardApp::loop();CHECK(BoardApp::waiting);BoardApp::ticks=30;BoardApp::loop();CHECK(!BoardApp::waiting);CHECK(BoardApp::worker.policy.hazard&Adas::SENSOR_FAULT);CHECK((DDRD&_BV(DDD4))&&!(PORTD&_BV(PORTD4)));for(int i=0;i<3;i++)BoardApp::worker.policy.sample(3480,31+i);BoardApp::alert();CHECK(!(DDRD&_BV(DDD4))&&!(PORTD&_BV(PORTD4)));
+ Proto::Frame q,r;uint8_t p[22];Proto::put32(p,7);Proto::make(q,Proto::HELLO,8,0,p,4);BoardApp::worker.handle(q,r,40);CHECK(Proto::op(r)==Proto::ADAS_META&&Proto::len(r)==8&&Proto::payload(r)[0]==0xad);Proto::SharedState s={7,10,2,11,0,0,0,0,Proto::SLM_STOP,true,0};Proto::encodeState(p,s);Proto::make(q,Proto::STATE_SYNC,9,0,p,22);BoardApp::worker.handle(q,r,40);CHECK(BoardApp::worker.snapshot.known&&BoardApp::worker.snapshot.shared.desiredDrive==0);Proto::make(q,Proto::STATUS,12);BoardApp::worker.handle(q,r,40);CHECK(Proto::op(r)==Proto::ADAS_STATUS_REPLY&&Proto::len(r)==18&&Proto::get32(Proto::payload(r)+14)==10);BoardApp::worker.policy.sample(0,41);BoardApp::worker.handle(q,r,41);CHECK(Proto::payload(r)[1]&Adas::SENSOR_FAULT);CHECK(!(Proto::payload(r)[1]&Adas::VALID)&&Proto::get16(Proto::payload(r)+2)==65535);
+ // Double buffer cache cannot switch while ISR transmits an old reply.
+ BoardApp::reading=1;uint8_t active=BoardApp::active;BoardApp::outgoing=r;BoardApp::outgoingPending=true;CHECK(!BoardApp::publish()&&BoardApp::active==active);BoardApp::reading=0;CHECK(BoardApp::publish()&&BoardApp::active!=active);puts("PASS actual ADAS board: open-drain gate, timeout 29/30ms, role/status invalid range, snapshots, immutable transmit buffer");}

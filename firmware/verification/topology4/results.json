@@ -1,0 +1,85 @@
+{
+  "source_root": "/Users/jiseonpark/Desktop/EmSy/LLM",
+  "source_commit": "654c3455b85a3e5e8e4e6d010f17746436314c4b",
+  "scenario_seal": {
+    "sha256": "31f4ad4d8aa078617e25d23e1d76542ddf8d229dc709575ed63b41b582310a28",
+    "before_source_review": true
+  },
+  "hardware_verified": false,
+  "host_tests": [
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-n9kxmr_r/protocol_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS protocol4 metadata, observed state and repeated framed-link parsing\n",
+      "name": "protocol_contract"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-n9kxmr_r/main_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS actual MAIN register gating: two PWM enables, both direction pairs, independent D8 CS/D10 SS, Timer0/1/2 separation and sticky ALERT ISR\n",
+      "name": "main_contract"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-n9kxmr_r/peripheral_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS actual peripheral engine: whole-plan validation, STOP dominance, snapshots, epochs, sticky safety and LCD diagnostic\n",
+      "name": "peripheral_contract"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-n9kxmr_r/peripheral_register_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS actual peripheral ISR registers: sticky pulse, recovery STOP, active/passive buzzer and LCD timeout with SPI alive\n",
+      "name": "peripheral_register_contract"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-n9kxmr_r/peripheral_register_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS actual peripheral ISR registers: sticky pulse, recovery STOP, active/passive buzzer and LCD timeout with SPI alive\n",
+      "name": "peripheral_register_contract_passive_3f"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-n9kxmr_r/slm_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS actual SLM full NN (50 golden evaluations), STOP/guard/wiper planner, UART framing and epoch cancellation\n",
+      "name": "slm_contract"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-n9kxmr_r/adas_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS ADAS policy 33 assertions\n",
+      "name": "adas_contract"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-n9kxmr_r/adas_capture_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS actual capture ISR: wrap, pending overflow, ignored unarmed edge, 10us trigger, stuck-high refusal\n",
+      "name": "adas_capture_contract"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-n9kxmr_r/actual_peer_integration"
+      ],
+      "exit_code": 0,
+      "output": "PASS actual MAIN + SLM + peripheral engines: matching ACK, old ACK/epoch, STOP snapshots, 100ms reversal, 500ms lease, sticky pulse and link failure\n",
+      "name": "actual_peer_integration"
+    }
+  ],
+  "builds": [],
+  "passed": true
+}
