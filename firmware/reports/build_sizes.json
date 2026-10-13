@@ -5,17 +5,17 @@
   "boards": [
     {
       "board": "main",
-      "flash_bytes": 11130,
-      "static_sram_bytes": 777,
-      "sram_static_spare": 1271,
+      "flash_bytes": 11684,
+      "static_sram_bytes": 796,
+      "sram_static_spare": 1252,
       "flash_limit": 32256,
       "sram_limit": 2048
     },
     {
       "board": "slm_uart",
-      "flash_bytes": 22090,
-      "static_sram_bytes": 1334,
-      "sram_static_spare": 714,
+      "flash_bytes": 22670,
+      "static_sram_bytes": 1365,
+      "sram_static_spare": 683,
       "flash_limit": 32256,
       "sram_limit": 2048
     },

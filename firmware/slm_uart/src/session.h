@@ -8,6 +8,7 @@ struct Session {
  Proto::SharedState shared; Proto::Frame pendingFrame;
  uint32_t session,generation,snapshotAt,linkAt,sentAt; uint16_t counter;
  uint8_t diagnostic[24];bool diagnosticKnown=false;uint32_t diagnosticAt=0;
+ uint8_t i2cDiagnostic[20];bool i2cDiagnosticKnown=false;uint32_t i2cDiagnosticAt=0;
  uint8_t retries; bool known,pending,sendDue,appliedEvent,errorEvent,stopNeeded;
  Session():shared{},session(0),generation(0),snapshotAt(0),linkAt(0),sentAt(0),counter(0),retries(0),known(false),pending(false),sendDue(false),appliedEvent(false),errorEvent(false),stopNeeded(false){}
  bool fresh(uint32_t now)const{return session&&known&&!elapsed(now,snapshotAt,2000)&&!elapsed(now,linkAt,2000);}
@@ -23,8 +24,9 @@ struct Session {
  void status(Proto::Frame& out,const Proto::Frame& query)const{uint8_t p[18]={0};Proto::put32(p,session);Proto::put32(p+4,epoch());p[8]=uint8_t(shared.appliedDrive);p[9]=(shared.appliedFlags&1)!=0;p[10]=0;p[11]=(shared.appliedFlags&4)!=0;p[13]=shared.actorFlags&15;if(!known||!shared.appliedKnown)p[13]|=8;Proto::put16(p+14,shared.command);Proto::put16(p+16,shared.stopSources);Proto::make(out,Proto::STATUS_REPLY,Proto::id(query),Proto::seq(query),p,18);}
  // true means reply is initialized. ACK acceptance ignores a prior busy snapshot.
  bool receive(const Proto::Frame& f,uint32_t now,Proto::Frame& reply){if(!Proto::valid(f))return false;uint32_t sid;const uint8_t* p=Proto::payload(f);
-  if(Proto::op(f)==Proto::HELLO){if(!Proto::helloRequest(f,sid)){Proto::ack(reply,f,Proto::BAD_MODEL);return true;}if(sid!=session){session=sid;shared={};shared.session=sid;known=pending=sendDue=stopNeeded=false;counter=0;diagnosticKnown=false;++generation;}linkAt=now;Proto::slmMeta(reply,session,Proto::id(f));return true;}
+  if(Proto::op(f)==Proto::HELLO){if(!Proto::helloRequest(f,sid)){Proto::ack(reply,f,Proto::BAD_MODEL);return true;}if(sid!=session){session=sid;shared={};shared.session=sid;known=pending=sendDue=stopNeeded=false;counter=0;diagnosticKnown=i2cDiagnosticKnown=false;++generation;}linkAt=now;Proto::slmMeta(reply,session,Proto::id(f));return true;}
   if(!session)return false;
+  if(Proto::op(f)==Proto::I2C_DIAGNOSTIC){if(Proto::len(f)==20&&!Proto::seq(f)&&Proto::get32(p)==session&&!newer32(epoch(),Proto::get32(p+4))){memcpy(i2cDiagnostic,p,20);i2cDiagnosticKnown=true;i2cDiagnosticAt=now;}return false;}
   if(Proto::op(f)==Proto::DIAGNOSTIC){if(Proto::len(f)==24&&!Proto::seq(f)&&Proto::get32(p)==session&&!newer32(epoch(),Proto::get32(p+4))){memcpy(diagnostic,p,24);diagnosticKnown=true;diagnosticAt=now;}return false;}
   if(Proto::op(f)==Proto::STATE_SYNC){Proto::SharedState state;if(!Proto::decodeState(f,state)||state.session!=session)return false;if(known&&(newer32(shared.revision,state.revision)||newer32(epoch(),state.safetyEpoch)))return false;if(state.safetyEpoch!=epoch()){++generation;cancelBatch();}shared=state;known=true;snapshotAt=linkAt=now;return false;}
   if((Proto::op(f)==Proto::STATUS||Proto::op(f)==Proto::HEARTBEAT)&&Proto::len(f)==4&&Proto::get32(p)==session){linkAt=now;status(reply,f);return true;}
