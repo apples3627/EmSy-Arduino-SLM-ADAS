@@ -1,16 +1,15 @@
-# 네 Uno 팀 통합 시험
+# protocol4 네 보드 실물 통합 순서
 
-현재 역할은 MAIN, SLM_SPI, ADAS_I2C, ACTUATOR_UART입니다. 모든 보드가 protocol3/model95616d56/labels3 배포본이어야 합니다. 이전 H32 compute ZIP과 섞지 않습니다.
+1. MAIN/SLM_UART/ADAS_I2C/PERIPHERAL_SPI ZIP 전체를 배포하고 보드에 역할 라벨을 붙입니다. 이전역할ZIP을 섞지 않습니다. 외부 배선·구동 전원 없이 각Uno에 업로드합니다.
+2. 전원을 끄고 PIN_MAP의 교차UART2선, SPI4선(CS **MAIN D8→SPI D10**), MAIN↔ADAS I2C2선, ALERT(**ADAS D4→MAIN D6+SPI D2**), 공통GND를 연결합니다. 독립USB5V끼리는 연결하지 않습니다.
+3. LCD를 SPI 보드 A4/A5에만 연결합니다. MAIN↔ADAS I2C와 합치지 않습니다. 주소0x27/0x3F·LCD backpack 매핑·16×2 가정과 부저 능동/수동 설정을 확인합니다. LCD가 안 나오면 contrast 조정·주소·전원부터 확인합니다. LCD오류가SPI/정지를 막지 않아야 합니다.
+4. 모터전원 없이 부팅합니다. SLM USB9600/Newline 콘솔에서 WAIT→READY, !status를 확인합니다. 센서누락/20cm이내에서는 READY가 되면 안 됩니다.25cm이상3회+OFF ACK 후 준비됩니다.
+5. LED/부저단독ON/OFF와2~3개의 다중명령을 시험합니다. 와이퍼명령이 있는계획은 앞의LED도 실행하지 않고전체STOP이어야 합니다. STOP이 있으면전체OFF. 반대방향/ONOFF충돌·unknown도전체거절합니다.
+6. L298N ENA/ENB 점퍼를 제거하고 ENA D9/ENB D10, IN1D4/IN2D7/IN3A0/IN4A1을 확인합니다. 모터 두 개는OUT1/2,OUT3/4. 모터정격/외부전원/로직5V점퍼 구성을 확정합니다. 최초에는 바퀴를 들어 올리고500ms명령으로 시험합니다.
+7. 전진/후진에서두모터가같은차량방향인지확인하고 필요하면 한모터 OUT배선 또는invert 설정을 바꿉니다. lease500ms 후두모터만OFF이며LED/부저는유지됩니다. 반전100ms 동안무구동이고부가변경도지연됩니다.
+8. SLM추론중·UART프레임중·SPI전송중·구동중에20cm이내장애물을넣습니다. MAINISR두PWM과방향신호OFF, SPI보드ISRLED/부저OFF를파형으로확인합니다. UART/SPI완료를기다리지않는지실제지연을기록합니다.
+9. 장애물을25cm이상으로옮겨3회정상확인해도자동재출발하지않아야합니다. 새명령으로만동작합니다.21~24cm의clearCount초기화와MAIN추가정상3회조건도확인합니다.
+10. Echo누락/고정HIGH, I2C분리, SPI분리, UART분리, 각보드재부팅, 짧은ALERT펄스를시험합니다. 무응답/낡은샘플/오래된epoch가출력을살리지못해야합니다. LCDfault에는?또는!로미확인/차단을표시합니다.
+11. SLM단독stop을보내MAIN desired0, 주변장치OFF ACK뒤applied0/known1, SLM/ADAS/SPI snapshot동기화를확인합니다. STOP은LCD정보표시를지우는명령이아닙니다. 실제구동회로출력만정지합니다.
 
-1. 역할별 GUIDE와 PIN_MAP을 읽고 각 ZIP 전체를 풀어 외부 배선 없이 Uno에 업로드합니다. ACTUATOR D0/D1을 업로드 동안 분리합니다. 보드에 역할 라벨을 붙입니다.
-2. 전원을 끄고 공통 GND, SPI4선, I2C2선+풀업2개, 교차UART2선, ALERT 공통선+풀업1개를 연결합니다. 독립USB의5V 레일을 서로 연결하지 않습니다. 센서 TrigD7/EchoD8을 확인합니다.
-3. 모터·서보 전원 없이 시작합니다. 센서를 분리한 경우 READY가 되면 안 됩니다. boot/fault, desired/applied/known/epoch를 MAIN !status로 확인합니다. ALERT 실제LOW와 출력OFF를 계측합니다.
-4. 센서 앞25cm 이상 빈 공간에서 세 번 정상 측정 후 READY와 OFF 확인을 기다립니다. `lights on`, `horn on`, `wipers on`을 하나씩 보내 RESULT/APPLIED를 확인합니다. 출력ACK는 실제 바퀴 이동 측정이 아닙니다.
-5. `go forward, lights on, wipers on, horn on`을 보내 계획 전체가 적용되는지 확인합니다. 드라이버가 없다면 모터 대신 저항LED로 방향 출력만 확인합니다. 충돌/알 수 없는 절은 부분 동작 없이 전체 거절되어야 합니다.
-6. 정상 공간에서 `go forward`를 보내고20cm 이내 장애물을 넣습니다. 추론 중·UART 전송 중·출력 중 모두 시험합니다. 모터PWM·조명·서보signal·경적이 모두OFF인지, stale ACK로 재시작되지 않는지 확인합니다. 실물 응답지연과 UART/SPI/I2C/ALERT 파형을 기록합니다.
-7. 장애물을25cm 이상으로 옮겨 세 번 확인해도 자동 재시작되지 않아야 합니다. READY 후 새 명령으로만 작동합니다.21..24cm에서는 해제되면 안 됩니다.
-8. Echo 분리/고정HIGH, 센서 제거, I2C 분리, ADAS 재부팅을 시험합니다. fault/200ms freshness 제한으로 전체 정지해야 합니다. 짧은 ALERT LOW 펄스도 보존되는지 확인합니다. 센서의 감지 실패는 독립 실물 평가 대상입니다.
-9. `stop` 및 `lights on and stop and horn on`은 모든 출력0이어야 합니다. desired=0, matching ACK 후 applied=0/known=1, SLM·ADAS snapshot revision 공유를 확인합니다.500ms 주행 lease 종료는 drive만0이며 다른 부가 출력은 유지됩니다.
-10. 로컬ACTUATOR D2 버튼, UART 분리, ACTUATOR 재부팅을 시험합니다. 해제 후 !retry/새세션으로 복구하고 이전 명령이 실행되지 않는지 확인합니다. 각 담당자가 결과·참여 여부를 기록합니다.
-
-DC 모터는 H-bridge와 별도 정격 전원으로 연결하며 서보도 안정된 별도 전원을 사용합니다. 최초 실물 주행은 바퀴를 들어 올린 상태에서 짧은500ms lease로 시험합니다. 현재 자동 검증은 호스트 로직/레지스터 모형과 Uno 컴파일입니다. 네 보드 실물 시험의 완료를 뜻하지 않습니다.
+호스트/Uno컴파일은 실물완료증거가 아닙니다. 테스트결과·배선사진·파형·각팀원기여여부는 팀통합시기록합니다. 실제부품이확정되지않은부분(부저종류,LCD주소/칩,모터전원)은업로드전config와핀표를확인합니다.

@@ -2,31 +2,23 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdint.h>
-#include <avr/pgmspace.h>
+#include "board_config.h"
 namespace MainIO {
-volatile uint32_t ticks;
+volatile uint32_t ticks=0;
 volatile uint8_t adasDanger=1,adasEvent=1;
-inline bool adasLow(){return !(PIND&_BV(PIND4));}
+volatile uint8_t rx[64],tx[64],rr=0,rw=0,xr=0,xw=0,softOverflow=0;
+volatile uint8_t txBit=10,txByte=0,txFrameLeft=0,rxBit=255,rxByte=0;
+inline bool adasLow(){return !(PIND&_BV(PIND6));}
 inline uint32_t now(){uint8_t s=SREG;cli();uint32_t n=ticks;SREG=s;return n;}
-volatile uint8_t pcRx[128], pcTx[256], pr, pw, tr, tw, pcOverflow;
-volatile uint8_t rx[64],tx[64],rr,rw,xr,xw,softOverflow;
-volatile uint8_t txBit=10,txByte,txFrameLeft,rxBit=255,rxByte;
-inline bool pcWrite(char c){uint8_t n=tw+1;if(n==tr)return false;pcTx[tw]=c;tw=n;UCSR0B|=_BV(UDRIE0);return true;}
-inline void say(const char* s){while(*s){if(!pcWrite(*s++))break;}}
-inline void sayP(const char* s){char c;while((c=pgm_read_byte(s++))){if(!pcWrite(c))break;}}
-inline void number(uint32_t v){char b[11];uint8_t n=0;do{b[n++]=char('0'+v%10);v/=10;}while(v);while(n)pcWrite(b[--n]);}
-inline bool actorSend(const Proto::Frame& f){if(uint8_t((xr-xw-1)&63)<32)return false;for(uint8_t i=0;i<32;i++){tx[xw]=f.bytes[i];xw=(xw+1)&63;}return true;}
-inline void actorFlush(){uint8_t s=SREG;cli();rr=rw;xw=(xr+txFrameLeft)&63;SREG=s;}
-inline uint32_t readSession(){uint32_t v=0;for(uint8_t i=0;i<4;i++){while(EECR&_BV(EEPE)){} EEAR=1020+i;EECR|=_BV(EERE);v|=uint32_t(EEDR)<<(i*8);}return v;}
-inline bool persist(uint32_t v){for(uint8_t i=0;i<4;i++){while(EECR&_BV(EEPE)){} EEAR=1020+i;EEDR=uint8_t(v>>(i*8));uint8_t s=SREG;cli();EECR|=_BV(EEMPE);EECR|=_BV(EEPE);SREG=s;}return true;}
-inline void setup(){cli();DDRD|=_BV(DDD3);PORTD|=_BV(PORTD3)|_BV(PORTD2);DDRD&=uint8_t(~(_BV(DDD2)|_BV(DDD4)));PORTD|=_BV(PORTD4);PCMSK2|=_BV(PCINT20);PCIFR=_BV(PCIF2);PCICR|=_BV(PCIE2);adasDanger=adasLow();TCCR0A=_BV(WGM01);TCCR0B=_BV(CS01)|_BV(CS00);OCR0A=249;TIMSK0=_BV(OCIE0A);TCNT0=0;TCCR1A=0;TCCR1B=_BV(WGM12)|_BV(CS11);OCR1A=207;TIMSK1=_BV(OCIE1A);EICRA=_BV(ISC01);EIFR=_BV(INTF0);EIMSK=_BV(INT0);UBRR0=103;UCSR0A=0;UCSR0C=_BV(UCSZ01)|_BV(UCSZ00);UCSR0B=_BV(RXEN0)|_BV(TXEN0)|_BV(RXCIE0);DDRB|=_BV(DDB2)|_BV(DDB3)|_BV(DDB5);DDRB&=~_BV(DDB4);PORTB|=_BV(PORTB2);SPCR=_BV(SPE)|_BV(MSTR)|_BV(SPR1)|_BV(SPR0);SPSR=0;TWBR=72;TWSR=0;TWCR=_BV(TWEN);sei();}
+inline bool actorSend(const Proto::Frame& f){if(uint8_t((xr-xw-1)&63)<32)return false;uint8_t saved=SREG;cli();for(uint8_t i=0;i<32;i++){tx[xw]=f.bytes[i];xw=(xw+1)&63;}SREG=saved;return true;}
+inline void gateOff(){TCCR1A&=uint8_t(~(_BV(COM1A1)|_BV(COM1A0)|_BV(COM1B1)|_BV(COM1B0)));PORTB&=uint8_t(~(_BV(PB1)|_BV(PB2)));PORTD&=uint8_t(~(_BV(PD4)|_BV(PD7)));PORTC&=uint8_t(~(_BV(PC0)|_BV(PC1)));}
+inline void motorWrite(int8_t direction,bool allowed){uint8_t saved=SREG;cli();if(adasDanger||adasLow()||!allowed||!direction){gateOff();SREG=saved;return;}int8_t a=MainConfig::INVERT_MOTOR_A?-direction:direction,b=MainConfig::INVERT_MOTOR_B?-direction:direction;uint8_t d=PORTD&uint8_t(~(_BV(PD4)|_BV(PD7))),c=PORTC&uint8_t(~(_BV(PC0)|_BV(PC1)));d|=a>0?_BV(PD4):_BV(PD7);c|=b>0?_BV(PC0):_BV(PC1);PORTD=d;PORTC=c;OCR1A=OCR1B=MainConfig::MOTOR_DUTY;TCCR1A=uint8_t((TCCR1A&~(_BV(COM1A0)|_BV(COM1B0)))|_BV(COM1A1)|_BV(COM1B1));SREG=saved;}
+inline uint32_t readSession(){uint32_t v=0;for(uint8_t i=0;i<4;i++){while(EECR&_BV(EEPE)){}EEAR=1020+i;EECR|=_BV(EERE);v|=uint32_t(EEDR)<<(i*8);}return v;}
+inline void persist(uint32_t v){for(uint8_t i=0;i<4;i++){while(EECR&_BV(EEPE)){}EEAR=1020+i;EECR|=_BV(EERE);uint8_t b=uint8_t(v>>(i*8));if(EEDR==b)continue;EEDR=b;uint8_t s=SREG;cli();EECR|=_BV(EEMPE);EECR|=_BV(EEPE);SREG=s;}}
+inline void setup(){cli();DDRD|=_BV(DDD3)|_BV(DDD4)|_BV(DDD7);DDRD&=uint8_t(~(_BV(DDD2)|_BV(DDD6)));PORTD|=_BV(PORTD3)|_BV(PORTD2)|_BV(PORTD6);DDRC|=_BV(DDC0)|_BV(DDC1);DDRB|=_BV(DDB0)|_BV(DDB1)|_BV(DDB2)|_BV(DDB3)|_BV(DDB5);DDRB&=uint8_t(~_BV(DDB4));PORTB|=_BV(PORTB0);TCCR1A=_BV(WGM10);TCCR1B=_BV(WGM12)|_BV(CS11)|_BV(CS10);TIMSK1=0;OCR1A=OCR1B=0;gateOff();TCCR0A=_BV(WGM01);TCCR0B=_BV(CS01)|_BV(CS00);OCR0A=249;TCNT0=0;TIMSK0=_BV(OCIE0A);TCCR2A=0;TCCR2B=_BV(CS21);TCNT2=0;OCR2B=208;TIMSK2=_BV(OCIE2B);EICRA=_BV(ISC01);EIFR=_BV(INTF0);EIMSK=_BV(INT0);PCMSK2=_BV(PCINT22);PCIFR=_BV(PCIF2);PCICR|=_BV(PCIE2);adasDanger=adasLow();SPCR=_BV(SPE)|_BV(MSTR)|_BV(SPR1)|_BV(SPR0);SPSR=0;TWBR=72;TWSR=0;TWCR=_BV(TWEN);UCSR0B=0;sei();}
 }
 ISR(TIMER0_COMPA_vect){MainIO::ticks++;}
-ISR(USART_RX_vect){using namespace MainIO;uint8_t flags=UCSR0A,b=UDR0,n=(pw+1)&127;if(flags&(_BV(FE0)|_BV(DOR0)|_BV(UPE0))){pcOverflow=1;return;}if(n==pr)pcOverflow=1;else{pcRx[pw]=b;pw=n;}}
-ISR(USART_UDRE_vect){using namespace MainIO;if(tr==tw)UCSR0B&=~_BV(UDRIE0);else{UDR0=pcTx[tr];tr++;}}
-ISR(TIMER1_COMPA_vect){using namespace MainIO;if(txBit==10){if(xr==xw)return;if(!txFrameLeft)txFrameLeft=32;txFrameLeft--;txByte=tx[xr];xr=(xr+1)&63;txBit=0;PORTD&=~_BV(PORTD3);}else if(txBit<8){if(txByte&(1<<txBit))PORTD|=_BV(PORTD3);else PORTD&=~_BV(PORTD3);txBit++;}else{PORTD|=_BV(PORTD3);txBit++;}}
-// Timer1 CTC wraps each bit; COMPB is a fixed half-bit phase after INT0.
-ISR(INT0_vect){using namespace MainIO;if(rxBit!=255)return;rxBit=0;rxByte=0;OCR1B=(TCNT1+104)%208;TIFR1=_BV(OCF1B);TIMSK1|=_BV(OCIE1B);EIMSK&=~_BV(INT0);}
-ISR(TIMER1_COMPB_vect){using namespace MainIO;bool high=PIND&_BV(PIND2);if(rxBit==0){if(high){rxBit=255;}else rxBit=1;}else if(rxBit<=8){if(high)rxByte|=1<<(rxBit-1);rxBit++;}else{if(high){uint8_t n=(rw+1)&63;if(n==rr)softOverflow=1;else{rx[rw]=rxByte;rw=n;}}else softOverflow=1;rxBit=255;}if(rxBit==255){TIMSK1&=~_BV(OCIE1B);EIFR=_BV(INTF0);EIMSK|=_BV(INT0);}}
-
-ISR(PCINT2_vect){if(MainIO::adasLow())MainIO::adasDanger=1;MainIO::adasEvent=1;}
+ISR(TIMER2_COMPB_vect){using namespace MainIO;OCR2B=uint8_t(OCR2B+208);if(txBit==10){if(xr==xw)return;if(!txFrameLeft)txFrameLeft=32;txFrameLeft--;txByte=tx[xr];xr=(xr+1)&63;txBit=0;PORTD&=uint8_t(~_BV(PORTD3));}else if(txBit<8){if(txByte&(1<<txBit))PORTD|=_BV(PORTD3);else PORTD&=uint8_t(~_BV(PORTD3));txBit++;}else{PORTD|=_BV(PORTD3);txBit++;}}
+ISR(INT0_vect){using namespace MainIO;if(rxBit!=255)return;rxBit=0;rxByte=0;OCR2A=uint8_t(TCNT2+104);TIFR2=_BV(OCF2A);TIMSK2|=_BV(OCIE2A);EIMSK&=uint8_t(~_BV(INT0));}
+ISR(TIMER2_COMPA_vect){using namespace MainIO;bool high=PIND&_BV(PIND2);if(rxBit==0){if(high)rxBit=255;else rxBit=1;}else if(rxBit<=8){if(high)rxByte|=1<<(rxBit-1);rxBit++;}else{if(high){uint8_t n=(rw+1)&63;if(n==rr)softOverflow=1;else{rx[rw]=rxByte;rw=n;}}else softOverflow=1;rxBit=255;}if(rxBit==255){TIMSK2&=uint8_t(~_BV(OCIE2A));EIFR=_BV(INTF0);EIMSK|=_BV(INT0);}else OCR2A=uint8_t(OCR2A+208);}
+ISR(PCINT2_vect){if(MainIO::adasLow()){MainIO::adasDanger=1;MainIO::gateOff();}MainIO::adasEvent=1;}

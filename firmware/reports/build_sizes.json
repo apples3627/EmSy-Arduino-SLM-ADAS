@@ -5,17 +5,17 @@
   "boards": [
     {
       "board": "main",
-      "flash_bytes": 18696,
-      "static_sram_bytes": 1459,
-      "sram_static_spare": 589,
+      "flash_bytes": 10266,
+      "static_sram_bytes": 753,
+      "sram_static_spare": 1295,
       "flash_limit": 32256,
       "sram_limit": 2048
     },
     {
-      "board": "slm_spi",
-      "flash_bytes": 14948,
-      "static_sram_bytes": 369,
-      "sram_static_spare": 1679,
+      "board": "slm_uart",
+      "flash_bytes": 21354,
+      "static_sram_bytes": 1299,
+      "sram_static_spare": 749,
       "flash_limit": 32256,
       "sram_limit": 2048
     },
@@ -28,10 +28,10 @@
       "sram_limit": 2048
     },
     {
-      "board": "actuator_uart",
-      "flash_bytes": 5858,
-      "static_sram_bytes": 421,
-      "sram_static_spare": 1627,
+      "board": "peripheral_spi",
+      "flash_bytes": 6296,
+      "static_sram_bytes": 448,
+      "sram_static_spare": 1600,
       "flash_limit": 32256,
       "sram_limit": 2048
     }

@@ -1,15 +1,15 @@
 {
   "model_id": "95616d56",
-  "protocol_version": 3,
+  "protocol_version": 4,
   "labels_version": 3,
   "boards": {
     "main": {
       "archive": "main_uno_r3.zip",
-      "sha256": "af7b36804d07d24dc91be8a68848d27a3ab6e976a28049ed7cccf97deac91444",
+      "sha256": "db187fc484dd69c340ad1be89970230dd057e2dcb577cc899e0fc9e586bdebd9",
       "files": [
         {
           "path": "main/GUIDE.md",
-          "sha256": "fa38ec9fa19128d86c2379394a1050ac4fd76f3e447e60c4b79088dbee690505"
+          "sha256": "ad0247f73fc533a722a2dc05706a324574232e4c02d3ebeb0443435b34c57754"
         },
         {
           "path": "main/main.ino",
@@ -17,59 +17,35 @@
         },
         {
           "path": "main/src/board_app.h",
-          "sha256": "447c55b3eb1c76d76ee520ef91831b9cdbd3a4b889225f0f981be286dc738fc0"
+          "sha256": "78e66c7df4d4a1e97b9963e3e54e0db4a1dbb967f41d04aa39a4f44fd200678f"
+        },
+        {
+          "path": "main/src/board_config.h",
+          "sha256": "0da472d0d29eb8bf923ad1321525ccf78b6dc089da61f811d26500dd580d2ae5"
         },
         {
           "path": "main/src/compute_links.h",
-          "sha256": "a50840b4469fa05475185f6a62182c84c8a3dcec30bf901feba5bbec36907cbf"
+          "sha256": "95de83d621ae920c2d63e34500c0dd2eb01bf28a084faab36cf4b8974620992a"
         },
         {
-          "path": "main/src/main_policy.h",
-          "sha256": "054121c508d6ef40842c4f692cc199047434010958ff6f1219a56b024c619f47"
-        },
-        {
-          "path": "main/src/model/command_plan.h",
-          "sha256": "3b07200666436b3e76e30afdad59449950407d151881b12cc0a87d74683b28cd"
-        },
-        {
-          "path": "main/src/model/generated/config.h",
-          "sha256": "edf3d3c00c0a096a80d826b5df574e1a01fdf6d9b6ad73cc56c541ff9a3bd142"
-        },
-        {
-          "path": "main/src/model/generated/main_bias.h",
-          "sha256": "2d3f9bfa1ec1dab35f3667007ed7d2870c071a2a93c0084cd52954f51089cce8"
-        },
-        {
-          "path": "main/src/model/generated/model_full.h",
-          "sha256": "930b0afacc6842799c52b2ca41b7f78504f9c05ef520ca9790522f47d3424f01"
-        },
-        {
-          "path": "main/src/model/generated/model_i2c.h",
-          "sha256": "4d8c3f230e7904a56082f3b244c43ed81852058e4af0de214915af3964e33c31"
-        },
-        {
-          "path": "main/src/model/generated/model_spi.h",
-          "sha256": "55aa2ce676d07a43d0359350dd6c01ca954fe1b9d3fa52759d19b8b2692b3095"
-        },
-        {
-          "path": "main/src/model/intent_model.h",
-          "sha256": "7b95cf726ddfdb1bdeee35bb05d32c649c54899e06e8f9b5609f64bbb36e7b98"
+          "path": "main/src/control_engine.h",
+          "sha256": "6a5cfd3bd9a5577c817bbf1ac1b9280420ad61313e6e5ae78f6399e5ac944fe3"
         },
         {
           "path": "main/src/protocol.h",
-          "sha256": "affc8c0835a41cc74d57fdf0bb2e80068f9756430ec8d63ff9eaf6ee55099053"
+          "sha256": "2c708397c56f63386c8a4d08cd490bc658431b54767db796c8260801d7783a51"
         },
         {
           "path": "main/src/register_io.h",
-          "sha256": "204f72b46815bbbae379feff2405958ceb18a3e44e247afdeb36ebdc0e535c30"
+          "sha256": "522617459bca4109b8738e9e50b9587fe8c3de4fa3a379a9d9611eea32c9a72e"
         },
         {
           "path": "main/PIN_MAP.md",
-          "sha256": "8a1274c835e9d329c57501e6e8b94b28df1f479989a07b0e667ac5f442d08439"
+          "sha256": "f198f4b69c4c8278ebfa123ecf3b6a64d7aaffd7eb5e77d99a6ae1997f891211"
         },
         {
           "path": "main/INTEGRATION_CHECKLIST.md",
-          "sha256": "998fd740099accc4ce421bf787102021123546bad7b211f2d5f7c566c854c4ed"
+          "sha256": "a8e7b993630e8e846a926fd4d7943857106e10b1c4b6d9fb9e291569e75ede44"
         },
         {
           "path": "main/START_HERE.md",
@@ -77,87 +53,87 @@
         }
       ]
     },
-    "slm_spi": {
-      "archive": "slm_spi_uno_r3.zip",
-      "sha256": "27eff29352066961489e41621d5bfa5a9325056fc56a1c0685b0fd2e38af51e9",
+    "slm_uart": {
+      "archive": "slm_uart_uno_r3.zip",
+      "sha256": "373db7883f27ead91e1c333a399342e8e28f187514acf2b13a50f460156abdea",
       "files": [
         {
-          "path": "slm_spi/GUIDE.md",
-          "sha256": "bb30348ea8034ef6675653017ae7c100bd0ffa4e88755786d88baf1f55a258f2"
+          "path": "slm_uart/GUIDE.md",
+          "sha256": "be42ec1f38b17d3e8000c36cd6c7f770d16f463900a0bcb1de54c5b37cded98d"
         },
         {
-          "path": "slm_spi/slm_spi.ino",
-          "sha256": "12711001d9e32c76d3fa2e8a5a25077206c632d610591f6d999f4034b6b8d4dc"
+          "path": "slm_uart/slm_uart.ino",
+          "sha256": "cf4d4ab96c998594f418e4d64d1ea582f4e8800f5464dfa75dec76f78f7d4901"
         },
         {
-          "path": "slm_spi/src/model/command_plan.h",
+          "path": "slm_uart/src/board_app.h",
+          "sha256": "06e6e72d4e566a721a60cdd51d498ba5081816b8bad6a3f64a086d99eab6dbae"
+        },
+        {
+          "path": "slm_uart/src/model/command_plan.h",
           "sha256": "3b07200666436b3e76e30afdad59449950407d151881b12cc0a87d74683b28cd"
         },
         {
-          "path": "slm_spi/src/model/generated/config.h",
+          "path": "slm_uart/src/model/generated/config.h",
           "sha256": "edf3d3c00c0a096a80d826b5df574e1a01fdf6d9b6ad73cc56c541ff9a3bd142"
         },
         {
-          "path": "slm_spi/src/model/generated/main_bias.h",
+          "path": "slm_uart/src/model/generated/main_bias.h",
           "sha256": "2d3f9bfa1ec1dab35f3667007ed7d2870c071a2a93c0084cd52954f51089cce8"
         },
         {
-          "path": "slm_spi/src/model/generated/model_full.h",
+          "path": "slm_uart/src/model/generated/model_full.h",
           "sha256": "930b0afacc6842799c52b2ca41b7f78504f9c05ef520ca9790522f47d3424f01"
         },
         {
-          "path": "slm_spi/src/model/generated/model_i2c.h",
+          "path": "slm_uart/src/model/generated/model_i2c.h",
           "sha256": "4d8c3f230e7904a56082f3b244c43ed81852058e4af0de214915af3964e33c31"
         },
         {
-          "path": "slm_spi/src/model/generated/model_spi.h",
+          "path": "slm_uart/src/model/generated/model_spi.h",
           "sha256": "55aa2ce676d07a43d0359350dd6c01ca954fe1b9d3fa52759d19b8b2692b3095"
         },
         {
-          "path": "slm_spi/src/model/intent_model.h",
+          "path": "slm_uart/src/model/intent_model.h",
           "sha256": "7b95cf726ddfdb1bdeee35bb05d32c649c54899e06e8f9b5609f64bbb36e7b98"
         },
         {
-          "path": "slm_spi/src/ownengine/adapters/board_app.h",
-          "sha256": "8b0f6bab8bc58cfc3ac8128084b1cf1e1629a8c6c85ce17998f2b1903a884b76"
+          "path": "slm_uart/src/planner.h",
+          "sha256": "cb016ba7661985c8238a55cbacdc6921fd33e704a84f86d15841bab0a40a6180"
         },
         {
-          "path": "slm_spi/src/ownengine/adapters/snapshot.h",
-          "sha256": "4cadd2c1d8981eb39a8a58f3904dcb93d15fc243ef1e549a61105c620e57730c"
+          "path": "slm_uart/src/protocol.h",
+          "sha256": "2c708397c56f63386c8a4d08cd490bc658431b54767db796c8260801d7783a51"
         },
         {
-          "path": "slm_spi/src/ownengine/adapters/transport.h",
-          "sha256": "2ddae3598da00993369522f406fd48e197343a8edefc45a4ef835846381483ae"
+          "path": "slm_uart/src/register_io.h",
+          "sha256": "16cac7d12f0b33e9e189a5261a11360386e2b437598aecbf57d76ae788d85550"
         },
         {
-          "path": "slm_spi/src/ownengine/adapters/worker.h",
-          "sha256": "6aa1b02e4371721461162365068229089885cef5206e45654b817aeea0e708f5"
+          "path": "slm_uart/src/session.h",
+          "sha256": "73f56ba215637659a78f3214bf6f6994960de108defd6910d495d166a6f41bea"
         },
         {
-          "path": "slm_spi/src/protocol.h",
-          "sha256": "affc8c0835a41cc74d57fdf0bb2e80068f9756430ec8d63ff9eaf6ee55099053"
+          "path": "slm_uart/PIN_MAP.md",
+          "sha256": "f198f4b69c4c8278ebfa123ecf3b6a64d7aaffd7eb5e77d99a6ae1997f891211"
         },
         {
-          "path": "slm_spi/PIN_MAP.md",
-          "sha256": "8a1274c835e9d329c57501e6e8b94b28df1f479989a07b0e667ac5f442d08439"
+          "path": "slm_uart/INTEGRATION_CHECKLIST.md",
+          "sha256": "a8e7b993630e8e846a926fd4d7943857106e10b1c4b6d9fb9e291569e75ede44"
         },
         {
-          "path": "slm_spi/INTEGRATION_CHECKLIST.md",
-          "sha256": "998fd740099accc4ce421bf787102021123546bad7b211f2d5f7c566c854c4ed"
-        },
-        {
-          "path": "slm_spi/START_HERE.md",
-          "sha256": "6d4cef6b1cba0b72d9d9ed69ab17b4322e1a85f186a972b76e2749c0988d7cae"
+          "path": "slm_uart/START_HERE.md",
+          "sha256": "9e7210bb3400bf0c8e48c70b5ea04d3863235e2267892126d426ab0554538f7b"
         }
       ]
     },
     "adas_i2c": {
       "archive": "adas_i2c_uno_r3.zip",
-      "sha256": "fc41f380dab43fc3594c39d1a5a63c2085fc64487a08cff4f0d47f7a5e6f7f59",
+      "sha256": "9ee1196b8b325499b92ecafd62aa892c103946ad14f38d8108c83360f26d5c43",
       "files": [
         {
           "path": "adas_i2c/GUIDE.md",
-          "sha256": "058498860e756cfa30096bf48a461fae977e45b054993c39bc3a5939791fc5b0"
+          "sha256": "94b1b2385b48f5ac5a3a97e5134572be30147f844578ab22045e01dddfde636b"
         },
         {
           "path": "adas_i2c/adas_i2c.ino",
@@ -193,15 +169,15 @@
         },
         {
           "path": "adas_i2c/src/protocol.h",
-          "sha256": "affc8c0835a41cc74d57fdf0bb2e80068f9756430ec8d63ff9eaf6ee55099053"
+          "sha256": "2c708397c56f63386c8a4d08cd490bc658431b54767db796c8260801d7783a51"
         },
         {
           "path": "adas_i2c/PIN_MAP.md",
-          "sha256": "8a1274c835e9d329c57501e6e8b94b28df1f479989a07b0e667ac5f442d08439"
+          "sha256": "f198f4b69c4c8278ebfa123ecf3b6a64d7aaffd7eb5e77d99a6ae1997f891211"
         },
         {
           "path": "adas_i2c/INTEGRATION_CHECKLIST.md",
-          "sha256": "998fd740099accc4ce421bf787102021123546bad7b211f2d5f7c566c854c4ed"
+          "sha256": "a8e7b993630e8e846a926fd4d7943857106e10b1c4b6d9fb9e291569e75ede44"
         },
         {
           "path": "adas_i2c/START_HERE.md",
@@ -209,45 +185,53 @@
         }
       ]
     },
-    "actuator_uart": {
-      "archive": "actuator_uart_uno_r3.zip",
-      "sha256": "686cc2095c4d2da5b37c5b5d78874500997d6cb0ca75f6e1018aaee070845cd5",
+    "peripheral_spi": {
+      "archive": "peripheral_spi_uno_r3.zip",
+      "sha256": "c87cb4b155d87855c17dc6d3a7d1138640fd4fe071dd3f2ab50724da28fcfeb7",
       "files": [
         {
-          "path": "actuator_uart/GUIDE.md",
-          "sha256": "8fa14b19fd91447965c66a28871864da2c50f1ba121edc2a6c03cf26bc51b0f0"
+          "path": "peripheral_spi/GUIDE.md",
+          "sha256": "f196650e0597a6faca843b81f1fd5660f59ac1ab2785b79edd87841d13cd2229"
         },
         {
-          "path": "actuator_uart/actuator_uart.ino",
-          "sha256": "535b448a0ff536e1a13c9a142f33c8ce7a579fe478f77b11c8cfcdc95c6a0016"
+          "path": "peripheral_spi/config.h",
+          "sha256": "20732db99fc21b8d46c43a0e924bcf97bbeaa6987f18fe07bed2ab18e7df989a"
         },
         {
-          "path": "actuator_uart/src/board_app.h",
-          "sha256": "46a0aea9740b9ccc207780a282f1703808dfafe0cb25198fbbc19ee04a988abe"
+          "path": "peripheral_spi/peripheral_spi.ino",
+          "sha256": "fd4132a3f06b2beab25ca5babdc3756a240ff774f1dd8e9b0b9afe51cc81e1be"
         },
         {
-          "path": "actuator_uart/src/board_config.h",
-          "sha256": "0ad22ee3b28eb343b68a39e5d4414be2d6dc5cc3be73e17fbd35d0bc4b956d9f"
+          "path": "peripheral_spi/src/board_app.h",
+          "sha256": "2cc414cf7a7e079975f80185cac720f2c92e6d67d809ee0d38809ccc6c452346"
         },
         {
-          "path": "actuator_uart/src/control_engine.h",
-          "sha256": "dee2a0adb72a7eca99696809677c831c156a70489719fc475da04cf92c4e5eeb"
+          "path": "peripheral_spi/src/engine.h",
+          "sha256": "a57aadf40f796f471736b4cdee2123618027b542f328b2ef1ae9f3652081b974"
         },
         {
-          "path": "actuator_uart/src/protocol.h",
-          "sha256": "affc8c0835a41cc74d57fdf0bb2e80068f9756430ec8d63ff9eaf6ee55099053"
+          "path": "peripheral_spi/src/lcd.h",
+          "sha256": "922c03fb189e8244755fa242e00ab07cf646612939c01022c45b25284dfc056d"
         },
         {
-          "path": "actuator_uart/PIN_MAP.md",
-          "sha256": "8a1274c835e9d329c57501e6e8b94b28df1f479989a07b0e667ac5f442d08439"
+          "path": "peripheral_spi/src/protocol.h",
+          "sha256": "2c708397c56f63386c8a4d08cd490bc658431b54767db796c8260801d7783a51"
         },
         {
-          "path": "actuator_uart/INTEGRATION_CHECKLIST.md",
-          "sha256": "998fd740099accc4ce421bf787102021123546bad7b211f2d5f7c566c854c4ed"
+          "path": "peripheral_spi/src/transport.h",
+          "sha256": "a137de7bd0fba844c7306c115ea84bdefdd87e8464b11fe7a88a872a4351c732"
         },
         {
-          "path": "actuator_uart/START_HERE.md",
-          "sha256": "2604c2491bb9ee99c8f0d58aacb576773baf9d6edd401fff4c5d8e030a104704"
+          "path": "peripheral_spi/PIN_MAP.md",
+          "sha256": "f198f4b69c4c8278ebfa123ecf3b6a64d7aaffd7eb5e77d99a6ae1997f891211"
+        },
+        {
+          "path": "peripheral_spi/INTEGRATION_CHECKLIST.md",
+          "sha256": "a8e7b993630e8e846a926fd4d7943857106e10b1c4b6d9fb9e291569e75ede44"
+        },
+        {
+          "path": "peripheral_spi/START_HERE.md",
+          "sha256": "9c7eea7ab77101ca89ab317c24fba2abac17e92c3b32aec31422c95bf86cff42"
         }
       ]
     }

@@ -1,104 +1,84 @@
-# 4개 Uno 핀 사용·배선표
+# 현재 네 Uno R3 배선 — 2026-10-13 / protocol4
 
-핀 이름 앞의 **보드 역할**을 반드시 구분합니다. MAIN D2와 ACTUATOR D2는 같은 번호지만 서로 다른 핀입니다. 점퍼 배선은 전원을 끈 상태에서 연결합니다.
+핀 번호 앞의 보드 역할을 구분합니다. 모든 배선은 전원을 끄고 연결합니다. 별도 USB 전원의5V 레일끼리는 연결하지 않고 공통 GND만 연결합니다.
 
-## 1. 보드 간 연결: 이 표의 선만 연결
+## 보드 사이 연결
 
-|출발/기준 핀|상대 핀|신호·방향|주의|
-|---|---|---|---|
-|MAIN D3 / PD3|ACTUATOR D0 / PD0 RX|MAIN TX → 제어 RX|9600, 8N1, 바이너리 32B|
-|MAIN D2 / PD2 INT0|ACTUATOR D1 / PD1 TX|제어 TX → MAIN RX|TX끼리/RX끼리 연결하지 않음|
-|MAIN A4 / PC4 SDA|ADAS_I2C A4 / PC4 SDA|양방향 SDA|주소 0x12, 100kHz|
-|MAIN A5 / PC5 SCL|ADAS_I2C A5 / PC5 SCL|MAIN SCL → slave, open-drain|clock stretching 허용|
-|MAIN D10 / PB2 SS|SLM_SPI D10 / PB2 SS|MAIN 출력 → slave 입력|active LOW|
-|MAIN D11 / PB3 MOSI|SLM_SPI D11 / PB3 MOSI|MAIN 출력 → slave 입력|Mode0, MSB first|
-|MAIN D12 / PB4 MISO|SLM_SPI D12 / PB4 MISO|slave 출력 → MAIN 입력|다른 핀에 연결 금지|
-|MAIN D13 / PB5 SCK|SLM_SPI D13 / PB5 SCK|MAIN 출력 → slave 입력|125kHz, LED 제어 핀으로 쓰지 않음|
-|ADAS D4 / PD4 open-drain|MAIN D4 / PD4 PCINT20 + ACTUATOR D3 / PD3 INT1|공통 active LOW ALERT|4.7kΩ 풀업 한 개 → MAIN 5V, HIGH 출력 금지|
-|MAIN GND|I2C·SPI·ACTUATOR GND|공통 기준 전위|네 보드 GND 모두 연결|
-
-**I2C 풀업:** SDA→4.7kΩ→MAIN 5V, SCL→4.7kΩ→MAIN 5V를 한 쌍만 둡니다. 모듈에 기존 풀업이 있는지 먼저 확인합니다. 풀업용 5V와 다른 보드의 5V 공급선을 연결하는 것은 별개입니다.
-
-**각자 USB로 전원 공급할 때:** 다른 보드 5V 핀끼리는 점퍼로 연결하지 않습니다. 위 표의 통신 신호와 공통 GND만 연결합니다. 하나의 공동 전원으로 바꾼다면 정격·공급 구성부터 다시 확인합니다.
-
-## 2. 역할별 예약·사용 핀
-
-|보드|핀|사용|
+|출발/기준|연결 대상|기능|
 |---|---|---|
-|MAIN|D0/D1|USB PC 콘솔 전용. 외부 장치 연결 없음|
-|MAIN|D2/D3|software UART RX/TX|
-|MAIN|D4|ADAS ALERT 입력 PCINT20|
-|MAIN|A4/A5|ADAS 센서 보드|
-|MAIN|D10/D11/D12/D13|SLM 보드|
-|ADAS|A4/A5|TWI slave SDA/SCL|
-|ADAS|D4|open-drain ALERT, MAIN D4·ACTUATOR D3에 연결|
-|ADAS|D7/D8|HC-SR04 Trig / Echo ICP1|
-|SLM|D10~D13|SS/MOSI/MISO/SCK|
-|SLM|D5|추론 중 HIGH 디버그 출력. 선택적 계측만 연결|
-|SLM·ADAS 보드|D0/D1|펌웨어 동작 중 외부 UART 연결 없음|
-|ACTUATOR|D0/D1|MAIN UART RX/TX. 업로드 때 선 분리|
-|ACTUATOR|D3|ADAS ALERT 입력 INT1, output 직접 차단|
-|ACTUATOR|D2|로컬 전체 정지 버튼 입력, 내부 pull-up|
-|ACTUATOR|D4/D7/D5|H-bridge IN1/IN2/PWM|
-|ACTUATOR|D12|선택적 H-bridge STBY. **MAIN D12에 연결하지 않음**|
-|ACTUATOR|D8|조명 LED 출력|
-|ACTUATOR|D9|서보 signal|
-|ACTUATOR|D6|피에조 경적 signal|
+|SLM D3 TX|MAIN D2 RX / INT0|software UART9600 8N1|
+|MAIN D3 TX|SLM D2 RX / INT0|software UART 반환 ACK/상태|
+|SLM D0/D1|USB PC USART0|PC 영어 명령9600/Newline; 외부 배선 없음|
+|MAIN A4 SDA|ADAS A4 SDA|I2C0x12/100kHz|
+|MAIN A5 SCL|ADAS A5 SCL|I2C clock|
+|MAIN **D8 / PB0**|SPI 보드 D10 SS|SPI chip select, active LOW|
+|MAIN D11 MOSI|SPI 보드 D11 MOSI|SPI Mode0/125kHz|
+|MAIN D12 MISO|SPI 보드 D12 MISO|SPI 응답|
+|MAIN D13 SCK|SPI 보드 D13 SCK|SPI clock|
+|ADAS **D4 open-drain**|MAIN **D6 PCINT22** + SPI 보드 **D2 INT0**|같은 공통 ALERT선, active LOW|
+|각 보드 GND|나머지 세 보드 GND|공통 기준 전위|
 
-표에 없는 핀은 이 펌웨어가 사용하지 않습니다. 핀을 추가로 쓰려면 해당 타이머/포트와 충돌 여부를 먼저 확인합니다.
+ALERT→4.7kΩ→MAIN5V 풀업 한 개. ADAS는 LOW만 구동합니다. MAIN↔ADAS의 SDA/SCL에는 각각4.7kΩ→MAIN5V 풀업 한 개씩(기존 모듈 풀업 확인). MAIN D2/D3는 UART이며 ALERT를 연결하지 않습니다. **MAIN D10은 모터 PWM이므로 SPI 보드 D10과 연결하지 않습니다.**
 
-## 3. 두 선 DC 모터: H-bridge를 거쳐 연결
+## MAIN → L298N 두 모터
 
-모터에 +/− 두 선만 있어도 **모터를 Uno 핀에 직접 연결하면 안 됩니다.** 전진/후진은 H-bridge가 모터 양단의 극성을 바꿔 만듭니다. 모터의 어느 선도 이 구성에서 GND에 영구 고정하지 않고, 두 선 모두 드라이버 출력으로 갑니다.
-
-|기능|TB6612 한 채널 예시|L298N 한 채널 예시|
+|MAIN 핀|L298N 입력|사용|
 |---|---|---|
-|ACTUATOR D4|AIN1|IN1|
-|ACTUATOR D7|AIN2|IN2|
-|ACTUATOR D5 PWM|PWMA|ENA|
-|ACTUATOR D12|STBY|연결하지 않음|
-|모터 두 선|AO1/AO2|OUT1/OUT2|
-|로직 전원|VCC: ACTUATOR의 5V 기준, 부품 자료 확인|보드의 로직 전원/레귤레이터 설정 확인|
-|모터 전원|VM: 모터 정격에 맞는 외부 공급|모터 전원 입력: 정격에 맞는 외부 공급|
-|GND|외부 PSU·driver·Uno 공통|외부 PSU·driver·Uno 공통|
-|설정|`MOTOR_HAS_STBY=1` 기본|`MOTOR_HAS_STBY=0`, ENA 점퍼 처리 확인|
+|D4 / PD4|IN1|모터 A 방향1|
+|D7 / PD7|IN2|모터 A 방향2|
+|D9 / PB1 OC1A|ENA|모터 A PWM|
+|A0 / PC0|IN3|모터 B 방향1|
+|A1 / PC1|IN4|모터 B 방향2|
+|D10 / PB2 OC1B|ENB|모터 B PWM|
+|GND|GND|모터 전원과 공통|
 
-두 표는 **인터페이스 예시**입니다. 실제 드라이버와 모터의 전압·정지 전류(stall current)·보호 회로는 부품 데이터시트로 확정해야 합니다. L298N의 **ENA 속도 허용 점퍼**와 **5V 레귤레이터 점퍼**는 다른 설정이므로 구분합니다. ENA 점퍼가 PWM 입력을 상시 HIGH로 묶는 모듈에서는 제거합니다.
+모터 A의 두 선→OUT1/OUT2, 모터 B의 두 선→OUT3/OUT4입니다. 모터를 Uno 핀/5V에 직접 연결하지 않습니다. 모터 정격에 맞는 별도 공급을 L298N 모터 전원에 연결합니다. 모터 두 선 중 하나를 GND에 고정하는 배선이 아닙니다.
 
-기본 방향 신호: 전진 IN1=HIGH/IN2=LOW, 후진 LOW/HIGH, 정지 PWM 비활성·두 입력 LOW. 실제 회전 방향이 반대면 전원을 끈 뒤 모터 두 선을 바꾸거나 `Config::invertDirection`을 변경합니다. 기본 듀티 75/249(약30%), 구동 시간 500ms입니다. 500ms는 MAIN이 보내는 값이므로 시간을 바꾸려면 MAIN 요청 duration과 제어 상한을 함께 확인합니다. 반전 시 100ms 무구동 구간을 둡니다. 정지는 출력 OFF이며 관성까지 즉시 없애는 기계적 제동을 보증하지 않습니다.
+**ENA/ENB enable 점퍼는 두 개 모두 제거**하고 D9/D10 PWM을 연결합니다. 모듈의5V regulator-enable 점퍼는 별개의 설정입니다. 그 설정에 따라5V 단자가 입력/출력일 수 있으므로 실제 모듈 자료를 확인하고 Uno USB5V와 regulator5V 출력을 직접 연결하지 않습니다. 로직5V가 필요하면 공급 구성을 확정한 뒤 배선합니다. 소스는 [ST L298 자료](https://www.st.com/resource/en/datasheet/l298.pdf)를 기준으로 두 enable과 네 방향 입력을 사용합니다. 모터의 전압/정지 전류와 모듈 방열/보호 회로는 실제 부품에서 확인합니다.
 
-드라이버가 아직 없다면 실제 모터는 연결하지 않고, ACTUATOR D4/D7에 각각 저항 포함 LED를 달아 방향 신호와 ACK를 먼저 확인합니다. 독립 드라이버 전원에서 Uno가 꺼졌을 때도 EN/STBY가 OFF를 유지하도록 필요한 풀다운/enable 회로는 선택 부품 자료대로 구성합니다.
+전진은 A IN1=HIGH/IN2=LOW, B IN3=HIGH/IN4=LOW이며 후진은 반대입니다. 차체에서 모터가 서로 거울 방향으로 장착돼 회전이 반대라면 전원을 끄고 해당 OUT 두 선을 바꾸거나 main/src/board_config.h의 INVERT_MOTOR_A/B를 조정합니다. 현재는 두 모터를 같이 전진/후진하며 좌우 조향 명령은 없습니다.
 
-## 4. 조명·와이퍼·경적·버튼
+Timer1 fast PWM8bit 약977Hz, OCR1A/B=75(약30%)이며 기본 주행500ms입니다. 방향 반전100ms 무구동. STOP/ADAS는 PWM compare 연결과 네 방향 신호를 모두OFF로 합니다. 실제 모터의 관성까지 즉시 없애는 기계적 제동을 보증하지 않습니다. 전원 차단 때 enable이 떠 있지 않도록 ENA/ENB 외부10kΩ pulldown을 권장합니다.
 
-- 조명: ACTUATOR D8 → 220~330Ω 저항 → 소형 LED anode, LED cathode→GND. 전력 조명은 별도 드라이버를 씁니다.
-- 서보: signal→ACTUATOR D9, V+→서보 정격에 맞는 별도 안정화 전원, GND→공통 GND. 선 색은 모델마다 달라 부품 표시를 확인합니다. 처음 45~135° 범위가 기구를 건드리지 않는지 확인 후 연결합니다.
-- 수동 피에조: ACTUATOR D6→신호, 다른 단자→GND. 1kHz 기본이며 정격 전류에 따라 드라이버가 필요할 수 있습니다. 능동 부저라면 `ACTIVE_BUZZER=1`로 변경하고 부품 전압을 확인합니다.
-- 전체 정지 버튼: ACTUATOR D2→스위치→GND. 내부 pull-up으로 미눌림 HIGH입니다. MAIN D2와 연결하지 않습니다. 누르면 10ms 후 모든 출력 OFF, 놓아도 이전 동작을 자동 재개하지 않습니다.
+## ADAS → HC-SR04
 
-서보의 전원 공급은 PWM signal 차단과 다릅니다. STOP은 모터·조명·서보 signal·경적을 모두 끄며 서보 park 동작도 취소합니다. 버튼 해제 뒤 MAIN `!retry`로 새 세션을 만들고 새 명령을 보내야 합니다.
+|센서|ADAS 핀|
+|---|---|
+|Vcc / GND|5V / GND|
+|Trig|D7 / PD7|
+|Echo|D8 / PB0 ICP1|
 
-## 5. 타이머·레지스터 충돌 확인
+센서 인쇄 핀 순서를 확인합니다. 20cm 정지,25cm 이상3회 해제입니다. 부팅·센서 누락·invalid echo·stale도 정지 조건입니다. 해제 뒤 새 명령이 필요합니다.
 
-|보드|자원|배정|
+## SPI 보드 → LCD·부저·LED
+
+|장치|SPI 보드 연결|
+|---|---|
+|LCD GND / VCC|GND /5V|
+|LCD SDA / SCL|**SPI 보드 A4 / A5**|
+|3핀 부저 S / + / -|D3 /5V /GND|
+|LED anode|D4→220~330Ω 직렬저항→anode|
+|LED cathode|GND|
+
+LCD 버스는 SPI 보드만의 로컬I2C입니다. **LCD SDA/SCL을 MAIN·ADAS A4/A5에 연결하지 않습니다.** 기본주소0x27/16×2 PCF8574이고0x3F와 backpack 매핑은 config로 바꿉니다. 모듈에 이미 풀업이 있으면 중복 추가하지 않습니다. [NXP PCF8574 자료](https://www.nxp.com/docs/en/data-sheet/PCF8574_PCF8574A.pdf)와 실제 LCD backpack 배선을 확인합니다. 부저 능동/수동 설정 및 S/+/− 순서는 모듈별로 확인합니다.
+
+SPI 보드 D2는 ALERT 전용입니다. 이전 작동 보드의 로컬 정지 버튼을 여기에 연결하지 않습니다. 와이퍼·서보 핀은 이번 구성에서 배정/사용하지 않습니다.
+
+## 타이머와 예약 자원
+
+|보드|자원|사용|
 |---|---|---|
-|MAIN|Timer0 COMPA|1ms 시간 기준, core overflow OFF|
-|MAIN|Timer1 COMPA/COMPB + INT0|D3 TX / D2 RX, 약9615 baud|
-|MAIN|USART0|D0/D1 PC 콘솔|
-|MAIN|PCINT2 / PCINT20|D4 ALERT 이벤트 보존|
-|MAIN|TWI / SPI|A4/A5와 D10~D13, 동시에 운용|
-|SLM|Timer0 COMPA|시간 기준, H64 모델 계산은 foreground|
-|ADAS|Timer0 COMPA / Timer1 ICP1·COMPA·OVF|1ms tick / echo capture·trigger 종료·overflow|
-|ACTUATOR|Timer0 mode7 COMPA / OC0B|1ms tick + D5 PWM, 1kHz|
-|ACTUATOR|Timer1 mode14 / OC1A|D9 servo, 50Hz|
-|ACTUATOR|Timer2 CTC COMPA|D6 수동 피에조, 1kHz 토글 출력|
-|ACTUATOR|INT1|D3 ALERT에서 출력 레지스터 직접 OFF|
-|ACTUATOR|USART0|D0/D1 MAIN 링크|
+|SLM|USART0 / Timer1 COMPA·COMPB·INT0|PC / D2/D3 soft UART|
+|SLM|Timer0 COMPA|1ms tick, NN은 foreground|
+|MAIN|Timer0 COMPA|1ms tick|
+|MAIN|Timer1 OC1A/OC1B|D9/D10 두 모터 PWM, 타이머IRQ 없음|
+|MAIN|Timer2 COMPA·COMPB·INT0|D2/D3 soft UART,2MHz tick/208tick비트|
+|MAIN|PCINT2 PCINT22|D6 ALERT, 두 모터 즉시OFF|
+|MAIN|TWI / SPI|ADAS / 주변장치, CS D8|
+|ADAS|Timer0 / Timer1 ICP1·COMPA·OVF|tick / echo capture·trigger종료|
+|SPI 보드|SPI STC + SS PCINT0|D10~D13 통신|
+|SPI 보드|TWI|로컬LCD A4/A5|
+|SPI 보드|Timer0 / Timer2 COMPA|tick / 수동부저1kHz|
+|SPI 보드|INT0|D2 ALERT, LED·부저 즉시OFF|
 
-ACTUATOR에서는 Timer2의 D3/D11 PWM을 추가 모터용으로 쓰지 않습니다. MAIN의 Timer1과 ACTUATOR의 Timer1은 서로 다른 칩이므로 충돌하지 않습니다. 모든 핀 기준은 Uno R3입니다.
-
-## 6. HC-SR04와 ALERT 연결 검수
-
-HC-SR04 Vcc→ADAS 5V, GND→ADAS GND, Trig→ADAS D7, Echo→ADAS D8입니다. 모듈 인쇄 핀 순서를 확인합니다. ALERT는 ADAS D4, MAIN D4, ACTUATOR D3를 **같은 한 선**으로 연결하고 MAIN 5V에4.7kΩ 풀업 한 개를 답니다. SDA/SCL 풀업 두 개와 별도입니다. ACTUATOR D2 버튼 선 및 MAIN D2/D3 UART 선과 혼동하지 않습니다. ADAS는 LOW만 구동합니다.
-
-20cm 이하에서 모든 출력 OFF, 25cm 이상 세 번 연속 후 해제입니다. 부팅·누락 echo·오래된 데이터도 정지 조건입니다. 해제 후 새 명령이 필요합니다. ACTUATOR INT1은 물리 출력 신호를 즉시 차단하되 모터 관성·서보 전원 차단을 보증하지 않습니다. 실제 지연과 배선 오류 대응은 팀 실물 시험으로 확인합니다.
+D10은 AVR SPI master의 하드웨어SS이기도 하지만 MAIN에서 **OUTPUT**으로 유지하므로 PWM 출력과 master 기능이 공존합니다. 실제 slave select는 MAIN D8입니다. 네 역할 모두 Arduino core의 millis/delay 타이머 기능은 사용하지 않습니다. MAIN/주변장치 EEPROM1020..1023은 세션에 예약합니다. EEPROM 네 바이트 쓰기는 원자적 전원차단 보장 방식이 아니므로 세션 기록 도중 전원을 끄지 않습니다.

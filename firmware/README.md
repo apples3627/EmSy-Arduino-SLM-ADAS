@@ -1,44 +1,44 @@
-# 영어 SLM + ADAS 자동차 제어: 네 대 Uno R3
+# 네 Uno R3: PC → 연산 UART → MAIN + ADAS + SPI 주변장치
 
-현재 구성은 **MAIN + SLM_SPI + ADAS_I2C + ACTUATOR_UART**입니다. MAIN 하나가 UART·SPI·I2C를 동시에 운용합니다. 프로토콜3, 모델 `95616d56`, 라벨 버전3을 네 역할에서 맞춰 사용합니다.
+2026-10-13 현재 정본은 **MAIN + SLM_UART + ADAS_I2C + PERIPHERAL_SPI**입니다. 프로토콜4, 모델95616d56, 라벨 버전3입니다. 네 보드를 함께 업데이트해야 하며 이전 SPI 연산/UART 작동 구조와 섞지 않습니다. I/O는 AVR 레지스터 방식입니다.
 
-|보드|역할|담당자 지침|팀 배포 ZIP|
+|담당 보드|역할|업로드 지침|배포 ZIP|
 |---|---|---|---|
-|MAIN|문장 분리·명령 계획·ADAS 우선 중재·상태 공유|[MAIN](main/GUIDE.md)|[main ZIP](packages/main_uno_r3.zip)|
-|SLM_SPI|학습된 전체 H64 모델 추론|[SLM](slm_spi/GUIDE.md)|[slm_spi ZIP](packages/slm_spi_uno_r3.zip)|
-|ADAS_I2C|HC-SR04 측정·정지 판단·인터럽트 신호|[ADAS](adas_i2c/GUIDE.md)|[adas_i2c ZIP](packages/adas_i2c_uno_r3.zip)|
-|ACTUATOR_UART|모터·서보·LED·피에조 출력과 독립 정지|[작동 보드](actuator_uart/GUIDE.md)|[actuator ZIP](packages/actuator_uart_uno_r3.zip)|
+|SLM_UART|PC USB UART로 영어 입력, 전체 NN 분류·다중 절 계획, D2/D3 soft UART로 MAIN 전달|[연산 보드](slm_uart/GUIDE.md)|[slm_uart ZIP](packages/slm_uart_uno_r3.zip)|
+|MAIN|UART 결과 검증, ADAS 우선 중재, L298N 두 모터 구동, SPI 주변장치 명령 및 상태 공유|[MAIN](main/GUIDE.md)|[main ZIP](packages/main_uno_r3.zip)|
+|ADAS_I2C|HC-SR04 거리·위험 판단, I2C 보고, 별도 ALERT 출력|[초음파 보드](adas_i2c/GUIDE.md)|[adas_i2c ZIP](packages/adas_i2c_uno_r3.zip)|
+|PERIPHERAL_SPI|MAIN SPI 요청 처리, LED·3핀 부저, 4핀 I2C LCD|[SPI 보드](peripheral_spi/GUIDE.md)|[peripheral_spi ZIP](packages/peripheral_spi_uno_r3.zip)|
 
-ZIP 전체를 풀어 역할 이름과 같은 폴더의 `.ino`를 엽니다. `src/`와 `config.h`도 함께 유지합니다. Arduino IDE에서 Arduino Uno와 해당 USB 포트를 선택하여 검증·업로드합니다. 외부 배선과 구동 전원을 분리하고, ACTUATOR D0/D1도 분리한 상태에서 업로드합니다. 다른 팀원에게 해당 역할 ZIP 전체를 전달하세요.
+ZIP 전체를 풀어 역할 폴더의 `.ino`를 엽니다. `src/`와 config를 함께 보존합니다. 외부 배선·모터 전원을 분리하고 Arduino Uno R3/ATmega328P/16MHz와 해당 포트를 선택해 업로드합니다. **PC 시리얼 모니터는 SLM_UART USB 포트에서9600 baud/Newline**으로 엽니다. MAIN USB는 전원/업로드용이며 영어 입력 콘솔이 아닙니다.
 
-[전체 핀 연결표](PIN_MAP.md)와 [통합 시험 지침](INTEGRATION_CHECKLIST.md)을 따른 뒤 MAIN USB 콘솔만 9600 baud/Newline으로 엽니다. `!status`로 준비와 상태를 확인합니다. 초기 센서 정상 확인 및 출력 OFF ACK가 끝나 READY가 된 뒤 입력합니다. 모터 드라이버는 아직 미정이며 두 선 모터를 Uno 핀에 직접 연결하지 않습니다.
+## 명령 경로
 
-## 명령과 모델
+PC → SLM USART0(D0/D1 USB) → 학습된 full H64 NN·계획 검증 → SLM D3 TX → MAIN D2 RX입니다. MAIN D3 TX → SLM D2 RX로 적용 ACK와 상태를 돌려보냅니다. MAIN 하나가 software UART·I2C master·SPI master를 동시에 운용합니다.
 
-모델은 SLM_SPI의 `src/model/`에 있고 `src/ownengine/adapters/worker.h`가 추론합니다. MAIN에도 토큰화·계획 검증용 모델 자산이 있으나 신경망 점수는 계산 보드에 요청합니다. ADAS에는 모델이 없습니다. 모델은 V245/E16/H64/10 출력의 작은 학습 명령 분류기입니다. 일반 문장 생성 모델은 아닙니다.
+- 전진: `go forward`, `please drive ahead`; 후진: `go backward`, `reverse the car`.
+- 조명: `lights on`, `lights off`; 경적: `horn on`, `horn off`.
+- 다중 명령: `go forward and lights on`, `go forward, lights on, horn on`.
+- 전체 정지: `stop`, `stop everything`. 단독 `stop`은 NN/READY를 우회하는 우선 경로입니다.
+- 와이퍼는 보류입니다. `wipers on/off`가 포함된 계획은 **전체 거절/STOP**, 앞부분도 실행하지 않습니다. 유효 STOP이 있는 계획은 STOP 우선입니다.
+- 방향·ON/OFF 충돌, 어휘 밖 단어, 부정/조건/지원 밖 문법도 전체 거절합니다.
 
-- `please drive ahead`, `go backward`: 전진/후진.
-- `lights on`, `lights off`, `wipers on`, `wipers off`, `horn on`, `horn off`: 각 출력.
-- `go forward and turn on the lights`: 서로 다른 동작을 한 묶음으로 적용.
-- `go forward, lights on, wipers on, horn on`: 최대4개 명시적 명령절.
-- `stop`, `lights on and stop and horn on`: 모든 출력 OFF. STOP이 우선합니다.
-- 충돌하는 방향·ON/OFF, 알 수 없는 단어·문장, 지원 밖 문법은 전체 거절/ALL_STOP합니다.
+전체192 ASCII 바이트/4절, 절마다96바이트/16단어입니다. 구분자는 `and/also/plus`, 쉼표, 세미콜론입니다. 모든 절이 검증된 뒤에만 실행하므로 일부만 먼저 작동하지 않습니다. APPLIED/READY를 기다린 후 다음 일반 명령을 보냅니다. `!status`는 SLM에서 MAIN의 마지막 상태를 보여줍니다. 저장된 모델은 여전히10개 라벨이지만 와이퍼5/6을 운용 정책에서 차단합니다. 모델 재학습은 필요하지 않았습니다.
 
-영어 ASCII 전체192바이트·최대4절, 절마다96바이트·16단어입니다. 구분자는 `and`, `also`, `plus`, 쉼표, 세미콜론입니다. `turn on lights and horn`처럼 동사를 생략한 절, 조건·부정·순차 실행은 지원하지 않습니다. 유사 문장 지원은 학습 어휘와 검증된 표현 범위입니다. 이전 APPLIED를 기다린 뒤 다음 일반 명령을 보내세요.
+## 안전과 상태
 
-## 우선순위와 상태
+HC-SR04는20cm 이하 정지,25cm 이상3회 연속 정상 측정 후 해제,70ms 주기/30ms echo timeout/200ms 초과 stale 정지입니다. ALERT는 ADAS D4 → **MAIN D6 PCINT22 + SPI 보드 D2 INT0** 공통 active LOW 선입니다. MAIN ISR이 두 모터 PWM/방향 출력을 직접 끄고, SPI 보드 ISR이 LED·부저를 직접 끕니다. MAIN의 SPI 처리 완료를 기다리지 않습니다.
 
-ADAS는 부팅·센서 오류·장애물에서 ALERT를 LOW로 만듭니다. MAIN D4의 PCINT는 추론과 대기 명령을 취소합니다. 동시에 ACTUATOR D3의 INT1이 출력 레지스터를 직접 OFF로 차단하므로 MAIN의 UART 완료를 기다리지 않습니다. 짧은 LOW 펄스도 이벤트로 보존합니다.
+해제 뒤 새 STOP epoch의 OFF ACK를 확인하며 이전 명령은 자동 재개하지 않습니다. SLM의 오래된 epoch 계획, MAIN의 오래된 SPI ACK가 주행을 되살리지 못합니다. MAIN은 요청 상태와 적용 확인 상태를 분리하고 변경 시/주기적으로 snapshot을 SLM·ADAS·SPI 보드에 공유합니다. 통신이 끊기거나 센서 상태가 미확인인 경우 주행을 허용하지 않습니다. 와이퍼 상태는 항상0입니다.
 
-HC-SR04 기본은 20cm 이하 정지, 25cm 이상 세 번 연속 정상 측정 후 해제, 70ms 측정 주기, 30ms echo timeout, 200ms 초과 오래된 측정 정지입니다. 해제 뒤에도 이전 동작은 재개하지 않습니다. 새 STOP epoch의 OFF 응답을 확인한 뒤 새 SLM 명령이 필요합니다. 앞 센서 하나를 쓰는 기본 구현은 후진과 부가 출력도 전체 정지합니다.
+모터는 SPI 보드의 같은 session/epoch/명령 ACK를 확인한 뒤 켭니다. 서로 다른 칩의 출력은 전기적으로 원자적인 동시 변경이 아니며 통신 단계가 있습니다. 방향 반전은 먼저 두 모터를 끄고100ms 대기한 다음 부가 출력을 요청합니다. 기본 주행 lease500ms가 끝나면 **두 모터만** 끄고 LED/부저는 유지합니다. STOP/ADAS는 모든 동작 출력을 끕니다. LCD는 안전 상태를 표시하는 정보 출력이며 STOP에서 화면을 소등하지 않습니다.
 
-MAIN은 원하는 상태와 ACTUATOR 응답으로 확인한 출력 상태를 분리합니다. 세션·안전 epoch가 일치하는 ACK/STATUS만 실제 상태 확인으로 인정합니다. 지연 명령·지연 ACK는 이전 동작을 되살리지 못합니다. SLM STOP도 원하는 상태를 전부0으로 변경하고 OFF 응답을 받은 뒤 확인 상태0을 SLM/ADAS에 STATE_SYNC로 공유합니다. 변경 시 및 주기적으로500ms마다 snapshot을 전달합니다. 이것은 네 칩의 순간적인 원자적 공유 메모리가 아니라 통신을 통한 상태 동기화이며 미확인 상태는 known=0으로 표시합니다.
+## LCD와 부저
 
-모터 기본 lease는500ms입니다. 만료되면 주행 상태만0으로 맞추고 조명·와이퍼·경적은 유지합니다. ADAS·STOP은 모든 출력을 끕니다. SourceRegistry는 여러 센서의 위험을 OR하여 합칠 수 있고 새 센서마다 독립 freshness와 fault 정책을 추가해야 합니다.
+확인된 LCD 핀은 GND/VCC/SDA/SCL입니다. LCD를 MAIN의 SPI 선에 직접 연결하지 않습니다. SPI 보드가 MAIN과 SPI로 통신하고, 자기 A4/A5에서 LCD를 로컬 I2C로 구동합니다. MAIN↔ADAS I2C와 **서로 다른 버스**입니다. 기본16×2 HD44780/PCF8574, 주소0x27/표준 backpack 배선을 가정하며 주소0x3F·backpack 핀 매핑은 config에서 변경합니다. LCD의 행/칩/주소는 실제 부품에서 확인해야 합니다.
 
-## 레지스터 구현과 재현
+3핀 부저는 SPI 보드 D3 signal/5V/GND입니다. 능동 부저 기본 설정이고 수동 피에조면 `PERIPHERAL_ACTIVE_BUZZER=0`으로 바꿔1kHz 신호를 사용합니다. S/+/- 인쇄 순서와 모듈 정격을 확인합니다. LED는 D4에 직렬저항을 사용합니다. LCD 문제는 상태에 보고하되 SPI·ALERT 처리를 막지 않도록 timeout과 비차단 갱신을 구현했습니다.
 
-Uno R3/ATmega328P/16MHz 전용입니다. Arduino setup/loop를 사용하며 모든 통신·시간·출력·인터럽트는 AVR 레지스터로 구현합니다. Serial/Wire/SPI/SoftwareSerial/Servo/tone/millis/delay/digitalWrite API는 호출하지 않습니다. MAIN은 USART0 PC, Timer1+INT0 software UART, SPI master, TWI master, Timer0 tick, PCINT20을 함께 운용합니다. ADAS는 Timer1 ICP1으로 echo를 측정합니다.
+[전체 배선표](PIN_MAP.md) · [통합 시험](INTEGRATION_CHECKLIST.md) · [독립 검증](reports/TOPOLOGY4_INDEPENDENT.md)
 
 ```sh
 python3 firmware/tools/test.py
@@ -46,6 +46,6 @@ python3 firmware/tools/build.py
 python3 firmware/tools/package.py
 ```
 
-[독립 검증 보고서](reports/ADAS_INDEPENDENT.md), [현재 빌드 크기](reports/build_sizes.json)를 참고하세요. 호스트 검증과 네 스케치 컴파일을 완료했습니다. 네 실물 보드 배선·파형·모터 동작 및 최대 실행 스택은 아직 측정하지 않았습니다. 기존 연결 보드 펌웨어를 자동 업로드하지 않았습니다. MAIN의 정적 SRAM 여유589바이트는 스택 계측 결과가 아닙니다.
+컴파일·호스트 모델/통신/레지스터 검증을 완료한 코드입니다. 실제 네 보드 연결·LCD/부저 모델 확인·전기 파형·모터 구동 및 실행 스택 최대값은 팀 실물 시험이 필요합니다. 자동 업로드는 하지 않습니다. build_sizes.json의 SRAM 여유는 정적 linker 값입니다.
 
-`compute_i2c/`, `compute_spi/`와 이름이 같은 이전 ZIP은 V4 H32 분산 계산 재현용 기록입니다. 현재 팀 배포 manifest에는 포함되지 않습니다. 변경 전 전체 상태는 `pre-adas-2026-10-10` 태그에 보관되어 있습니다.
+이전 `slm_spi/actuator_uart/compute_i2c/compute_spi`와 이전 이름 ZIP은 재현용 기록입니다. 현재 manifest에는 위 네 역할만 있습니다. `0_web`은 격리된2026-10-12 이전 배치의 설명 snapshot이며 새 핀 배선 기준으로 사용하지 않습니다.

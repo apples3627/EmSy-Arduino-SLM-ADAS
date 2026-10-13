@@ -7,7 +7,7 @@ subprocess.run([sys.executable,str(ROOT/'firmware/tools/prepare.py')],check=True
 cli=os.environ.get('ARDUINO_CLI') or shutil.which('arduino-cli') or '/Applications/Arduino IDE.app/Contents/Resources/app/lib/backend/resources/arduino-cli'
 if not Path(cli).is_file():raise SystemExit('Install Arduino IDE/CLI or set ARDUINO_CLI')
 measure=[]
-for name in ('main','slm_spi','adas_i2c','actuator_uart'):
+for name in ('main','slm_uart','adas_i2c','peripheral_spi'):
     folder=ROOT/'firmware'/name;out=ROOT/'firmware/build'/name;out.mkdir(parents=True,exist_ok=True)
     result=subprocess.run([cli,'compile','--warnings','all','--fqbn','arduino:avr:uno','--build-path',str(out),str(folder)],capture_output=True,text=True)
     (out/'compile.log').write_text(result.stdout+result.stderr)

@@ -5,7 +5,7 @@ import subprocess,sys,zipfile,hashlib,json,re
 ROOT=Path(__file__).resolve().parents[2]
 subprocess.run([sys.executable,str(ROOT/'firmware/tools/prepare.py')],check=True)
 out=ROOT/'firmware/packages';out.mkdir(exist_ok=True);manifest={}
-for role in ('main','slm_spi','adas_i2c','actuator_uart'):
+for role in ('main','slm_uart','adas_i2c','peripheral_spi'):
     folder=ROOT/'firmware'/role;archive=out/(role+'_uno_r3.zip');files=[]
     assert (folder/(role+'.ino')).exists() and (folder/'GUIDE.md').exists()
     start=(f'# {role} 보드 업로드 시작\n\n'
@@ -16,8 +16,10 @@ for role in ('main','slm_spi','adas_i2c','actuator_uart'):
     with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
         for f in sorted(folder.rglob('*')):
             if f.is_file() and f.name!='.DS_Store':
-                path=str(f.relative_to(ROOT/'firmware'));z.write(f,path)
-                files.append({'path':path,'sha256':hashlib.sha256(f.read_bytes()).hexdigest()})
+                path=str(f.relative_to(ROOT/'firmware'));data=f.read_bytes()
+                if f.name=='GUIDE.md':data=data.replace(b'(../PIN_MAP.md)',b'(PIN_MAP.md)').replace(b'(../INTEGRATION_CHECKLIST.md)',b'(INTEGRATION_CHECKLIST.md)')
+                z.writestr(path,data)
+                files.append({'path':path,'sha256':hashlib.sha256(data).hexdigest()})
         for name in ('PIN_MAP.md','INTEGRATION_CHECKLIST.md'):
             f=ROOT/'firmware'/name;path=role+'/'+name;z.write(f,path)
             files.append({'path':path,'sha256':hashlib.sha256(f.read_bytes()).hexdigest()})

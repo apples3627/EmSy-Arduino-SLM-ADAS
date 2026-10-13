@@ -4,18 +4,15 @@ from pathlib import Path
 import subprocess,sys,tempfile,re
 ROOT=Path(__file__).resolve().parents[2]
 subprocess.run([sys.executable,str(ROOT/'firmware/tools/prepare.py')],check=True)
-for script in ('slm_full_host_test.py','adas_nodes_host_test.py'):
- subprocess.run([sys.executable,str(ROOT/'firmware/tests'/script)],cwd=ROOT,check=True)
-subprocess.run([sys.executable,str(ROOT/'firmware/verification/adas/run.py')],cwd=ROOT,check=True)
+subprocess.run([sys.executable,str(ROOT/'firmware/tests/topology_slm_uart_host_test.py')],cwd=ROOT,check=True)
 with tempfile.TemporaryDirectory() as td:
- exe=Path(td)/'arbiter_main'
- subprocess.run(['c++','-std=c++17','-O2','-Wall','-Wextra','-Werror','-I'+str(ROOT/'firmware/tests/main_fake_avr'),str(ROOT/'firmware/tests/adas_arbiter_main_test.cpp'),str(ROOT/'firmware/tests/adas_arbiter_bridge.cpp'),'-o',str(exe)],check=True)
- subprocess.run([str(exe)],check=True)
- exe=Path(td)/'arbiter_actor'
- subprocess.run(['c++','-std=c++17','-O2','-Wall','-Wextra','-Werror','-I'+str(ROOT/'firmware/tests/main_fake_avr'),str(ROOT/'firmware/tests/adas_arbiter_actuator_register_test.cpp'),'-o',str(exe)],check=True)
- subprocess.run([str(exe)],check=True)
+ for name in ('engine','lcd','register'):
+  exe=Path(td)/name
+  cmd=['c++','-std=c++17','-O2','-Wall','-Wextra','-Werror','-I'+str(ROOT/'firmware/tests/topology_peripheral_fake_avr'),str(ROOT/f'firmware/tests/topology_peripheral_{name}_test.cpp'),'-o',str(exe)]
+  subprocess.run(cmd,check=True);subprocess.run([str(exe)],check=True)
+subprocess.run([sys.executable,str(ROOT/'firmware/verification/topology4/run.py')],cwd=ROOT,check=True)
 patterns=[r'\b(?:Serial|Wire|SPI)\s*\.',r'\b(?:digitalWrite|digitalRead|analogWrite|analogRead|millis|micros|delay|delayMicroseconds|tone|noTone)\s*\(',r'#\s*include\s*[<"](?:Servo|SoftwareSerial|Wire|SPI)\.h']
-for role in ('main','slm_spi','adas_i2c','actuator_uart'):
+for role in ('main','slm_uart','adas_i2c','peripheral_spi'):
  for p in (ROOT/'firmware'/role).rglob('*'):
   if p.suffix not in ('.h','.cpp','.ino') or 'model' in p.parts:continue
   s=p.read_text();s=re.sub(r'/\*.*?\*/|//[^\n]*','',s,flags=re.S)

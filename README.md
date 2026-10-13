@@ -1,3 +1,9 @@
+# 현재 정본 — PC → SLM_UART → MAIN, L298N 두 모터
+
+2026-10-13 수정본은 **[현재 네 보드 코드/배포 가이드](firmware/README.md)**와 **[현재 핀 연결표](firmware/PIN_MAP.md)**를 사용합니다. MAIN이두모터, ADAS가초음파, SPI보드가LCD/LED/부저를담당하며와이퍼는보류입니다. 아래 이전본문과0_web은이전배치기록입니다.
+
+---
+
 # 현재 프로젝트: 영어 SLM + 초음파 ADAS 자동차 제어
 
 최신 네 Uno 구성은 MAIN + SLM_SPI + ADAS_I2C + ACTUATOR_UART입니다. **[현재 코드·담당자 업로드 가이드](firmware/README.md)**, **[핀 연결표](firmware/PIN_MAP.md)**, **[ADAS 독립 검증](firmware/reports/ADAS_INDEPENDENT.md)**를 먼저 읽으세요. 기존 H32 분산 구조와 문장 생성 예제는 아래 이전 기록이며 현재 팀 배포와 다릅니다.
