@@ -5,7 +5,7 @@ import argparse, hashlib, json, os, re, shutil, subprocess, tempfile, zipfile
 
 HERE = Path(__file__).resolve().parent
 p = argparse.ArgumentParser()
-p.add_argument('--source-root', type=Path, required=True)
+p.add_argument('--source-root', type=Path, default=HERE.parents[2])
 p.add_argument('--build-uno', action='store_true')
 p.add_argument('--verify-packages', action='store_true')
 a = p.parse_args()
@@ -112,7 +112,10 @@ with tempfile.TemporaryDirectory(prefix='topology4-independent-') as d:
                     assert hashlib.sha256(data).hexdigest()==item['sha256']
                     relative = Path(name).relative_to(board)
                     if (src/'firmware'/name).is_file():
-                        assert data==(src/'firmware'/name).read_bytes()
+                        expected = (src/'firmware'/name).read_bytes()
+                        if relative == Path('GUIDE.md'):
+                            expected = expected.replace(b'(../PIN_MAP.md)',b'(PIN_MAP.md)').replace(b'(../INTEGRATION_CHECKLIST.md)',b'(INTEGRATION_CHECKLIST.md)')
+                        assert data==expected, name
                     target = extracted/relative
                     target.parent.mkdir(parents=True,exist_ok=True)
                     target.write_bytes(data)
@@ -130,5 +133,7 @@ with tempfile.TemporaryDirectory(prefix='topology4-independent-') as d:
             print('package',board,result['exit_code'],flush=True)
 results['passed'] = all(r['exit_code']==0 for r in results['host_tests']) and (not a.build_uno or all(r['exit_code']==0 and r.get('limits_pass',False) for r in results['builds']))
 results['passed'] = results['passed'] and (not a.verify_packages or len(results['packages'])==4 and all(r['exit_code']==0 for r in results['packages']))
+results['source_files_stable'] = all((src/name).is_file() and hashlib.sha256((src/name).read_bytes()).hexdigest()==digest for name,digest in results['source_files_sha256'].items())
+results['passed'] = results['passed'] and results['source_files_stable']
 (HERE/'results.json').write_text(json.dumps(results,indent=2)+'\n')
 raise SystemExit(0 if results['passed'] else 1)

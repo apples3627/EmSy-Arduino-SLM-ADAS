@@ -1,6 +1,6 @@
 {
   "source_root": "/Users/jiseonpark/Desktop/EmSy/LLM",
-  "source_commit": "654c3455b85a3e5e8e4e6d010f17746436314c4b",
+  "source_commit": "21057b26c632ac5246325c8e14c1abc1c2522bcd",
   "scenario_seal": {
     "sha256": "31f4ad4d8aa078617e25d23e1d76542ddf8d229dc709575ed63b41b582310a28",
     "before_source_review": true
@@ -9,7 +9,7 @@
   "host_tests": [
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-n9kxmr_r/protocol_contract"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/protocol_contract"
       ],
       "exit_code": 0,
       "output": "PASS protocol4 metadata, observed state and repeated framed-link parsing\n",
@@ -17,7 +17,7 @@
     },
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-n9kxmr_r/main_contract"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/main_contract"
       ],
       "exit_code": 0,
       "output": "PASS actual MAIN register gating: two PWM enables, both direction pairs, independent D8 CS/D10 SS, Timer0/1/2 separation and sticky ALERT ISR\n",
@@ -25,7 +25,7 @@
     },
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-n9kxmr_r/peripheral_contract"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/peripheral_contract"
       ],
       "exit_code": 0,
       "output": "PASS actual peripheral engine: whole-plan validation, STOP dominance, snapshots, epochs, sticky safety and LCD diagnostic\n",
@@ -33,7 +33,7 @@
     },
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-n9kxmr_r/peripheral_register_contract"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/peripheral_register_contract"
       ],
       "exit_code": 0,
       "output": "PASS actual peripheral ISR registers: sticky pulse, recovery STOP, active/passive buzzer and LCD timeout with SPI alive\n",
@@ -41,7 +41,7 @@
     },
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-n9kxmr_r/peripheral_register_contract"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/peripheral_register_contract"
       ],
       "exit_code": 0,
       "output": "PASS actual peripheral ISR registers: sticky pulse, recovery STOP, active/passive buzzer and LCD timeout with SPI alive\n",
@@ -49,7 +49,15 @@
     },
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-n9kxmr_r/slm_contract"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/lcd_display_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS actual LCD expander output: matching known drive, immediate local accessories, inhibited/old-epoch drive unknown\n",
+      "name": "lcd_display_contract"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/slm_contract"
       ],
       "exit_code": 0,
       "output": "PASS actual SLM full NN (50 golden evaluations), STOP/guard/wiper planner, UART framing and epoch cancellation\n",
@@ -57,7 +65,7 @@
     },
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-n9kxmr_r/adas_contract"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/adas_contract"
       ],
       "exit_code": 0,
       "output": "PASS ADAS policy 33 assertions\n",
@@ -65,7 +73,7 @@
     },
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-n9kxmr_r/adas_capture_contract"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/adas_capture_contract"
       ],
       "exit_code": 0,
       "output": "PASS actual capture ISR: wrap, pending overflow, ignored unarmed edge, 10us trigger, stuck-high refusal\n",
@@ -73,13 +81,236 @@
     },
     {
       "command": [
-        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-n9kxmr_r/actual_peer_integration"
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/adas_board_contract"
+      ],
+      "exit_code": 0,
+      "output": "PASS actual ADAS board: open-drain gate, timeout 29/30ms, role/status invalid range, snapshots, immutable transmit buffer\n",
+      "name": "adas_board_contract"
+    },
+    {
+      "command": [
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/actual_peer_integration"
       ],
       "exit_code": 0,
       "output": "PASS actual MAIN + SLM + peripheral engines: matching ACK, old ACK/epoch, STOP snapshots, 100ms reversal, 500ms lease, sticky pulse and link failure\n",
       "name": "actual_peer_integration"
     }
   ],
-  "builds": [],
-  "passed": true
+  "builds": [
+    {
+      "command": [
+        "/Applications/Arduino IDE.app/Contents/Resources/app/lib/backend/resources/arduino-cli",
+        "compile",
+        "--warnings",
+        "all",
+        "--fqbn",
+        "arduino:avr:uno",
+        "--build-path",
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/main",
+        "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/main"
+      ],
+      "exit_code": 0,
+      "output": "Sketch uses 10266 bytes (31%) of program storage space. Maximum is 32256 bytes.\nGlobal variables use 753 bytes (36%) of dynamic memory, leaving 1295 bytes for local variables. Maximum is 2048 bytes.\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void* operator new(std::size_t, std::nothrow_t)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:59:60: warning: unused parameter 'tag' [-Wunused-parameter]\n void * operator new(std::size_t size, const std::nothrow_t tag) noexcept {\n                                                            ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void* operator new [](std::size_t, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:68:63: warning: unused parameter 'tag' [-Wunused-parameter]\n void * operator new[](std::size_t size, const std::nothrow_t& tag) noexcept {\n                                                               ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void operator delete(void*, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:103:55: warning: unused parameter 'tag' [-Wunused-parameter]\n void operator delete(void* ptr, const std::nothrow_t& tag) noexcept {\n                                                       ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void operator delete [](void*, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:106:57: warning: unused parameter 'tag' [-Wunused-parameter]\n void operator delete[](void* ptr, const std::nothrow_t& tag) noexcept {\n                                                         ^~~\n",
+      "board": "main",
+      "flash_bytes": 10266,
+      "static_sram_bytes": 753,
+      "static_sram_spare": 1295,
+      "limits_pass": true
+    },
+    {
+      "command": [
+        "/Applications/Arduino IDE.app/Contents/Resources/app/lib/backend/resources/arduino-cli",
+        "compile",
+        "--warnings",
+        "all",
+        "--fqbn",
+        "arduino:avr:uno",
+        "--build-path",
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/slm_uart",
+        "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/slm_uart"
+      ],
+      "exit_code": 0,
+      "output": "Sketch uses 21354 bytes (66%) of program storage space. Maximum is 32256 bytes.\nGlobal variables use 1299 bytes (63%) of dynamic memory, leaving 749 bytes for local variables. Maximum is 2048 bytes.\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void* operator new(std::size_t, std::nothrow_t)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:59:60: warning: unused parameter 'tag' [-Wunused-parameter]\n void * operator new(std::size_t size, const std::nothrow_t tag) noexcept {\n                                                            ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void* operator new [](std::size_t, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:68:63: warning: unused parameter 'tag' [-Wunused-parameter]\n void * operator new[](std::size_t size, const std::nothrow_t& tag) noexcept {\n                                                               ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void operator delete(void*, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:103:55: warning: unused parameter 'tag' [-Wunused-parameter]\n void operator delete(void* ptr, const std::nothrow_t& tag) noexcept {\n                                                       ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void operator delete [](void*, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:106:57: warning: unused parameter 'tag' [-Wunused-parameter]\n void operator delete[](void* ptr, const std::nothrow_t& tag) noexcept {\n                                                         ^~~\n",
+      "board": "slm_uart",
+      "flash_bytes": 21354,
+      "static_sram_bytes": 1299,
+      "static_sram_spare": 749,
+      "limits_pass": true
+    },
+    {
+      "command": [
+        "/Applications/Arduino IDE.app/Contents/Resources/app/lib/backend/resources/arduino-cli",
+        "compile",
+        "--warnings",
+        "all",
+        "--fqbn",
+        "arduino:avr:uno",
+        "--build-path",
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/adas_i2c",
+        "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/adas_i2c"
+      ],
+      "exit_code": 0,
+      "output": "Sketch uses 3984 bytes (12%) of program storage space. Maximum is 32256 bytes.\nGlobal variables use 291 bytes (14%) of dynamic memory, leaving 1757 bytes for local variables. Maximum is 2048 bytes.\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void* operator new(std::size_t, std::nothrow_t)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:59:60: warning: unused parameter 'tag' [-Wunused-parameter]\n void * operator new(std::size_t size, const std::nothrow_t tag) noexcept {\n                                                            ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void* operator new [](std::size_t, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:68:63: warning: unused parameter 'tag' [-Wunused-parameter]\n void * operator new[](std::size_t size, const std::nothrow_t& tag) noexcept {\n                                                               ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void operator delete(void*, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:103:55: warning: unused parameter 'tag' [-Wunused-parameter]\n void operator delete(void* ptr, const std::nothrow_t& tag) noexcept {\n                                                       ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void operator delete [](void*, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:106:57: warning: unused parameter 'tag' [-Wunused-parameter]\n void operator delete[](void* ptr, const std::nothrow_t& tag) noexcept {\n                                                         ^~~\n",
+      "board": "adas_i2c",
+      "flash_bytes": 3984,
+      "static_sram_bytes": 291,
+      "static_sram_spare": 1757,
+      "limits_pass": true
+    },
+    {
+      "command": [
+        "/Applications/Arduino IDE.app/Contents/Resources/app/lib/backend/resources/arduino-cli",
+        "compile",
+        "--warnings",
+        "all",
+        "--fqbn",
+        "arduino:avr:uno",
+        "--build-path",
+        "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/peripheral_spi",
+        "/Users/jiseonpark/Desktop/EmSy/LLM/firmware/peripheral_spi"
+      ],
+      "exit_code": 0,
+      "output": "Sketch uses 6296 bytes (19%) of program storage space. Maximum is 32256 bytes.\nGlobal variables use 448 bytes (21%) of dynamic memory, leaving 1600 bytes for local variables. Maximum is 2048 bytes.\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void* operator new(std::size_t, std::nothrow_t)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:59:60: warning: unused parameter 'tag' [-Wunused-parameter]\n void * operator new(std::size_t size, const std::nothrow_t tag) noexcept {\n                                                            ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void* operator new [](std::size_t, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:68:63: warning: unused parameter 'tag' [-Wunused-parameter]\n void * operator new[](std::size_t size, const std::nothrow_t& tag) noexcept {\n                                                               ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void operator delete(void*, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:103:55: warning: unused parameter 'tag' [-Wunused-parameter]\n void operator delete(void* ptr, const std::nothrow_t& tag) noexcept {\n                                                       ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void operator delete [](void*, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:106:57: warning: unused parameter 'tag' [-Wunused-parameter]\n void operator delete[](void* ptr, const std::nothrow_t& tag) noexcept {\n                                                         ^~~\n",
+      "board": "peripheral_spi",
+      "flash_bytes": 6296,
+      "static_sram_bytes": 448,
+      "static_sram_spare": 1600,
+      "limits_pass": true
+    }
+  ],
+  "packages": [
+    {
+      "board": "main",
+      "exit_code": 0,
+      "archive_sha256": "db187fc484dd69c340ad1be89970230dd057e2dcb577cc899e0fc9e586bdebd9",
+      "file_count": 11,
+      "standalone_includes": true,
+      "build": {
+        "command": [
+          "/Applications/Arduino IDE.app/Contents/Resources/app/lib/backend/resources/arduino-cli",
+          "compile",
+          "--warnings",
+          "all",
+          "--fqbn",
+          "arduino:avr:uno",
+          "--build-path",
+          "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/package-build-main",
+          "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/packages/main"
+        ],
+        "exit_code": 0,
+        "output": "Sketch uses 10266 bytes (31%) of program storage space. Maximum is 32256 bytes.\nGlobal variables use 753 bytes (36%) of dynamic memory, leaving 1295 bytes for local variables. Maximum is 2048 bytes.\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void* operator new(std::size_t, std::nothrow_t)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:59:60: warning: unused parameter 'tag' [-Wunused-parameter]\n void * operator new(std::size_t size, const std::nothrow_t tag) noexcept {\n                                                            ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void* operator new [](std::size_t, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:68:63: warning: unused parameter 'tag' [-Wunused-parameter]\n void * operator new[](std::size_t size, const std::nothrow_t& tag) noexcept {\n                                                               ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void operator delete(void*, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:103:55: warning: unused parameter 'tag' [-Wunused-parameter]\n void operator delete(void* ptr, const std::nothrow_t& tag) noexcept {\n                                                       ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void operator delete [](void*, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:106:57: warning: unused parameter 'tag' [-Wunused-parameter]\n void operator delete[](void* ptr, const std::nothrow_t& tag) noexcept {\n                                                         ^~~\n"
+      }
+    },
+    {
+      "board": "slm_uart",
+      "exit_code": 0,
+      "archive_sha256": "373db7883f27ead91e1c333a399342e8e28f187514acf2b13a50f460156abdea",
+      "file_count": 17,
+      "standalone_includes": true,
+      "build": {
+        "command": [
+          "/Applications/Arduino IDE.app/Contents/Resources/app/lib/backend/resources/arduino-cli",
+          "compile",
+          "--warnings",
+          "all",
+          "--fqbn",
+          "arduino:avr:uno",
+          "--build-path",
+          "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/package-build-slm_uart",
+          "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/packages/slm_uart"
+        ],
+        "exit_code": 0,
+        "output": "Sketch uses 21354 bytes (66%) of program storage space. Maximum is 32256 bytes.\nGlobal variables use 1299 bytes (63%) of dynamic memory, leaving 749 bytes for local variables. Maximum is 2048 bytes.\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void* operator new(std::size_t, std::nothrow_t)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:59:60: warning: unused parameter 'tag' [-Wunused-parameter]\n void * operator new(std::size_t size, const std::nothrow_t tag) noexcept {\n                                                            ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void* operator new [](std::size_t, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:68:63: warning: unused parameter 'tag' [-Wunused-parameter]\n void * operator new[](std::size_t size, const std::nothrow_t& tag) noexcept {\n                                                               ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void operator delete(void*, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:103:55: warning: unused parameter 'tag' [-Wunused-parameter]\n void operator delete(void* ptr, const std::nothrow_t& tag) noexcept {\n                                                       ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void operator delete [](void*, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:106:57: warning: unused parameter 'tag' [-Wunused-parameter]\n void operator delete[](void* ptr, const std::nothrow_t& tag) noexcept {\n                                                         ^~~\n"
+      }
+    },
+    {
+      "board": "adas_i2c",
+      "exit_code": 0,
+      "archive_sha256": "9ee1196b8b325499b92ecafd62aa892c103946ad14f38d8108c83360f26d5c43",
+      "file_count": 13,
+      "standalone_includes": true,
+      "build": {
+        "command": [
+          "/Applications/Arduino IDE.app/Contents/Resources/app/lib/backend/resources/arduino-cli",
+          "compile",
+          "--warnings",
+          "all",
+          "--fqbn",
+          "arduino:avr:uno",
+          "--build-path",
+          "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/package-build-adas_i2c",
+          "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/packages/adas_i2c"
+        ],
+        "exit_code": 0,
+        "output": "Sketch uses 3984 bytes (12%) of program storage space. Maximum is 32256 bytes.\nGlobal variables use 291 bytes (14%) of dynamic memory, leaving 1757 bytes for local variables. Maximum is 2048 bytes.\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void* operator new(std::size_t, std::nothrow_t)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:59:60: warning: unused parameter 'tag' [-Wunused-parameter]\n void * operator new(std::size_t size, const std::nothrow_t tag) noexcept {\n                                                            ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void* operator new [](std::size_t, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:68:63: warning: unused parameter 'tag' [-Wunused-parameter]\n void * operator new[](std::size_t size, const std::nothrow_t& tag) noexcept {\n                                                               ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void operator delete(void*, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:103:55: warning: unused parameter 'tag' [-Wunused-parameter]\n void operator delete(void* ptr, const std::nothrow_t& tag) noexcept {\n                                                       ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void operator delete [](void*, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:106:57: warning: unused parameter 'tag' [-Wunused-parameter]\n void operator delete[](void* ptr, const std::nothrow_t& tag) noexcept {\n                                                         ^~~\n"
+      }
+    },
+    {
+      "board": "peripheral_spi",
+      "exit_code": 0,
+      "archive_sha256": "c87cb4b155d87855c17dc6d3a7d1138640fd4fe071dd3f2ab50724da28fcfeb7",
+      "file_count": 11,
+      "standalone_includes": true,
+      "build": {
+        "command": [
+          "/Applications/Arduino IDE.app/Contents/Resources/app/lib/backend/resources/arduino-cli",
+          "compile",
+          "--warnings",
+          "all",
+          "--fqbn",
+          "arduino:avr:uno",
+          "--build-path",
+          "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/package-build-peripheral_spi",
+          "/var/folders/6b/8rqrv4kd7wb3w6cy78dn1vv00000gn/T/topology4-independent-ihv1436h/packages/peripheral_spi"
+        ],
+        "exit_code": 0,
+        "output": "Sketch uses 6296 bytes (19%) of program storage space. Maximum is 32256 bytes.\nGlobal variables use 448 bytes (21%) of dynamic memory, leaving 1600 bytes for local variables. Maximum is 2048 bytes.\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void* operator new(std::size_t, std::nothrow_t)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:59:60: warning: unused parameter 'tag' [-Wunused-parameter]\n void * operator new(std::size_t size, const std::nothrow_t tag) noexcept {\n                                                            ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void* operator new [](std::size_t, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:68:63: warning: unused parameter 'tag' [-Wunused-parameter]\n void * operator new[](std::size_t size, const std::nothrow_t& tag) noexcept {\n                                                               ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void operator delete(void*, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:103:55: warning: unused parameter 'tag' [-Wunused-parameter]\n void operator delete(void* ptr, const std::nothrow_t& tag) noexcept {\n                                                       ^~~\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp: In function 'void operator delete [](void*, const std::nothrow_t&)':\n/Users/jiseonpark/Library/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/new.cpp:106:57: warning: unused parameter 'tag' [-Wunused-parameter]\n void operator delete[](void* ptr, const std::nothrow_t& tag) noexcept {\n                                                         ^~~\n"
+      }
+    }
+  ],
+  "source_files_sha256": {
+    "firmware/main/.DS_Store": "f230fe64f798b6352526d97a8aac10b4eaa946b679fd2fd67571166f31cb97d9",
+    "firmware/main/GUIDE.md": "e1141e40efc6aa0baae74d1c3f96db9eee29bfd83a0e985f0c78fb064cfa6055",
+    "firmware/main/main.ino": "6fab0449c9385b8a5ea4fdab8f10fd1573d61bc745abd6b3242ee7f88f725f8a",
+    "firmware/main/src/board_app.h": "78e66c7df4d4a1e97b9963e3e54e0db4a1dbb967f41d04aa39a4f44fd200678f",
+    "firmware/main/src/board_config.h": "0da472d0d29eb8bf923ad1321525ccf78b6dc089da61f811d26500dd580d2ae5",
+    "firmware/main/src/compute_links.h": "95de83d621ae920c2d63e34500c0dd2eb01bf28a084faab36cf4b8974620992a",
+    "firmware/main/src/control_engine.h": "6a5cfd3bd9a5577c817bbf1ac1b9280420ad61313e6e5ae78f6399e5ac944fe3",
+    "firmware/main/src/protocol.h": "2c708397c56f63386c8a4d08cd490bc658431b54767db796c8260801d7783a51",
+    "firmware/main/src/register_io.h": "522617459bca4109b8738e9e50b9587fe8c3de4fa3a379a9d9611eea32c9a72e",
+    "firmware/slm_uart/GUIDE.md": "be42ec1f38b17d3e8000c36cd6c7f770d16f463900a0bcb1de54c5b37cded98d",
+    "firmware/slm_uart/slm_uart.ino": "cf4d4ab96c998594f418e4d64d1ea582f4e8800f5464dfa75dec76f78f7d4901",
+    "firmware/slm_uart/src/board_app.h": "06e6e72d4e566a721a60cdd51d498ba5081816b8bad6a3f64a086d99eab6dbae",
+    "firmware/slm_uart/src/model/command_plan.h": "3b07200666436b3e76e30afdad59449950407d151881b12cc0a87d74683b28cd",
+    "firmware/slm_uart/src/model/generated/config.h": "edf3d3c00c0a096a80d826b5df574e1a01fdf6d9b6ad73cc56c541ff9a3bd142",
+    "firmware/slm_uart/src/model/generated/main_bias.h": "2d3f9bfa1ec1dab35f3667007ed7d2870c071a2a93c0084cd52954f51089cce8",
+    "firmware/slm_uart/src/model/generated/model_full.h": "930b0afacc6842799c52b2ca41b7f78504f9c05ef520ca9790522f47d3424f01",
+    "firmware/slm_uart/src/model/generated/model_i2c.h": "4d8c3f230e7904a56082f3b244c43ed81852058e4af0de214915af3964e33c31",
+    "firmware/slm_uart/src/model/generated/model_spi.h": "55aa2ce676d07a43d0359350dd6c01ca954fe1b9d3fa52759d19b8b2692b3095",
+    "firmware/slm_uart/src/model/intent_model.h": "7b95cf726ddfdb1bdeee35bb05d32c649c54899e06e8f9b5609f64bbb36e7b98",
+    "firmware/slm_uart/src/planner.h": "cb016ba7661985c8238a55cbacdc6921fd33e704a84f86d15841bab0a40a6180",
+    "firmware/slm_uart/src/protocol.h": "2c708397c56f63386c8a4d08cd490bc658431b54767db796c8260801d7783a51",
+    "firmware/slm_uart/src/register_io.h": "16cac7d12f0b33e9e189a5261a11360386e2b437598aecbf57d76ae788d85550",
+    "firmware/slm_uart/src/session.h": "73f56ba215637659a78f3214bf6f6994960de108defd6910d495d166a6f41bea",
+    "firmware/adas_i2c/GUIDE.md": "94b1b2385b48f5ac5a3a97e5134572be30147f844578ab22045e01dddfde636b",
+    "firmware/adas_i2c/adas_i2c.ino": "12711001d9e32c76d3fa2e8a5a25077206c632d610591f6d999f4034b6b8d4dc",
+    "firmware/adas_i2c/config.h": "b55238c727635ea21d6629907ad099cd3f5bbbdeb91f4f32a3d191513dfdafbe",
+    "firmware/adas_i2c/src/ownengine/adapters/board_app.h": "7be6bd0ba1db91f5885d3a5d1d20e952e9857eb2268ff2ad1da66a1d0c76b4f2",
+    "firmware/adas_i2c/src/ownengine/adapters/capture.h": "99d7ce0221fb1f0b38187508d6d3927e82a35de3ab5bf599ca90a8e22c351363",
+    "firmware/adas_i2c/src/ownengine/adapters/policy.h": "f32d591eec838823985d670775dfa5ccd52d2214f425db8302448106b0a8c4d6",
+    "firmware/adas_i2c/src/ownengine/adapters/snapshot.h": "4cadd2c1d8981eb39a8a58f3904dcb93d15fc243ef1e549a61105c620e57730c",
+    "firmware/adas_i2c/src/ownengine/adapters/transport.h": "2ddae3598da00993369522f406fd48e197343a8edefc45a4ef835846381483ae",
+    "firmware/adas_i2c/src/ownengine/adapters/worker.h": "63fa8dba5992f4d99887255ba49c138f124b97b3d299b4ba58dc49172cdf0665",
+    "firmware/adas_i2c/src/protocol.h": "2c708397c56f63386c8a4d08cd490bc658431b54767db796c8260801d7783a51",
+    "firmware/peripheral_spi/GUIDE.md": "f196650e0597a6faca843b81f1fd5660f59ac1ab2785b79edd87841d13cd2229",
+    "firmware/peripheral_spi/config.h": "20732db99fc21b8d46c43a0e924bcf97bbeaa6987f18fe07bed2ab18e7df989a",
+    "firmware/peripheral_spi/peripheral_spi.ino": "fd4132a3f06b2beab25ca5babdc3756a240ff774f1dd8e9b0b9afe51cc81e1be",
+    "firmware/peripheral_spi/src/board_app.h": "2cc414cf7a7e079975f80185cac720f2c92e6d67d809ee0d38809ccc6c452346",
+    "firmware/peripheral_spi/src/engine.h": "a57aadf40f796f471736b4cdee2123618027b542f328b2ef1ae9f3652081b974",
+    "firmware/peripheral_spi/src/lcd.h": "922c03fb189e8244755fa242e00ab07cf646612939c01022c45b25284dfc056d",
+    "firmware/peripheral_spi/src/protocol.h": "2c708397c56f63386c8a4d08cd490bc658431b54767db796c8260801d7783a51",
+    "firmware/peripheral_spi/src/transport.h": "a137de7bd0fba844c7306c115ea84bdefdd87e8464b11fe7a88a872a4351c732"
+  },
+  "passed": true,
+  "source_files_stable": true
 }
