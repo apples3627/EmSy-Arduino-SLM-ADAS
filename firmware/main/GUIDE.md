@@ -12,7 +12,7 @@ STOP_ALL은 주변 보드 연결 여부와 무관하게 즉시 MAIN 모터와 de
 
 Protocol5 SPI 순서는 HELLO → SAFETY_POLICY(모드 및 현재 epoch, ACK2) → **정책보다 엄격히 새 epoch의 STOP_ALL** → 출력 명령입니다. ADAS 모드 변경도 OFF·정책·STOP 장벽 뒤에 부가장치를 다시 사용할 수 있습니다. SENSOR_TELEMETRY는 session/epoch/sampleId/실제 rangeMm/age/flags/mode를 전달합니다. 거리20~4000mm의 신선한 측정만 FRESH로 게시하며 미연결·고장·오래된 거리는 `0xffff`로 표시합니다. SLM이 끊겨도 SPI의 상태·snapshot·약100ms 목표 거리 갱신을 순환 서비스하므로 LCD가 현재 모드를 표시할 수 있습니다. 버스 전송이 느리면 실제 갱신 간격은 늘어납니다.
 
-actorFlags는 bit0 반전 대기, bit2 ACTIVE ADAS 정지, bit3 UART/시작 차단, bit4 명령 진행 중, bit5 AUX_AVAILABLE, bit6 ADAS_ACTIVE, bit7 ADAS_BYPASS입니다. 일반 전진·후진 명령은 duration=0으로 STOP 또는 안전/통신 취소까지 유지합니다. 반전 대기100ms이며 기본 PWM은180/255(약71%)로 두 채널을 함께 제어합니다. 0보다 큰 duration을 직접 지정하는 프레임은 기존처럼 최대1000ms의 유한 주행입니다. 부가 출력만 바꾸는 명령은 기존 주행 시간을 갱신하지 않습니다. `INVERT_MOTOR_A/B`는 설치 방향에 맞춰 설정합니다. appliedKnown은 MAIN 출력과 연결된 SPI ACK의 적용 확인이며 실제 바퀴 측정이 아닙니다.
+actorFlags는 bit0 반전 대기, bit2 ACTIVE ADAS 정지, bit3 UART/시작 차단, bit4 명령 진행 중, bit5 AUX_AVAILABLE, bit6 ADAS_ACTIVE, bit7 ADAS_BYPASS입니다. 일반 전진·후진 명령은 duration=0으로 STOP 또는 안전/통신 취소까지 유지합니다. 반전 대기100ms이며 기본 PWM은255/255(100%)로 두 채널을 함께 제어합니다. 0보다 큰 duration을 직접 지정하는 프레임은 기존처럼 최대1000ms의 유한 주행입니다. 부가 출력만 바꾸는 명령은 기존 주행 시간을 갱신하지 않습니다. `INVERT_MOTOR_A/B`는 설치 방향에 맞춰 설정합니다. appliedKnown은 MAIN 출력과 연결된 SPI ACK의 적용 확인이며 실제 바퀴 측정이 아닙니다.
 
 [전체 핀 연결표](../PIN_MAP.md)의 현재 구성만 사용합니다. D2 RX/D3 TX→SLM 교차 UART, D6 ALERT, A4/A5→ADAS, D8 CS→SPI 보드D10, D11~13 SPI입니다. L298N IN1 D4/IN2 D7/IN3 A0/IN4 A1/ENA D9/ENB D10입니다. MAIN D10과 SPI 보드 D10을 연결하지 않습니다. Timer0 tick, Timer1 두 PWM, Timer2 soft UART를 분리했고 SPI 선택은 D8입니다. D10은 ENB 출력으로 유지합니다.
 
@@ -30,6 +30,10 @@ Arduino CLI Uno 컴파일도 확인하며 MAIN SRAM 예산은1536바이트 이�
 
 ## 전진 로그는 정상인데 모터에서 소리만 나는 경우
 
-`RESULT raw=0 effective=0`, `APPLIED drive=1 horn=0`이면 전진으로 처리된 상태이며 피에조 경적 명령은 아닙니다. 기존 약30% PWM/500ms 구동에서는 출발 토크가 부족할 수 있어 이번 기본값을180/255로 변경하고 일반 주행을 지속하도록 수정했습니다. PWM 주파수 약977Hz는 그대로이며 모터/드라이버에서 들리는 소리만으로 고장을 확정하지 않습니다. MAIN+SLM을 새 코드로 업로드합니다.
+`RESULT raw=0 effective=0`, `APPLIED drive=1 horn=0`이면 전진으로 처리된 상태이며 피에조 경적 명령은 아닙니다. 기존 약30% PWM/500ms 구동에서는 출발 토크가 부족할 수 있어 이번 기본값을255/255로 변경하고 일반 주행을 지속하도록 수정했습니다. PWM 주파수 약977Hz는 그대로이며 모터/드라이버에서 들리는 소리만으로 고장을 확정하지 않습니다. MAIN+SLM을 새 코드로 업로드합니다.
 
 소리만 계속 나면 모터 동작 중 L298N 모터전원과 OUT 전압, ENA/ENB PWM, 네 방향 입력을 확인합니다. 외부 모터전원·드라이버 전압강하·공급 전류·부하에 따라 출력 신호가 정상이어도 모터가 출발하지 못할 수 있습니다. MOTOR_DUTY는 board_config.h에서 조정하며 실제 모터 공급과 정격에 맞춥니다. 소프트웨어 drive=1은 실제 회전 측정이 아닙니다.
+
+## 최대 출력 설정
+
+현재 MOTOR_DUTY=255로 ENA/ENB 모두100% 출력입니다. 지속 주행 수정본이 이미 업로드됐다면 이번 변경은 MAIN만 재업로드합니다. 실제 회전 속도는 모터전원과 부하에 따라 달라집니다. STOP·정상 ADAS 정지·통신 단절 정지와 방향 반전 대기는 유지합니다.

@@ -5,11 +5,11 @@
   "boards": {
     "main": {
       "archive": "main_uno_r3.zip",
-      "sha256": "1f8f65058ccbb348c9e470728fde57bbfef870562ae318d349449bd4eb95ffd5",
+      "sha256": "be05d1727ef26ab5b7d69e35ff9deab5e6085efb3b32d57d233d7f4b01aa191d",
       "files": [
         {
           "path": "main/GUIDE.md",
-          "sha256": "8aa660ffba228864c4095a451122217249cfb932e6dbb2358086ad41a35825e3"
+          "sha256": "b1d21ece4c10ec075fd90820ba3cc8bdd0a82dc9417b2beef8fd5ed8853e3231"
         },
         {
           "path": "main/main.ino",
@@ -21,7 +21,7 @@
         },
         {
           "path": "main/src/board_config.h",
-          "sha256": "07b5bdd30dcc6258fe1022558554147e98f5bf3895e9e6fc55dbfcc27374fa81"
+          "sha256": "ec321ae64abad70b4a682ed88539f975670db875065e10bcdd14590b11a6545a"
         },
         {
           "path": "main/src/compute_links.h",
@@ -41,7 +41,7 @@
         },
         {
           "path": "main/PIN_MAP.md",
-          "sha256": "7383c093f64adcddbe7997094400b95cd4648b9799084d7cd44f1ec584b206e8"
+          "sha256": "84ea5a557f2c538fda955e0f7112ff550e2d3fe585db97c38bfd7cb6f6aae18b"
         },
         {
           "path": "main/INTEGRATION_CHECKLIST.md",
@@ -55,7 +55,7 @@
     },
     "slm_uart": {
       "archive": "slm_uart_uno_r3.zip",
-      "sha256": "2714462c9de8c78c9e6c9ad1c308d5d0fe3e7f7ce64fcd289194079bfc52ee9b",
+      "sha256": "bf24c34ba21dd6d5048bf28633212ee40fa21b4f9f8c8d8140d35915778e955e",
       "files": [
         {
           "path": "slm_uart/GUIDE.md",
@@ -115,7 +115,7 @@
         },
         {
           "path": "slm_uart/PIN_MAP.md",
-          "sha256": "7383c093f64adcddbe7997094400b95cd4648b9799084d7cd44f1ec584b206e8"
+          "sha256": "84ea5a557f2c538fda955e0f7112ff550e2d3fe585db97c38bfd7cb6f6aae18b"
         },
         {
           "path": "slm_uart/INTEGRATION_CHECKLIST.md",
@@ -129,7 +129,7 @@
     },
     "adas_i2c": {
       "archive": "adas_i2c_uno_r3.zip",
-      "sha256": "cac8db8bf8aedf08f50bc12f6de12cb982a40f15c96070b961cb4bd2682bd715",
+      "sha256": "e129e7d6a6bb45585743a2cee3f4c7af80a7b7362578f462e329a14216b0fea7",
       "files": [
         {
           "path": "adas_i2c/GUIDE.md",
@@ -173,7 +173,7 @@
         },
         {
           "path": "adas_i2c/PIN_MAP.md",
-          "sha256": "7383c093f64adcddbe7997094400b95cd4648b9799084d7cd44f1ec584b206e8"
+          "sha256": "84ea5a557f2c538fda955e0f7112ff550e2d3fe585db97c38bfd7cb6f6aae18b"
         },
         {
           "path": "adas_i2c/INTEGRATION_CHECKLIST.md",
@@ -187,7 +187,7 @@
     },
     "peripheral_spi": {
       "archive": "peripheral_spi_uno_r3.zip",
-      "sha256": "6b6a1c9ff208c4c82dae50db0f9ced903ff03366f49fbe8b5748c1cade0e6be7",
+      "sha256": "ea9bae8ddb9d672218ae3fb2528ef2c654136ed27e5fa5309fc2173bc4a4d16a",
       "files": [
         {
           "path": "peripheral_spi/GUIDE.md",
@@ -223,7 +223,7 @@
         },
         {
           "path": "peripheral_spi/PIN_MAP.md",
-          "sha256": "7383c093f64adcddbe7997094400b95cd4648b9799084d7cd44f1ec584b206e8"
+          "sha256": "84ea5a557f2c538fda955e0f7112ff550e2d3fe585db97c38bfd7cb6f6aae18b"
         },
         {
           "path": "peripheral_spi/INTEGRATION_CHECKLIST.md",

@@ -38,7 +38,7 @@ ALERT→4.7kΩ→MAIN5V 풀업 한 개. ADAS는 LOW만 구동합니다. MAIN↔A
 
 전진은 A IN1=HIGH/IN2=LOW, B IN3=HIGH/IN4=LOW이며 후진은 반대입니다. 차체에서 모터가 서로 거울 방향으로 장착돼 회전이 반대라면 전원을 끄고 해당 OUT 두 선을 바꾸거나 main/src/board_config.h의 INVERT_MOTOR_A/B를 조정합니다. 현재는 두 모터를 같이 전진/후진하며 좌우 조향 명령은 없습니다.
 
-Timer1 fast PWM8bit 약977Hz, OCR1A/B=180(약71%)이며 일반 주행 명령은 STOP 또는 안전/통신 취소까지 유지됩니다. 방향 반전100ms 무구동. STOP/ADAS는 PWM compare 연결과 네 방향 신호를 모두OFF로 합니다. 실제 모터의 관성까지 즉시 없애는 기계적 제동을 보증하지 않습니다. 전원 차단 때 enable이 떠 있지 않도록 ENA/ENB 외부10kΩ pulldown을 권장합니다.
+Timer1 fast PWM8bit 약977Hz, OCR1A/B=255(100%)이며 일반 주행 명령은 STOP 또는 안전/통신 취소까지 유지됩니다. 방향 반전100ms 무구동. STOP/ADAS는 PWM compare 연결과 네 방향 신호를 모두OFF로 합니다. 실제 모터의 관성까지 즉시 없애는 기계적 제동을 보증하지 않습니다. 전원 차단 때 enable이 떠 있지 않도록 ENA/ENB 외부10kΩ pulldown을 권장합니다.
 
 ## ADAS → HC-SR04
 
