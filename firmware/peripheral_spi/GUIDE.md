@@ -27,13 +27,13 @@
 
 SPI 한 트랜잭션은 SS LOW 동안 정확히 32바이트다. MAIN은 요청을 전송한 뒤 주변장치 루프가 처리할 시간을 두고 더미 32바이트를 읽어 요청 id가 일치하는 응답을 확인한다. 더미 첫 바이트는 0xa5를 피한다. 응답은 현재 읽는 동안 바뀌지 않는 이중 버퍼이며 최대 두 요청이 대기할 수 있다. 큐 오버플로는 OFF와 재동기화 요구로 처리한다. 한 번 전송한 명령의 같은 id 재전송은 내용까지 같아야 한다.
 
-ACTUATE_BATCH는 len11+count(session32, epoch32, count8, intents[count], duration16)이고 MAIN은 전체 계획을 보낸다. 0/1은 표시용, 3/4는 LED, 8/9는 부저다. 정상 입력에서 2(ALL_STOP)가 있으면 알려진 라벨 0..9와 그 충돌보다 우선하여 전체 OFF로 ACK한다. 5/6(와이퍼), 7(UNKNOWN), 충돌은 STOP이 없는 전체 배치를 거부하고 OFF한다. 9보다 큰 ID는 STOP이 있어도 거부한다. duration은 파싱하지만 이 보드의 모터 lease를 만들지 않는다.
+ACTUATE_BATCH는 len11+count(session32, epoch32, count8, intents[count], duration16)이고 MAIN은 최대 4개 intent의 전체 계획을 보낸다. 0/1은 표시용, 3/4는 LED, 8/9는 부저다. 정상 입력에서 2(ALL_STOP)가 있으면 알려진 라벨 0..9와 그 충돌보다 우선하여 전체 OFF로 ACK한다. 5/6(와이퍼), 7(UNKNOWN), 충돌은 STOP이 없는 전체 배치를 거부하고 OFF한다. 9보다 큰 ID는 STOP이 있어도 거부한다. duration은 파싱하지만 이 보드의 모터 lease를 만들지 않는다.
 
 STATUS와 HEARTBEAT는 len4 SID다. ACK와 STATUS_REPLY는 len18이고 drive=0, wiper=0, servo=0이다. LED·horn은 이 보드의 적용 상태다. flags bit2는 현재 ALERT LOW, bit3는 재동기화 필요, bit4는 LCD fault다. 마지막 적용 command16과 stopSources16이 이어진다. LCD fault는 진단이며 안전한 명령의 LED·부저 적용을 막지 않는다.
 
 ALERT의 INT0 하강 ISR은 즉시 D3/D4와 부저 타이머를 끄고 sticky 이벤트를 남긴다. LOW→HIGH 짧은 펄스 이후에도 OFF가 유지되며, **현재 ALERT가 HIGH이고 STOP_ALL len10에 엄격하게 증가한 epoch가 있어야** 재동기화를 해제한다. 같거나 오래된 STOP으로 해제하지 않는다. 오래된 ACTUATE epoch는 거부한다. MAIN과 마지막 정상 연락 이후 2000 ms가 지나면 OFF와 재동기화 요구로 전환하고 SID는 유지한다. ALERT 해제·HELLO·HEARTBEAT만으로 출력이 복구되지 않는다.
 
-STATE_SYNC len22는 MAIN의 상태 스냅샷을 LCD용으로 저장하고 ACK len2를 반환한다. 자체 출력·안전 epoch를 바꾸지 않는다. LCD 첫 줄은 MAIN의 적용 drive/LED/horn 상태, 두 번째 줄은 epoch와 stopSources를 5자리로 표시한다. MAIN의 appliedKnown이 false이면 drive는 `?`, 자체 안전 억제가 있으면 마지막 칸에 `!`를 표시한다. STATE_SYNC 수신 전에는 주변장치 자체 LED/horn/epoch를 표시한다.
+STATE_SYNC len22는 MAIN의 상태 스냅샷을 LCD용으로 저장하고 ACK len2를 반환한다. 자체 출력·안전 epoch를 바꾸지 않는다. 이전 revision, 같은 revision에 다른 내용, 현재 안전 epoch 또는 이전 스냅샷보다 오래된 안전 epoch는 거부한다. 완전히 동일한 스냅샷 재전송은 ACK한다. LCD 첫 줄은 MAIN의 적용 drive/LED/horn 상태, 두 번째 줄은 epoch와 stopSources를 5자리로 표시한다. MAIN의 appliedKnown이 false이면 drive는 `?`, 자체 안전 억제가 있으면 마지막 칸에 `!`를 표시한다. STATE_SYNC 수신 전에는 주변장치 자체 LED/horn/epoch를 표시한다.
 
 LCD는 시작 후 최소 40 ms를 기다리고 4비트 3,3,3,2 웨이크 순서를 수행한다. 모든 데이터/일반 명령 사이 최소 1 ms, clear 이후 최소 2 ms를 둔다. 루프마다 TWI 상태 전이 하나만 진행한다. 한 전송이 5 ms 내에 끝나지 않거나 NACK이면 LCD fault를 기록하고 1000 ms 후 초기화부터 재시도한다. TWI 대기·LCD 지연 중 인터럽트를 막거나 반복 대기하지 않으므로 SPI/ALERT 처리를 계속한다. 실물 LCD 명암은 백팩 가변저항으로 조절한다.
 
@@ -52,4 +52,4 @@ c++ -std=c++17 -Wall -Wextra -Werror -Ifirmware/tests/topology_peripheral_fake_a
 /tmp/peripheral-lcd
 ```
 
-검증 시 활성 부저: flash 6042 bytes / static SRAM 448 bytes, 수동 부저: flash 6046 bytes / static SRAM 448 bytes. 런타임 스택 여유는 측정값이 아니다.
+검증 시 활성 부저: flash 6260 bytes / static SRAM 448 bytes, 수동 부저: flash 6264 bytes / static SRAM 448 bytes. 런타임 스택 여유는 측정값이 아니다.

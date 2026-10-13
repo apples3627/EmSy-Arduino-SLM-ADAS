@@ -28,12 +28,12 @@ class Engine {
    contact_=now;Proto::peripheralMeta(out,sid_,Proto::id(req));return true;
   }
   if(op!=Proto::ACTUATE_BATCH&&op!=Proto::STOP_ALL&&op!=Proto::STATUS&&op!=Proto::HEARTBEAT&&op!=Proto::STATE_SYNC)return error(req,out,Proto::BAD_OP);
-  if(op==Proto::ACTUATE_BATCH){if(Proto::len(req)<12||p[8]<1||p[8]>10||Proto::len(req)!=11+p[8])return error(req,out,Proto::BAD_LENGTH);}
+  if(op==Proto::ACTUATE_BATCH){if(Proto::len(req)<12||p[8]<1||p[8]>4||Proto::len(req)!=11+p[8])return error(req,out,Proto::BAD_LENGTH);}
   else if(Proto::len(req)!=(op==Proto::STOP_ALL?10:op==Proto::STATE_SYNC?22:4))return error(req,out,Proto::BAD_LENGTH,op!=Proto::STATE_SYNC);
   if(!sid_||Proto::get32(p)!=sid_)return error(req,out,Proto::BAD_SESSION,op!=Proto::STATE_SYNC);
   contact_=now;
   if(op==Proto::STATUS||op==Proto::HEARTBEAT){status(out,Proto::STATUS_REPLY,Proto::id(req));return true;}
-  if(op==Proto::STATE_SYNC){Proto::SharedState s;if(!Proto::decodeState(req,s))return error(req,out,Proto::BAD_LENGTH,false);if(!snapshotValid_||s.revision>=snapshot_.revision){snapshot_=s;snapshotValid_=true;}Proto::ack(out,req);return true;}
+  if(op==Proto::STATE_SYNC){Proto::SharedState s;if(!Proto::decodeState(req,s))return error(req,out,Proto::BAD_LENGTH,false);if(s.safetyEpoch<epoch_||(snapshotValid_&&s.safetyEpoch<snapshot_.safetyEpoch))return error(req,out,Proto::STALE_SAFETY,false);if(snapshotValid_){if(s.revision<snapshot_.revision)return error(req,out,Proto::OLD_COMMAND,false);if(s.revision==snapshot_.revision){uint8_t canonical[22];Proto::encodeState(canonical,snapshot_);if(memcmp(canonical,p,22))return error(req,out,Proto::BAD_OP,false);Proto::ack(out,req);return true;}}snapshot_=s;snapshotValid_=true;Proto::ack(out,req);return true;}
   uint32_t ep=Proto::get32(p+4);uint16_t id=Proto::id(req);
   if(op==Proto::STOP_ALL){
    if(ep<epoch_)return error(req,out,Proto::STALE_SAFETY);
