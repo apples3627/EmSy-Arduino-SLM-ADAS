@@ -5,3 +5,6 @@ __pycache__/
 tmp/pdfs/
 
 .DS_Store
+
+# Extracted ZIP copies; canonical board sources are under firmware/<role>.
+firmware/packages/*/
