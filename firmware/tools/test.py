@@ -10,6 +10,10 @@ with tempfile.TemporaryDirectory() as td:
   exe=Path(td)/name
   cmd=['c++','-std=c++17','-O2','-Wall','-Wextra','-Werror','-I'+str(ROOT/'firmware/tests/topology_peripheral_fake_avr'),str(ROOT/f'firmware/tests/topology_peripheral_{name}_test.cpp'),'-o',str(exe)]
   subprocess.run(cmd,check=True);subprocess.run([str(exe)],check=True)
+with tempfile.TemporaryDirectory() as td:
+ exe=Path(td)/'uart_repair'
+ subprocess.run(['c++','-std=c++17','-O2','-Wall','-Wextra','-I'+str(ROOT/'firmware/verification/topology4/fake_avr'),str(ROOT/'firmware/tests/uart_repair_test.cpp'),str(ROOT/'firmware/tests/uart_repair_peer.cpp'),'-o',str(exe)],check=True)
+ subprocess.run([str(exe)],check=True)
 subprocess.run([sys.executable,str(ROOT/'firmware/verification/topology4/run.py')],cwd=ROOT,check=True)
 patterns=[r'\b(?:Serial|Wire|SPI)\s*\.',r'\b(?:digitalWrite|digitalRead|analogWrite|analogRead|millis|micros|delay|delayMicroseconds|tone|noTone)\s*\(',r'#\s*include\s*[<"](?:Servo|SoftwareSerial|Wire|SPI)\.h']
 for role in ('main','slm_uart','adas_i2c','peripheral_spi'):

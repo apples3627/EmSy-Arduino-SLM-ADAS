@@ -49,3 +49,5 @@ python3 firmware/tools/package.py
 컴파일·호스트 모델/통신/레지스터 검증을 완료한 코드입니다. 실제 네 보드 연결·LCD/부저 모델 확인·전기 파형·모터 구동 및 실행 스택 최대값은 팀 실물 시험이 필요합니다. 자동 업로드는 하지 않습니다. build_sizes.json의 SRAM 여유는 정적 linker 값입니다.
 
 이전 `slm_spi/actuator_uart/compute_i2c/compute_spi`와 이전 이름 ZIP은 재현용 기록입니다. 현재 manifest에는 위 네 역할만 있습니다. `0_web`은 격리된2026-10-12 이전 배치의 설명 snapshot이며 새 핀 배선 기준으로 사용하지 않습니다.
+
+현재 PC UART 터미널은 `python3 firmware/tools/uart_cli.py <SLM_USB포트>`로 실행합니다. `!status`/`!diag` 진단은 [통신 점검](reports/UART_TROUBLESHOOT.md)을 참고합니다.

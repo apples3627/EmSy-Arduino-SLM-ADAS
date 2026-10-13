@@ -23,7 +23,8 @@ class Engine {
   if(op==Proto::HELLO){
    if(Proto::len(req)!=9)return error(req,out,Proto::BAD_LENGTH);
    if(Proto::get32(p+4)!=Proto::MODEL_ID||p[8]!=Proto::LABELS_VERSION)return error(req,out,Proto::BAD_MODEL);
-   uint32_t sid=Proto::get32(p);if(!sid||sid==0xffffffffUL||(sid!=sid_&&sid<=highest_))return error(req,out,Proto::BAD_SESSION);
+   uint32_t sid=Proto::get32(p);if(!sid||sid==0xffffffffUL)return error(req,out,Proto::BAD_SESSION);
+   if(sid!=sid_&&sid<=highest_){off();uint8_t hint[6]={Proto::HELLO,Proto::BAD_SESSION};Proto::put32(hint+2,highest_);Proto::make(out,Proto::ERROR_REPLY,Proto::id(req),0,hint,6);return true;}
    if(sid!=sid_){off();sid_=highest_=sid;epoch_=0;last_=0;accepted_=false;sync_=true;sources_=Proto::BOOT_STOP;persist_=true;snapshotValid_=false;}
    contact_=now;Proto::peripheralMeta(out,sid_,Proto::id(req));return true;
   }

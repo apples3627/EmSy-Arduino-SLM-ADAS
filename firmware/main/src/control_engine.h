@@ -18,11 +18,14 @@ class Controller {
  void sendStopP(){uint8_t p[10];Proto::put32(p,state.session);Proto::put32(p+4,state.safetyEpoch);Proto::put16(p+8,state.stopSources);Proto::Frame f;Proto::make(f,Proto::STOP_ALL,nextP(),0,p,10);requestP(f);}
  void sendBatchP(){uint8_t p[15];Proto::put32(p,state.session);Proto::put32(p+4,state.safetyEpoch);p[8]=actionCount;for(uint8_t i=0;i<actionCount;i++)p[9+i]=actions[i];Proto::put16(p+9+actionCount,duration);Proto::Frame f;Proto::make(f,Proto::ACTUATE_BATCH,nextP(),0,p,uint8_t(11+actionCount));requestP(f);}
  public:
- Proto::SharedState state;Queue uart,periph;int8_t motorDirection;bool pending,reversing,ready,adasClear,slmReady,periphReady,periphSafe;uint8_t peripheralFlags;uint32_t generation;
+ Proto::SharedState state;Queue uart,periph;int8_t motorDirection;bool pending,reversing,ready,adasClear,slmReady,periphReady,periphSafe;uint8_t peripheralFlags;uint32_t generation;uint8_t diagnosticCause,lastPeerError;bool rotateSessionRequested;uint32_t proposedSession;
  Controller(){init(1,0);}
- void init(uint32_t session,uint32_t now){now_=uAt=pAt=pollAt=heartbeatAt=syncAt=pSyncAt=adasAt=sampleAt=reversalAt=driveAt=now;sample=lastU=pCounter=0;duration=500;pRetries=adasFlags=adasCount=0;adasAge=0xffff;sampleKnown=adasMeta=adasHealthy=haveLastU=uReplyValid=false;physicalLow=blocked=needStop=true;pWaiting=false;state={session,1,1,0,0,0,0,0,Proto::BOOT_STOP,false,12};motorDirection=0;pending=reversing=ready=adasClear=slmReady=periphReady=periphSafe=false;peripheralFlags=12;generation=0;actionCount=0;stagedDrive=0;stagedFlags=0;uart.clear();periph.clear();helloU();helloP();}
+ void init(uint32_t session,uint32_t now){now_=uAt=pAt=pollAt=heartbeatAt=syncAt=pSyncAt=adasAt=sampleAt=reversalAt=driveAt=now;sample=lastU=pCounter=0;duration=500;pRetries=adasFlags=adasCount=0;adasAge=0xffff;sampleKnown=adasMeta=adasHealthy=haveLastU=uReplyValid=false;physicalLow=blocked=needStop=true;pWaiting=false;state={session,1,1,0,0,0,0,0,Proto::BOOT_STOP,false,12};motorDirection=0;pending=reversing=ready=adasClear=slmReady=periphReady=periphSafe=false;peripheralFlags=12;generation=0;diagnosticCause=lastPeerError=0;rotateSessionRequested=false;proposedSession=0;actionCount=0;stagedDrive=0;stagedFlags=0;uart.clear();periph.clear();helloU();helloP();}
+ void note(uint8_t cause){diagnosticCause=cause;}
+ uint8_t linkBits()const{return (slmReady?1:0)|(periphReady?2:0)|(periphSafe?4:0)|(adasMeta?8:0)|(adasHealthy?16:0)|(adasClear?32:0)|(physicalLow?64:0)|(ready?128:0);}
+ uint16_t sampleAge(uint32_t now)const{uint32_t age=uint32_t(adasAge)+uint32_t(now-adasAt);return age>65535?65535:uint16_t(age);}
  void stop(uint16_t sources,uint32_t now){now_=now;motorDirection=0;pending=reversing=false;generation++;state.desiredDrive=0;state.desiredFlags=0;state.appliedKnown=false;state.stopSources=sources;if(state.safetyEpoch!=0xffffffffUL)state.safetyEpoch++;periphSafe=false;needStop=true;bool keepHello=!periphReady&&pWaiting&&Proto::op(pRequest)==Proto::HELLO;if(!keepHello){periph.clear();pWaiting=false;}changed();}
- void alert(bool low,bool sticky,uint32_t now){now_=now;physicalLow=low;if(sticky||(low&&!blocked)){blocked=true;adasClear=false;stop(Proto::ADAS_OBSTACLE,now);}flags();}
+ void alert(bool low,bool sticky,uint32_t now){now_=now;physicalLow=low;if(sticky||(low&&!blocked)){blocked=true;adasClear=false;note(Proto::ALERT_EVENT);stop(Proto::ADAS_OBSTACLE,now);}flags();}
  bool acceptUART(const Proto::Frame& f,uint32_t now){now_=now;if(!Proto::valid(f)||Proto::seq(f))return false;
   if(Proto::op(f)==Proto::SLM_META){if(!Proto::slmCompatible(f,state.session))return false;slmReady=true;uAt=now;changed();return true;}
   const uint8_t* p=Proto::payload(f);
@@ -50,11 +53,15 @@ class Controller {
  }
  bool acceptPeripheral(const Proto::Frame& f,const Proto::Frame& request,uint32_t now){now_=now;if(!Proto::valid(f))return false;
   if(Proto::op(request)==Proto::HELLO&&Proto::peripheralCompatible(f,state.session)){periphReady=true;pWaiting=false;pollAt=now;return true;}
-  if(!pWaiting||memcmp(request.bytes,pRequest.bytes,32)||Proto::id(f)!=Proto::id(request))return false;
-  if(Proto::op(f)==Proto::ERROR_REPLY){if(Proto::len(f)==2&&Proto::payload(f)[0]==Proto::op(request)){pWaiting=false;periphReady=false;stop(Proto::COMM_FAULT,now);}return false;}
+  if(!pWaiting||memcmp(request.bytes,pRequest.bytes,32)||Proto::id(f)!=Proto::id(request)||Proto::seq(f)!=Proto::seq(request))return false;
+  if(Proto::op(f)==Proto::ERROR_REPLY){const uint8_t* ep=Proto::payload(f);uint8_t n=Proto::len(f);if((n==2||n==6)&&ep[0]==Proto::op(request)){
+   if(n==6&&Proto::op(request)==Proto::HELLO&&ep[1]==Proto::BAD_SESSION&&Proto::get32(ep+2)<state.session)return false;
+   lastPeerError=ep[1];note(Proto::SPI_PEER_ERROR);pWaiting=false;periphReady=false;stop(Proto::COMM_FAULT,now);
+   if(Proto::op(request)==Proto::HELLO&&ep[1]==Proto::BAD_SESSION){uint32_t highest=n==6?Proto::get32(ep+2):state.session;if(highest<state.session)highest=state.session;if(highest<0xfffffffeUL){proposedSession=highest+1;rotateSessionRequested=true;note(Proto::SPI_SESSION_RECOVERY);}}
+  }return false;}
   if(Proto::op(request)==Proto::STATE_SYNC){bool ok=Proto::op(f)==Proto::ACK&&Proto::len(f)==2&&Proto::payload(f)[0]==Proto::STATE_SYNC&&!Proto::payload(f)[1];if(ok){pWaiting=false;pSyncAt=now;}return ok;}
   const uint8_t* p=Proto::payload(f);if(Proto::len(f)!=18||Proto::get32(p)!=state.session||Proto::get32(p+4)!=state.safetyEpoch||p[8]||p[10]||p[12])return false;
-  if(Proto::op(request)==Proto::STATUS){if(Proto::op(f)!=Proto::STATUS_REPLY)return false;pWaiting=false;pollAt=now;peripheralFlags=p[13];if((p[13]&12)&&!needStop){stop(Proto::COMM_FAULT,now);return true;}return true;}
+  if(Proto::op(request)==Proto::STATUS){if(Proto::op(f)!=Proto::STATUS_REPLY)return false;pWaiting=false;pollAt=now;peripheralFlags=p[13];if((p[13]&12)&&!needStop){note(Proto::SPI_INHIBITED);stop(Proto::COMM_FAULT,now);return true;}return true;}
   if(Proto::op(f)!=Proto::ACK||Proto::get16(p+14)!=Proto::id(request)||(p[13]&1))return false;
   pWaiting=false;pollAt=now;peripheralFlags=p[13];
   if(Proto::op(request)==Proto::STOP_ALL){if(p[9]||p[11]){stop(Proto::COMM_FAULT,now);return false;}motorDirection=0;state.appliedDrive=0;state.appliedFlags=0;state.appliedKnown=true;periphSafe=!(p[13]&12);needStop=!periphSafe;changed();if(haveLastU&&Proto::op(uRequest)==Proto::STOP_ALL)statusU(Proto::ACK,lastU);return true;}
@@ -70,11 +77,11 @@ class Controller {
   adasHealthy=Proto::op(f)==Proto::ADAS_STATUS_REPLY&&Proto::len(f)==18&&p[0]==Proto::ADAS_ROLE&&p[8]==20&&p[9]==25&&p[11]==3&&Proto::get16(p+12)==70;
   if(!adasHealthy)return false;adasFlags=p[1];adasAge=Proto::get16(p+6);adasCount=p[10];adasAt=now;uint16_t n=Proto::get16(p+4);if(!sampleKnown||Proto::newer16(n,sample)){sample=n;sampleKnown=true;sampleAt=now;}return true;
  }
- void tick(uint32_t now){now_=now;bool safe=freshADAS();adasClear=safe;if(!safe&&!blocked){blocked=true;uint16_t source=(adasFlags&2)?Proto::ADAS_OBSTACLE:Proto::ADAS_SENSOR_FAULT;stop(source,now);}else if(safe&&blocked){blocked=false;stop(Proto::BOOT_STOP,now);}
-  if(slmReady&&elapsed(now,uAt,2000)){slmReady=false;stop(Proto::COMM_FAULT,now);}
+ void tick(uint32_t now){now_=now;bool safe=freshADAS();adasClear=safe;if(!safe&&!blocked){blocked=true;note(Proto::ADAS_UNHEALTHY);uint16_t source=(adasFlags&2)?Proto::ADAS_OBSTACLE:Proto::ADAS_SENSOR_FAULT;stop(source,now);}else if(safe&&blocked){blocked=false;stop(Proto::BOOT_STOP,now);}
+  if(slmReady&&elapsed(now,uAt,2000)){slmReady=false;note(Proto::UART_WATCHDOG);stop(Proto::COMM_FAULT,now);}
   if(motorDirection&&elapsed(now,driveAt,duration)){motorDirection=0;state.desiredDrive=state.appliedDrive=0;state.stopSources=Proto::DRIVE_LEASE;changed();}
-  if(pWaiting&&elapsed(now,pAt,300)){if(pRetries<2){if(periph.push(pRequest)){pRetries++;pAt=now;}}else{pWaiting=false;periphReady=false;stop(Proto::COMM_FAULT,now);}}
-  if(!pWaiting){if(!periphReady)helloP();else if(needStop){if(!blocked||!state.appliedKnown||elapsed(now,pollAt,300))sendStopP();}else if(pending){if(!reversing||elapsed(now,reversalAt,100)){reversing=false;sendBatchP();}}else if(elapsed(now,pollAt,100)){uint8_t p[4];Proto::put32(p,state.session);Proto::Frame f;Proto::make(f,Proto::STATUS,nextP(),0,p,4);requestP(f);}else if(elapsed(now,pSyncAt,500)){uint8_t p[22];Proto::encodeState(p,state);Proto::Frame f;Proto::make(f,Proto::STATE_SYNC,nextP(),0,p,22);requestP(f);}}
+  if(pWaiting&&elapsed(now,pAt,300)){if(pRetries<2){if(periph.push(pRequest)){pRetries++;pAt=now;}}else{pWaiting=false;periphReady=false;note(Proto::SPI_TIMEOUT);stop(Proto::COMM_FAULT,now);}}
+  if(!pWaiting){if(!periphReady)helloP();else if(needStop){if(!blocked||!state.appliedKnown||elapsed(now,pollAt,300))sendStopP();}else if(pending){if(!reversing||elapsed(now,reversalAt,100)){reversing=false;sendBatchP();}}else if(elapsed(now,pSyncAt,500)){uint8_t p[22];Proto::encodeState(p,state);Proto::Frame f;Proto::make(f,Proto::STATE_SYNC,nextP(),0,p,22);requestP(f);}else if(elapsed(now,pollAt,100)){uint8_t p[4];Proto::put32(p,state.session);Proto::Frame f;Proto::make(f,Proto::STATUS,nextP(),0,p,4);requestP(f);}}
   flags();if(elapsed(now,heartbeatAt,250)){if(!slmReady)helloU();else{uint8_t p[22];Proto::encodeState(p,state);Proto::Frame f;Proto::make(f,Proto::STATE_SYNC,0,0,p,22);u(f);Proto::put32(p,state.session);Proto::make(f,Proto::STATUS,0,0,p,4);u(f);heartbeatAt=now;}}
   if(slmReady&&elapsed(now,syncAt,500)){uint8_t p[22];Proto::encodeState(p,state);Proto::Frame f;Proto::make(f,Proto::STATE_SYNC,0,0,p,22);u(f);syncAt=now;}
  }
