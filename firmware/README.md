@@ -38,7 +38,7 @@ python3 firmware/tools/uart_cli.py /dev/cu.usbmodemXXXX
 
 `!status`의 ready/aux/adas_mode와 LINK를 확인합니다. `!diag`는 누적 오류와 마지막 원인이며 cause는 복구 후에도 남을 수 있습니다. `!i2c`에서 error0/version5는 새 버스 프레임, flags21은 startup+fault+ALERT로 정상 거리 측정이 없다는 뜻입니다. BYPASS에서는 이것만으로 READY를 막지 않습니다. TWSR32/72는 주소NACK,88은 마지막 읽기 완료입니다. 자세한 오류 번호는 MAIN 지침을 참고하세요.
 
-[핀 연결표](PIN_MAP.md) · [실물 시험 순서](INTEGRATION_CHECKLIST.md) · [독립 검증 보고](reports/PARTIAL5_INDEPENDENT.md)
+[핀 연결표](PIN_MAP.md) · [실물 시험 순서](INTEGRATION_CHECKLIST.md) · [독립 검증 보고](reports/PARTIAL5_INDEPENDENT.md) · [지속 주행 수정 검증](reports/CONTINUOUS_MOTION.md)
 
 ```sh
 python3 firmware/tools/test.py
