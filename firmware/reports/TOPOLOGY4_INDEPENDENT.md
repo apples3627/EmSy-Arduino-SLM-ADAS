@@ -91,3 +91,7 @@ role-local sketch names and every quoted source include. Source files matched
 their archives, allowing only the documented GUIDE link normalization for ZIP
 contents. Static SRAM spare is a linker value, not a measured runtime stack.
 Hardware behavior, actual baud timing and motor load remain unverified.
+
+## Root integration check
+
+The root tool `python3 firmware/tools/test.py` also passed the SLM planner/session tests, 33-phrase independent float32 parity (max error0), peripheral engine/LCD/register tests and all11 independent host checks on the integrated checkout. `results.json` records the latest host rerun; `frozen_results.json` preserves the independent source21057b2 full run with four source Uno builds and four extracted ZIP builds. Firmware sources were unchanged between these runs. Current source/build/package records are protocol4, labels3, model95616d56.

@@ -15,3 +15,9 @@ GitHub 비공개 저장소: https://github.com/apples3627/EmSy-Arduino-SLM-ADAS 
 `adas-verified-2026-10-10` 태그는 MAIN + full SLM_SPI + HC-SR04 ADAS_I2C + ACTUATOR_UART 구조의 검증 완료 배포를 가리킵니다.20cm 정지,25cm 이상3회 해제, 공통 ALERT 인터럽트, 안전 epoch 및 desired/applied snapshot을 포함합니다. 동일 모델95616d56을 사용하며 재학습은 없습니다.
 
 독립 검증8개, 구현 레지스터 회귀2개, Python 모델33개 parity, 네 Uno 빌드와 배포 ZIP4개 hash/독립컴파일을 통과했습니다. 실제 네 보드 업로드·파형·스택 최고값은 미검증입니다. 변경 전 태그와 최종 태그 모두 비공개 origin에 보관합니다.
+
+## 2026-10-13: PC → SLM UART → MAIN 배치 변경
+
+변경 전 전체 정본은8981aa5(브라우저 설명 포함)이며 `before-pc-slm-topology-2026-10-13` 태그로 보관합니다. 현재 배포는 MAIN + SLM_UART + ADAS_I2C + PERIPHERAL_SPI이고 protocol4/labels3/model95616d56입니다. MAIN이 L298N 두 모터를 구동하며 와이퍼는 보류합니다.
+
+`topology4-verified-2026-10-13` 태그는 독립11host검증, 네 Uno source빌드, ZIP4개hash/독립include/압축해제빌드, 추가NN33문장parity와역할별회귀를통과한현재배포입니다. 실제보드업로드/부품확인/파형/모터시험은미수행입니다. GitHub 저장소의비공개여부를확인한후업로드합니다.
