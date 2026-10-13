@@ -13,12 +13,29 @@ class Lcd {
  void fail(uint32_t now){TWCR=0;TWCR=_BV(TWEN);bus_=0;fault_=true;initialized_=false;init_=0;cursor_=0;command_=true;due_=now+1000;memset(shown_,0,32);}
  void done(uint32_t now){bus_=0;if(!initialized_){init_++;static const uint8_t waits[8]={0,5,1,1,1,1,1,2};due_=now+(init_<8?waits[init_]:2);if(init_==8){initialized_=true;fault_=false;cursor_=0;command_=true;}}
   else {if(command_)command_=false;else {shown_[cursor_]=char(pendingValue_);cursor_=(cursor_+1)&31;command_=true;}due_=now+1;}}
- static void decimal(char* p,uint32_t value){value%=100000;for(int8_t i=4;i>=0;i--){p[i]=char('0'+value%10);value/=10;}}
+
  public:
  Lcd():bus_(0),count_(0),sent_(0),init_(0),cursor_(0),started_(0),due_(40),fault_(false),initialized_(false),command_(true){memset(wanted_,' ',32);memset(shown_,0,32);}
  void setup(uint32_t now){TWBR=72;TWSR=0;TWCR=_BV(TWEN);due_=now+40;}
  bool fault()const{return fault_;} bool busy()const{return bus_!=0;}
- void display(const Engine& engine){memcpy(wanted_,"DRV:? LED:0 H:0  ",16);memcpy(wanted_+16,"E:00000 S:00000 ",16);const Proto::SharedState& s=engine.snapshot();wanted_[10]=engine.outputs().lights?'1':'0';wanted_[14]=engine.outputs().horn?'1':'0';if(engine.hasSnapshot()){wanted_[4]=s.appliedKnown&&s.safetyEpoch==engine.epoch()&&!engine.inhibited()?(s.appliedDrive>0?'F':s.appliedDrive<0?'R':'0'):'?';decimal(wanted_+18,engine.inhibited()?engine.epoch():s.safetyEpoch);decimal(wanted_+26,s.stopSources);}else {decimal(wanted_+18,engine.epoch());}if(engine.inhibited())wanted_[31]='!';}
+ void display(const Engine& engine){display(engine,engine.clock());}
+ void display(const Engine& engine,uint32_t now){
+  memcpy(wanted_,"DIST:---.-cm N/A",16);memcpy(wanted_+16,"M:? L:0 H:0 A:? ",16);
+  const Proto::SensorTelemetry& sensor=engine.sensor();const char* status="N/A";
+  if(engine.hasSensor()&&(sensor.flags&Proto::SENSOR_PRESENT)){
+   bool range=sensor.rangeMm>=20&&sensor.rangeMm<=4000;
+   if(range){uint16_t cm=sensor.rangeMm/10;wanted_[5]=cm>=100?char('0'+cm/100):' ';wanted_[6]=cm>=10?char('0'+cm/10%10):' ';wanted_[7]=char('0'+cm%10);wanted_[9]=char('0'+sensor.rangeMm%10);}
+   if(sensor.flags&(Proto::SENSOR_ERROR|Proto::SENSOR_STARTUP))status="ERR";
+   else if(engine.sensorStale(now))status="STA";
+   else if(!range||!(sensor.flags&Proto::SENSOR_FRESH))status="ERR";
+   else status=(sensor.flags&Proto::SENSOR_OBSTACLE)?"STP":"OK ";
+  }
+  memcpy(wanted_+13,status,3);
+  const Proto::SharedState& state=engine.snapshot();
+  if(engine.hasSnapshot()&&state.appliedKnown&&state.safetyEpoch==engine.epoch()&&!engine.inhibited())wanted_[18]=state.appliedDrive>0?'F':state.appliedDrive<0?'R':'0';
+  wanted_[22]=engine.outputs().lights?'1':'0';wanted_[26]=engine.outputs().horn?'1':'0';wanted_[30]=engine.policyConfigured()?(engine.bypass()?'B':'Y'):'?';
+ }
+
  void poll(uint32_t now){
   if(bus_){if(uint32_t(now-started_)>=5){fail(now);return;}if(bus_==4){if(!(TWCR&_BV(TWSTO)))done(now);return;}if(!(TWCR&_BV(TWINT)))return;uint8_t status=TWSR&0xf8;
    if(bus_==1){if(status!=0x08&&status!=0x10){fail(now);return;}TWDR=PERIPHERAL_LCD_ADDRESS<<1;TWCR=_BV(TWINT)|_BV(TWEN);bus_=2;return;}

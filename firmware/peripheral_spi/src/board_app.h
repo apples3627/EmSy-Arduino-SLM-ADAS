@@ -13,7 +13,7 @@ uint32_t eepromSession=0;uint8_t eepromIndex=4;
 inline uint32_t now(){uint8_t saved=SREG;cli();uint32_t value=ticks;SREG=saved;return value;}
 inline bool alertLow(){return !(PIND&_BV(PD2));}
 inline void gateOff(){PORTD&=uint8_t(~(_BV(PD3)|_BV(PD4)));TIMSK2=0;}
-inline void outputs(){uint8_t saved=SREG;cli();if(alertLatch||alertLow()||engine.inhibited())gateOff();else {if(engine.outputs().lights)PORTD|=_BV(PD4);else PORTD&=uint8_t(~_BV(PD4));
+inline void outputs(){uint8_t saved=SREG;cli();if((engine.requiresAlert()&&(alertLatch||alertLow()))||engine.inhibited())gateOff();else {if(engine.outputs().lights)PORTD|=_BV(PD4);else PORTD&=uint8_t(~_BV(PD4));
 #if PERIPHERAL_ACTIVE_BUZZER
  TIMSK2=0;if(engine.outputs().horn)PORTD|=_BV(PD3);else PORTD&=uint8_t(~_BV(PD3));
 #else
@@ -36,15 +36,15 @@ inline void loop(){safety();uint32_t t=now();engine.tick(t);outputs();
  if(publish()){Proto::Frame request;if(receiver.queue.pop(request)){
   safety();uint8_t generation=alertGeneration;uint32_t before=engine.epoch();engine.handle(request,outgoing,t);
   // Only a successfully accepted strictly newer STOP can consume a sticky edge.
-  uint8_t saved=SREG;cli();bool release=Proto::valid(request)&&Proto::op(request)==Proto::STOP_ALL&&Proto::op(outgoing)==Proto::ACK&&engine.epoch()>before&&!engine.inhibited()&&!alertLow()&&generation==alertGeneration;if(release)alertLatch=0;bool raced=alertLatch||alertLow();SREG=saved;
+  uint8_t saved=SREG;cli();bool release=Proto::valid(request)&&Proto::op(request)==Proto::STOP_ALL&&Proto::op(outgoing)==Proto::ACK&&engine.epoch()>before&&!engine.inhibited()&&(!engine.requiresAlert()||(!alertLow()&&generation==alertGeneration));if(release)alertLatch=0;bool raced=engine.requiresAlert()&&(alertLatch||alertLow());SREG=saved;
   if(raced){safety();if(Proto::op(outgoing)==Proto::ACK&&Proto::len(outgoing)==18)engine.status(outgoing,Proto::ACK,Proto::id(request));}
   outputs();if(engine.takePersist()){eepromSession=engine.persistedSession();eepromIndex=0;}outgoingPending=true;publish();
  }}
- persistStep();lcd.display(engine);lcd.poll(t);engine.lcdFault(lcd.fault());outputs();
+ persistStep();lcd.display(engine,t);lcd.poll(t);engine.lcdFault(lcd.fault());outputs();
 }
 }
 ISR(TIMER0_COMPA_vect){PeripheralBoard::ticks++;}
-ISR(TIMER2_COMPA_vect){if(PeripheralBoard::alertLatch||PeripheralBoard::alertLow()){PeripheralBoard::gateOff();return;}PIND=_BV(PD3);}
-ISR(INT0_vect){PeripheralBoard::gateOff();PeripheralBoard::alertLatch=1;PeripheralBoard::alertGeneration++;}
+ISR(TIMER2_COMPA_vect){if(!PeripheralBoard::engine.outputs().horn){TIMSK2=0;PORTD&=uint8_t(~_BV(PD3));return;}if(PeripheralBoard::engine.inhibited()||(PeripheralBoard::engine.requiresAlert()&&(PeripheralBoard::alertLatch||PeripheralBoard::alertLow()))){PeripheralBoard::gateOff();return;}PIND=_BV(PD3);}
+ISR(INT0_vect){if(PeripheralBoard::engine.requiresAlert())PeripheralBoard::gateOff();PeripheralBoard::alertLatch=1;PeripheralBoard::alertGeneration++;}
 ISR(PCINT0_vect){using namespace PeripheralBoard;if(!(PINB&_BV(PB2))){reading=1;receiver.begin();SPDR=transmitter.begin(replies[active]);}else {if(SPSR&_BV(SPIF)){uint8_t b=SPDR;receiver.byte(b);}receiver.finish(true);reading=0;SPDR=replies[active].bytes[0];}}
 ISR(SPI_STC_vect){using namespace PeripheralBoard;uint8_t b=SPDR;if(reading){receiver.byte(b);SPDR=transmitter.next(replies[active]);}else SPDR=replies[active].bytes[0];}
